@@ -15,5 +15,3 @@ define('HP_ERROR_800.100.160', 'Bitte wählen Sie eine andere Zahlart');
 define('HP_ERROR_800.100.168', 'Bitte wählen Sie eine andere Zahlart');
 define('HP_ERROR_800.100.171', 'Bitte wählen Sie eine andere Zahlart');
 define('HP_ERROR_800.300.101', 'Bitte wählen Sie eine andere Zahlart');
-
-?>

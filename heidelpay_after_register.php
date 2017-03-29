@@ -1,5 +1,5 @@
 <?php
-require ('includes/application_top.php');
+require('includes/application_top.php');
 
 $payCodeBig = substr($_GET['code'], 0, 2);
 $payCode = strtolower($payCodeBig);

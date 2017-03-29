@@ -75,4 +75,3 @@ define($prefix.'ERROR_NO_PAYDATA', 'Please enter your payment information.');
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>

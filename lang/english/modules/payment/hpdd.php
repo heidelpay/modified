@@ -84,4 +84,3 @@ Please ensure that there will be sufficient funds on the corresponding account.'
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>

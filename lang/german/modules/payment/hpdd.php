@@ -84,4 +84,3 @@ Bitte sorgen Sie fuer ausreichende Deckung auf dem entsprechenden Konto.');
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');
-?>

@@ -72,4 +72,3 @@ define($prefix.'BARPAY_DOWNLOAD', '<br><br><a href="{LINK}" target="_blank"><img
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');
-?>

@@ -77,4 +77,3 @@ define($prefix.'DATA_SAVED', 'Ihre Daten wurden �bertragen.<br>Bitte fahren Si
 define($prefix.'ERROR_NO_PAYDATA', 'Bitte geben Sie Ihre Zahlungsinformationen ein.');
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');
-?>

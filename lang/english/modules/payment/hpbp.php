@@ -71,4 +71,3 @@ define($prefix.'BARPAY_INFO', 'Sicher, schnell und ohne Geb&uuml;hren: mit BarPa
 define($prefix.'BARPAY_DOWNLOAD', '<br><br><a href="{LINK}" target="_blank"><img src="/images/BarPay.jpg" border="0"><br>Klicken Sie hier um Ihren Barcode runterzuladen</a><br><br>Drucken Sie den Barcode aus oder speichern Sie diesen auf Ihrem mobilen Endger&auml;t. Gehen Sie nun zu einer Kasse der <b>18.000 Akzeptanzstellen in Deutschland</b> und bezahlen Sie ganz einfach in bar. <br><br>In dem Augenblick, wenn der Rechnungsbetrag beglichen wird, erh&auml;lt der Online-H&auml;ndler die Information &uuml;ber den Zahlungseingang. Die bestellte Ware oder Dienstleistung geht umgehend in den Versand.');
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>
