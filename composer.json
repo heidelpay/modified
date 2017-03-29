@@ -35,6 +35,29 @@
       "SlowProg\\CopyFile\\ScriptHandler::copy"
     ]
   },
+  "extra": {
+    "copy-file": {
+      "admin/includes/modules/export/": "admin/include/modules/export/",
+      "images/ladebalken.gif": "images/ladebalken.gif",
+      "includes/classes/class.heidelpay.php": "includes/classes/class.heidelpay.php",
+      "includes/modules/payment/": "includes/modules/payment/",
+      "lang/english/modules/payment/": "lang/english/modules/payment/",
+      "lang/german/modules/payment/": "lang/german/modules/payment/",
+      "heidelpay_3dsecure.php": "heidelpay_3dsecure.php",
+      "heidelpay_3dsecure_return.php": "heidelpay_3dsecure_return.php",
+      "heidelpay_after_register.php": "heidelpay_after_register.php",
+      "heidelpay_checkout_iframe.php": "heidelpay_checkout_iframe.php",
+      "heidelpay_gm_checkout_iframe.php": "heidelpay_gm_checkout_iframe.php",
+      "heidelpay_iframe.php": "heidelpay_iframe.php",
+      "heidelpay_redirect.php": "heidelpay_redirect.php",
+      "heidelpay_reg_style.css": "heidelpay_reg_style.css",
+      "heidelpay_style.css": "heidelpay_style.css",
+      "heidelpay_success.inc.php": "heidelpay_success.inc.php",
+      "heidelpay_success.php": "heidelpay_success.php",
+      "LICENSE.txt": "includes/external/heidelpay/",
+      "README.md": "includes/external/heidelpay/"
+    }
+  },
   "keywords": [
     "modified",
     "modified eCommerce",
