@@ -1,4 +1,16 @@
 <?php
+/**
+ * heidelpay payment class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
 class heidelpay
 {
     public $response = '';
@@ -33,7 +45,7 @@ class heidelpay
             'IDENTIFICATION_SHORTID'
     );
     
-    public function heidelpay()
+    public function __construct()
     {
         ob_start();
         $this->pageURL = HTTPS_SERVER . '';

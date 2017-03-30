@@ -1,14 +1,24 @@
 <?php
+/**
+ * heidelpay payment class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
 require('includes/application_top.php');
 
-error_reporting(0);
+//error_reporting(0);
 
 $returnvalue=$_POST['PROCESSING_RESULT'];
 if ($returnvalue) {
     include_once(DIR_WS_CLASSES.'class.heidelpay.php');
     $hp = new heidelpay();
-  // heidelpay::trackStep('response', 'post', $_POST);
-  // heidelpay::trackStep('response', 'session', $_SESSION);
   $hp->trackStep('response', 'post', $_POST);
     $hp->trackStep('response', 'session', $_SESSION);
     $params = '';
@@ -23,10 +33,7 @@ if ($returnvalue) {
     $payType = substr(strtolower($_POST['PAYMENT_CODE']), 0, 2);
     if ($payType == 'va') {
         $payType = 'ppal';
-    } // PayPal Special
-  if ($payType == 'pc') {
-      $payType = 'mk';
-  } // MangirKart Special
+    } // PayPal special
   $payCode = strtoupper($payType);
     if ($payCode == 'OT') {
         $payCode = $hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']);
@@ -35,9 +42,6 @@ if ($returnvalue) {
     $orderID = (int)preg_replace('/User.*Order(\d*)/', '$1', $TID);
     $customerID = $_POST['IDENTIFICATION_SHOPPERID'];
 
-  #echo $_POST['IDENTIFICATION_TRANSACTIONID'].'<br>';
-  #echo $orderID.'<br>';
-  #echo $customerID.'<br>'; exit();
   
    $comment = 'ShortID: '.$_POST['IDENTIFICATION_SHORTID'];
   
@@ -52,10 +56,12 @@ if ($returnvalue) {
     if (strstr($returnvalue, "ACK")) {
         if (strpos($_POST['PAYMENT_CODE'], 'RG') === false) {
             if (!empty($_SESSION['heidel_last_coupon'])) {
-                unset($_SESSION['heidel_last_coupon']); // gemerkten Coupon im Erfolgsfall vergessen.
+                // unset used coupon code on success
+                unset($_SESSION['heidel_last_coupon']);
             }
             if (!empty($_SESSION['cc_id'])) {
-                unset($_SESSION['cc_id']); // letzten Coupon im Erfolgsfall vergessen.
+                // unset last coupon id on success
+                unset($_SESSION['cc_id']);
             }
         }
         if (strpos($_POST['PAYMENT_CODE'], 'RG') === false) {
