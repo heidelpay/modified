@@ -1,9 +1,18 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
+/**
+ * Giropay payment method class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+
 class hpgp
 {
     public $code;
@@ -13,11 +22,13 @@ class hpgp
     public $hp;
     public $payCode;
     public $tmpStatus;
-    
-    // class constructor
-    public function hpgp()
+
+    /**
+     * heidelpay Giropay constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
+        global $order;
         
         $this->payCode = 'gp';
         $this->code = 'hp' . $this->payCode;
@@ -26,20 +37,13 @@ class hpgp
         $this->sort_order = MODULE_PAYMENT_HPGP_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_HPGP_STATUS == 'True') ? true : false);
         $this->info = MODULE_PAYMENT_HPGP_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
         $this->tmpOrders = false;
         $this->tmpStatus = MODULE_PAYMENT_HPGP_NEWORDER_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_HPGP_NEWORDER_STATUS_ID;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        /*
-         * $this->icons_available = xtc_image(DIR_WS_ICONS . 'cc_amex_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_mastercard_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_visa_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_diners_small.jpg');
-         */
-        
+        $this->version = $this->hp->version;
+
         if (is_object($order)) {
             $this->update_status();
         }
@@ -58,7 +62,9 @@ class hpgp
         
         if (($this->enabled == true) && (( int ) MODULE_PAYMENT_HPGP_ZONE > 0)) {
             $check_flag = false;
-            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_HPGP_ZONE . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
+            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES
+                . " where geo_zone_id = '" . MODULE_PAYMENT_HPGP_ZONE . "' and zone_country_id = '"
+                . $order->billing['country']['id'] . "' order by zone_id");
             while ($check = xtc_db_fetch_array($check_query)) {
                 if ($check['zone_id'] < 1) {
                     $check_flag = true;
@@ -87,7 +93,8 @@ class hpgp
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpGPData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
+        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
+            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
             $total = $order->info['total'] + $order->info['tax'];
         } else {
             $total = $order->info['total'];
@@ -99,32 +106,17 @@ class hpgp
         if (MODULE_PAYMENT_HPGP_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPGP_MAX_AMOUNT < $total) {
             return false;
         }
+
+        $content = array(
+            array(
+                'title' => '',
+                'field' => MODULE_PAYMENT_HPGP_DEBUGTEXT
+            )
+        );
         
-        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
-            $tmp = xtc_db_fetch_array(xtc_db_query($sql));
-            
-            $content = array(
-                    array(
-                            'title' => MODULE_PAYMENT_HPGP_ACCOUNT_IBAN,
-                            'field' => '<input value="' . $tmp['hpgp_kto'] . '" style="width: 200px;" maxlength="50" name="hpgp[AccountIBAN]" type="TEXT">'
-                    ),
-                    array(
-                            'title' => MODULE_PAYMENT_HPGP_ACCOUNT_BIC,
-                            'field' => '<input value="' . $tmp['hpgp_blz'] . '" style="width: 200px;" maxlength="50" name="hpgp[AccountBIC]" type="TEXT">'
-                    ),
-                    array(
-                            'title' => MODULE_PAYMENT_HPGP_ACCOUNT_OWNER,
-                            'field' => '<input value="' . $tmp['hpgp_own'] . '" style="width: 200px;" maxlength="50" name="hpgp[Holder]" type="TEXT">'
-                    )
-            );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPGP_DEBUGTEXT
-                    )
-            );
+        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' or
+            strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
+            $content = array();
         }
         
         return array(
@@ -138,19 +130,15 @@ class hpgp
     public function pre_confirmation_check()
     {
         global $order;
-        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            if (empty($_POST['hpgp']['AccountIBAN']) || empty($_POST['hpgp']['AccountBIC']) || empty($_POST['hpgp']['Holder'])) {
-                $payment_error_return = 'payment_error=hpgp&error=' . MODULE_PAYMENT_HPGP_ERROR_NO_PAYDATA;
-                xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-            } else {
-                $_SESSION['hpModuleMode'] = MODULE_PAYMENT_HPGP_MODULE_MODE;
-                $_SESSION['hpLastPost'] = $_POST;
-                $_SESSION['hpGPData'] = $_POST['hpgp'];
-            }
-        } else {
-            $payment_error_return = 'payment_error=hpgp&error=' . urlencode(MODULE_PAYMENT_HPGP_DEBUGTEXT);
-            xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' or
+            strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
+            $_SESSION['hpModuleMode'] = MODULE_PAYMENT_HPGP_MODULE_MODE;
+            $_SESSION['hpLastPost'] = $_POST;
+            $_SESSION['hpGPData'] = $_POST['hpgp'];
+            return;
         }
+        $payment_error_return = 'payment_error=hpgp&error=' . urlencode(MODULE_PAYMENT_HPGP_DEBUGTEXT);
+        xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
     }
 
     public function confirmation()
@@ -205,7 +193,8 @@ class hpgp
     public function check()
     {
         if (! isset($this->_check)) {
-            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_HPGP_STATUS'");
+            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION
+                . " where configuration_key = 'MODULE_PAYMENT_HPGP_STATUS'");
             $this->_check = xtc_db_num_rows($check_query);
         }
         return $this->_check;
@@ -213,10 +202,6 @@ class hpgp
 
     public function install()
     {
-        if (! $this->hp->install_db(TABLE_CUSTOMERS, 'hpgp_kto', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpgp_kto` VARCHAR(50) NOT NULL') || ! $this->hp->install_db(TABLE_CUSTOMERS, 'hpgp_blz', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpgp_blz` VARCHAR(50) NOT NULL') || ! $this->hp->install_db(TABLE_CUSTOMERS, 'hpgp_own', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpgp_own` VARCHAR(50) NOT NULL')) {
-            die('Es gab ein Problem bei der Installation des Moduls.');
-        }
-        
         $this->remove(true);
         
         $groupId = 6;
@@ -320,7 +305,8 @@ class hpgp
 
     public function remove($install = false)
     {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        xtc_db_query("delete from " . TABLE_CONFIGURATION
+            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
     public function keys()

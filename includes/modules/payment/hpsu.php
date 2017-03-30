@@ -118,9 +118,6 @@ class hpsu
         if (MODULE_PAYMENT_HPSU_TRANSACTION_MODE == 'LIVE' or
             strpos(MODULE_PAYMENT_HPSU_TEST_ACCOUNT, $order->customer['email_address']) !== false
         ) {
-            $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
-            $tmp = xtc_db_fetch_array(xtc_db_query($sql));
-
             $content = array();
         }
 
@@ -150,7 +147,6 @@ class hpsu
 
         $payment_error_return = 'payment_error=hpsu&error=' . urlencode(MODULE_PAYMENT_HPSU_DEBUGTEXT);
         xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-
     }
 
     public function confirmation()
@@ -342,6 +338,6 @@ class hpsu
             $prefix . 'ALLOWED',
             $prefix . 'ZONE'
         )// $prefix.'',
-            ;
+;
     }
 }

@@ -19,7 +19,7 @@ $returnvalue=$_POST['PROCESSING_RESULT'];
 if ($returnvalue) {
     include_once(DIR_WS_CLASSES.'class.heidelpay.php');
     $hp = new heidelpay();
-  $hp->trackStep('response', 'post', $_POST);
+    $hp->trackStep('response', 'post', $_POST);
     $hp->trackStep('response', 'session', $_SESSION);
     $params = '';
     if ($_POST['PAYMENT_CODE'] == 'PP.PA') {
@@ -43,7 +43,7 @@ if ($returnvalue) {
     $customerID = $_POST['IDENTIFICATION_SHOPPERID'];
 
   
-   $comment = 'ShortID: '.$_POST['IDENTIFICATION_SHORTID'];
+    $comment = 'ShortID: '.$_POST['IDENTIFICATION_SHORTID'];
   
     if (isset($_POST['ACCOUNT_HOLDER']) && ($_POST['ACCOUNT_HOLDER'] != '')) {
         $comment .= '; AccountHolder: '.$_POST['ACCOUNT_HOLDER'];
@@ -103,7 +103,7 @@ if ($returnvalue) {
         );
             }
                 
-      $hp->saveBankData($customerID, $paymentType, $values);
+            $hp->saveBankData($customerID, $paymentType, $values);
         } elseif ($_POST['PAYMENT_CODE'] == 'IV.PA' && $_POST['ACCOUNT_BRAND'] == 'BILLSAFE') {
             $status = constant('MODULE_PAYMENT_HPBS_PENDING_STATUS_ID');
             $repl = array(
@@ -122,7 +122,7 @@ if ($returnvalue) {
             include_once(DIR_WS_LANGUAGES.'german/modules/payment/hpbs.php');
             $bsData = strtr(MODULE_PAYMENT_HPBS_SUCCESS_BILLSAFE, $repl);
             $bsData.= ' '.$_POST['CRITERION_BILLSAFE_LEGALNOTE'].' ';
-      $bsData.= preg_replace('/{DAYS}/', $_POST['CRITERION_BILLSAFE_PERIOD'], MODULE_PAYMENT_HPBS_LEGALNOTE_BILLSAFE);
+            $bsData.= preg_replace('/{DAYS}/', $_POST['CRITERION_BILLSAFE_PERIOD'], MODULE_PAYMENT_HPBS_LEGALNOTE_BILLSAFE);
             $comment = 'Payment Info: '.(html_entity_decode($bsData).'<br>');
             $hp->addHistoryComment($orderID, $comment, $status);
         }
