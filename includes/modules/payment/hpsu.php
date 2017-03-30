@@ -121,19 +121,14 @@ class hpsu
             $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
             $tmp = xtc_db_fetch_array(xtc_db_query($sql));
 
-            $content = array(
-                array(
-                    'title' => '',
-                    'field' => ''
-                )
-            );
+            $content = array();
         }
 
         return array(
             'id' => $this->code,
             'module' => $this->title,
             'fields' => $content,
-            'description' => $this->info
+            'description' => $this->description
         );
     }
 
