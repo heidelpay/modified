@@ -15,7 +15,8 @@ class heidelpay
 {
     public $response = '';
     public $error = '';
-    public $hpdebug = false; // um Debugging zu aktivieren auf true setzten
+    /** @var bool $hpdebug activate debugging  */
+    public $hpdebug = false;
     public $live_url_new = 'https://heidelpay.hpcgw.net/sgw/gtw';
     public $demo_url_new = 'https://test-heidelpay.hpcgw.net/sgw/gtw';
     public $availablePayments = array(

@@ -13,7 +13,7 @@
  */
 require('includes/application_top.php');
 
-//error_reporting(0);
+error_reporting(0);
 
 $returnvalue=$_POST['PROCESSING_RESULT'];
 if ($returnvalue) {

@@ -1,6 +1,6 @@
 ![Logo](https://dev.heidelpay.de/devHeidelpay_400_180.jpg)
 
-# Welcome to the heidelpay payment extension for xtcommerce 3 / modified commerce
+# Welcome to the heidelpay payment extension for modified eCommerce
 
 
 
