@@ -1042,7 +1042,7 @@ class heidelpay
         }
         // Bestellstatus setzen
         $res = xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `orders_status` = '" . addslashes($status) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
-        $stat = mysql_affected_rows($db_link);
+        $stat = mysqli_affected_rows($db_link);
         return $stat > 0;
     }
     
@@ -1334,7 +1334,7 @@ WHERE heidelpay_transaction_data.uniqueID = "' . $uniqueId . '"
         global $db_link;
         $sql = 'UPDATE `' . TABLE_CONFIGURATION . '` SET `configuration_value` = "' . addslashes($value) . '" WHERE `configuration_key` = "MODULE_PAYMENT_HP' . addslashes(strtoupper($key)) . '" ';
         $res = xtc_db_query($sql);
-        return mysql_affected_rows($db_link);
+        return mysqli_affected_rows($db_link);
     }
     
     public function deleteCoupon($order_id)
