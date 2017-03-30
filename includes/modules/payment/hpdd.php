@@ -116,13 +116,18 @@ class hpdd
 
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-                'field' => '<input autocomplete="off" value="" maxlength="50" name="hpdd[AccountIBAN]" type="TEXT">'
+                'field' => '<input autocomplete="off" value=".'.$tmp['hpsu_kto'].'" maxlength="50" 
+                name="hpdd[AccountIBAN]" style="width:"200px" type="TEXT">'
             );
+            // load last direct debit information
+            $holder = (!empty($tmp['hpdd_own'])) ? $tmp['hpdd_own']
+                // set customer name if last direct debit is empty
+                : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
 
-            $holder = $order->customer['firstname'] . ' ' . $order->customer['lastname'];
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-                'field' => '<input value="' . $holder . '" maxlength="50" name="hpdd[Holder]" type="TEXT">'.print_r($tmp,1)
+                'field' => '<input value="' . $holder . '" maxlength="50" 
+                style="width:"200px" name="hpdd[Holder]" type="TEXT">'
             );
         };
         return array(
