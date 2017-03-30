@@ -128,7 +128,7 @@ class hpsu
             'id' => $this->code,
             'module' => $this->title,
             'fields' => $content,
-            'description' => $this->description
+            'description' => $this->info
         );
     }
 
