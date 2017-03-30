@@ -1,9 +1,18 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
+/**
+ * Sepa direct debit payment method class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+
 class hpdd
 {
     public $code;
@@ -13,11 +22,13 @@ class hpdd
     public $hp;
     public $payCode;
     public $tmpStatus;
-    
-    // class constructor
-    public function hpdd()
+
+    /**
+     * heidelpay sepa direct debit constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
+        global $order;
         
         $this->payCode = 'dd';
         $this->code = 'hp' . $this->payCode;
@@ -26,13 +37,12 @@ class hpdd
         $this->sort_order = MODULE_PAYMENT_HPDD_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_HPDD_STATUS == 'True') ? true : false);
         $this->info = MODULE_PAYMENT_HPDD_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
         $this->tmpOrders = false;
         $this->tmpStatus = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
+        $this->version = $this->hp->version;
         
         if (is_object($order)) {
             $this->update_status();
@@ -45,7 +55,9 @@ class hpdd
         
         if (($this->enabled == true) && (( int ) MODULE_PAYMENT_HPDD_ZONE > 0)) {
             $check_flag = false;
-            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_HPDD_ZONE . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
+            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES
+                . " where geo_zone_id = '" . MODULE_PAYMENT_HPDD_ZONE . "' and zone_country_id = '"
+                . $order->billing['country']['id'] . "' order by zone_id");
             while ($check = xtc_db_fetch_array($check_query)) {
                 if ($check['zone_id'] < 1) {
                     $check_flag = true;
@@ -74,7 +86,8 @@ class hpdd
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpDDData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
+        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0
+            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
             $total = $order->info['total'] + $order->info['tax'];
         } else {
             $total = $order->info['total'];
@@ -87,88 +100,31 @@ class hpdd
             return false;
         }
         
-        $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
-        $tmp = xtc_db_fetch_array(xtc_db_query($sql));
-        // echo '<pre>'.print_r($tmp, 1).'</pre>';
-        // echo '<pre>'.print_r($_SESSION, 1).'</pre>';
-        
-        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $sepamode = strtolower(MODULE_PAYMENT_HPDD_SEPA_MODE);
-            
-            if (is_int(strpos($sepamode, 'both'))) {
-                print "<script type='text/javascript'>
-				window.onload = function(){
-					var iban_switch = document.getElementById('iban_switch');
-					
-					var accNr 		= document.getElementsByName('hpdd[AccountNumber]')[0];
-					var accBank 	= document.getElementsByName('hpdd[BankCode]')[0];
-					var accIban 	= document.getElementsByName('hpdd[AccountIBAN]')[0];
-		
 
-					if(iban_switch.value == 'iban'){ iban(); }
-					if(iban_switch.value == 'noiban'){ noiban(); }
+        $content = array(
+            array(
+                'title' => '',
+                'field' => MODULE_PAYMENT_HPDD_DEBUGTEXT
+            )
+        );
 
-					iban_switch.onchange = function(){
-						if(this.value == 'iban'){ iban(); }
-						if(this.value == 'noiban'){ noiban(); }
-					}
-					
-					function iban(){
-						accNr.parentNode.parentNode.style.display = 'none';
-						accBank.parentNode.parentNode.style.display = 'none';
-						accIban.parentNode.parentNode.style.display = 'table-row';
-					
-					}						
-					function noiban(){
-						accNr.parentNode.parentNode.style.display = 'table-row';
-						accBank.parentNode.parentNode.style.display = 'table-row';
-						accIban.parentNode.parentNode.style.display = 'none';
-					
-					}
-				}
-			</script>";
-                
-                $content[] = array(
-                        'title' => MODULE_PAYMENT_HPDD_ACCOUNT_SWITCH,
-                        'field' => '<select name="hpdd[sepaSwitch]" id="iban_switch" style="width: 200px;"><option value="iban">' . MODULE_PAYMENT_HPDD_ACCOUNT_SWITCH_IBAN . '</option><option value="noiban">' . MODULE_PAYMENT_HPDD_ACCOUNT_SWITCH_CLASSIC . '</option></select>'
-                );
-            }
-            if (is_int(strpos($sepamode, 'account')) || is_int(strpos($sepamode, 'konton')) || is_int(strpos($sepamode, 'both'))) {
-                $content[] = array(
-                        'title' => MODULE_PAYMENT_HPDD_ACCOUNT_NUMBER,
-                        'field' => '<input autocomplete="off" value="" style="width: 200px;" maxlength="50" name="hpdd[AccountNumber]" type="TEXT">'
-                );
-                $content[] = array(
-                        'title' => MODULE_PAYMENT_HPDD_ACCOUNT_BANK,
-                        'field' => '<input value="" style="width: 200px;" maxlength="50" name="hpdd[BankCode]" type="TEXT">'
-                );
-            }
-            if (is_int(strpos($sepamode, 'iban')) || is_int(strpos($sepamode, 'both'))) {
-                $content[] = array(
-                        'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-                        'field' => '<input autocomplete="off" value="" style="width: 200px;" maxlength="50" name="hpdd[AccountIBAN]" type="TEXT">'
-                );
-                /*
-                 * $content[] = array (
-                 * 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_BIC,
-                 * 'field' => '<input value="" style="width: 200px;" maxlength="50" name="hpdd[AccountBIC]" type="TEXT">',
-                 * );
-                 */
-            }
-            
+        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' or
+            strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
+            $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
+            $tmp = xtc_db_fetch_array(xtc_db_query($sql));
+
+
             $content[] = array(
-                    'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-                    'field' => '<input value="' . $order->customer['firstname'] . ' ' . $order->customer['lastname'] . '" style="width: 200px;" maxlength="50" name="hpdd[Holder]" type="TEXT">'
+                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
+                'field' => '<input autocomplete="off" value="" maxlength="50" name="hpdd[AccountIBAN]" type="TEXT">'
             );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPDD_DEBUGTEXT
-                    )
+
+            $holder = $order->customer['firstname'] . ' ' . $order->customer['lastname'];
+            $content[] = array(
+                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
+                'field' => '<input value="' . $holder . '" maxlength="50" name="hpdd[Holder]" type="TEXT">'.print_r($tmp,1)
             );
-        }
-        
+        };
         return array(
                 'id' => $this->code,
                 'module' => $this->title,
@@ -179,39 +135,15 @@ class hpdd
 
     public function pre_confirmation_check()
     {
-        
-        /*
-         * $_SESSION['hpModuleMode'] = MODULE_PAYMENT_HPDD_MODULE_MODE;
-         * if(empty($_POST['hpdd']['AccountNumber']) || empty($_POST['hpdd']['BankCode']) || empty($_POST['hpdd']['Holder'])){
-         * $payment_error_return = 'payment_error=hpdd&error='.MODULE_PAYMENT_HPDD_ERROR_NO_PAYDATA;
-         * xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-         * } else if($_POST['hpddFirstStep'] == 1 && MODULE_PAYMENT_HPDD_MODULE_MODE == 'DIRECT'){
-         * unset($_POST['hpddFirstStep']);
-         * $_SESSION['hpLastPost'] = $_POST;
-         * $payment_error_return = 'hpddreg=1';
-         * xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-         * }else{
-         * $_SESSION['hpLastPost'] = $_POST;
-         * $_SESSION['hpDDData'] = $_POST['hpdd'];
-         * }
-         */
         global $order;
-        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            if (count($_POST['hpdd']) > 3) {
-                if (($_POST['hpdd']['sepaSwitch'] == 'iban' && (($_POST['hpdd']['AccountIBAN'] == ''))) || ($_POST['hpdd']['sepaSwitch'] == 'noiban' && (($_POST['hpdd']['AccountNumber'] == '') || ($_POST['hpdd']['BankCode'] == ''))) || ($_POST['hpdd']['Holder'] == '')) {
-                    $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
-                    xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-                }
+        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE'
+            or strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
+        ) {
+
+            if ((($_POST['hpdd']['AccountIBAN'] == '')) or ($_POST['hpdd']['Holder'] == '')) {
+                $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
+                xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
             } else {
-                foreach ($_POST['hpdd'] as $key => $value) {
-                    if ($value == '') {
-                        $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
-                        xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-                        break;
-                    }
-                }
-            }
-            if ($payment_error_return == '') {
                 $_SESSION['hpLastPost'] = $_POST;
                 $_SESSION['hpDDData'] = $_POST['hpdd'];
             }
@@ -273,7 +205,8 @@ class hpdd
     public function check()
     {
         if (! isset($this->_check)) {
-            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_HPDD_STATUS'");
+            $check_query = xtc_db_query("select configuration_value from "
+                . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_HPDD_STATUS'");
             $this->_check = xtc_db_num_rows($check_query);
         }
         return $this->_check;
@@ -281,8 +214,11 @@ class hpdd
 
     public function install()
     {
-        if (! $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_kto', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_kto` VARCHAR(50) NOT NULL') || ! $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_blz', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_blz` VARCHAR(50) NOT NULL') || ! $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_own', 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_own` VARCHAR(50) NOT NULL')) {
-            die('Es gab ein Problem bei der Installation des Moduls.');
+        if (! $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_kto',
+                'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_kto` VARCHAR(50) NOT NULL') or
+            $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_own'
+                , 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_own` VARCHAR(50) NOT NULL')) {
+            die('Error: alter table for direct debit');
         }
         
         $this->remove(true);
@@ -316,11 +252,6 @@ class hpdd
                 'configuration_key' => $prefix . 'TRANSACTION_MODE',
                 'configuration_value' => 'TEST',
                 'set_function' => 'xtc_cfg_select_option(array(\'LIVE\', \'TEST\'), '
-        );
-        $inst[] = array(
-                'configuration_key' => $prefix . 'SEPA_MODE',
-                'configuration_value' => 'both with selector',
-                'set_function' => 'xtc_cfg_select_option(array(\'Account and bank no.\', \'IBAN\', \'both with selector\'), '
         );
         $inst[] = array(
                 'configuration_key' => $prefix . 'TEST_ACCOUNT',
@@ -392,7 +323,8 @@ class hpdd
 
     public function remove($install = false)
     {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        xtc_db_query("delete from " . TABLE_CONFIGURATION
+            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
     }
 
     public function keys()
@@ -405,7 +337,6 @@ class hpdd
                 $prefix . 'USER_PWD',
                 $prefix . 'TRANSACTION_CHANNEL',
                 $prefix . 'TRANSACTION_MODE',
-                $prefix . 'SEPA_MODE',
                 $prefix . 'TEST_ACCOUNT',
                 $prefix . 'MIN_AMOUNT',
                 $prefix . 'MAX_AMOUNT',
