@@ -12,7 +12,7 @@
  * @category modified
  */
 require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
-require_once(DIR_FS_EXTERNAL.'classes/heidelpayPaymentModules.php');
+require_once(DIR_FS_EXTERNAL.'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpdd extends heidelpayPaymentModules
 {

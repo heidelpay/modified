@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Sepa direct debit payment method class
  *
@@ -11,7 +12,6 @@
  * @subpackage modified
  * @category modified
  */
-
 class heidelpayPaymentModules
 {
     /** @var  $code string current payment code */
@@ -23,7 +23,7 @@ class heidelpayPaymentModules
     public $payCode;
     public $tmpStatus;
     protected $tmpOrders = false;
-    /** @var  $order  */
+    /** @var  $order */
     protected $order;
 
     /**
@@ -119,5 +119,18 @@ class heidelpayPaymentModules
 
     public function keys()
     {
+    }
+
+    public function installPaymentInformationDatabase()
+    {
+        $query = 'CREATE TABLE `heidelpay_payment_information` (
+    `id` int(10) UNSIGNED NOT NULL COMMENT \'Id\',
+  `customer_id` varchar(128) NOT NULL COMMENT \'Customer_email\',
+  `paymentmethod` varchar(10) NOT NULL COMMENT \'Paymentmethod\',
+  `additional_data` blob NOT NULL COMMENT \'Additional_data\',
+  `heidelpay_payment_reference` varchar(32) DEFAULT NULL COMMENT \'Heidelpay_payment_reference\',
+  `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT \'Create_date\'
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'heidelpay_payment_information\';
+';
     }
 }
