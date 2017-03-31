@@ -12,43 +12,32 @@
  * @category modified
  */
 require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL.'classes/heidelpayPaymentModules.php');
 
-class hpdd
+class hpdd extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
 
     /**
      * heidelpay sepa direct debit constructor
      */
     public function __construct()
     {
-        global $order;
-        
         $this->payCode = 'dd';
         $this->code = 'hp' . $this->payCode;
         $this->title = MODULE_PAYMENT_HPDD_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_HPDD_TEXT_DESC;
         $this->sort_order = MODULE_PAYMENT_HPDD_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPDD_STATUS == 'True') ? true : false);
+        $this->enabled = (MODULE_PAYMENT_HPDD_STATUS == 'True') ? true : false;
         $this->info = MODULE_PAYMENT_HPDD_TEXT_INFO;
-        $this->tmpOrders = false;
         $this->tmpStatus = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $this->hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
+
+        parent::__construct();
     }
 
+    /**
+     * update_status
+     */
     public function update_status()
     {
         global $order;
@@ -74,11 +63,10 @@ class hpdd
         }
     }
 
-    public function javascript_validation()
-    {
-        return false;
-    }
-
+    /**
+     * checkout payment form
+     * @return array|bool
+     */
     public function selection()
     {
         global $order;
@@ -158,28 +146,6 @@ class hpdd
         }
     }
 
-    public function confirmation()
-    {
-        return false;
-    }
-
-    public function process_button()
-    {
-        global $order;
-        $this->hp->rememberOrderData($order);
-        return false;
-    }
-
-    public function payment_action()
-    {
-        return true;
-    }
-
-    public function before_process()
-    {
-        return false;
-    }
-
     public function after_process()
     {
         global $order, $xtPrice, $insert_id;
@@ -188,11 +154,6 @@ class hpdd
         $this->hp->addHistoryComment($insert_id, $comment, $this->order_status);
         $hpIframe = $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function admin_order($oID)
-    {
-        return false;
     }
 
     public function get_error()
@@ -219,13 +180,6 @@ class hpdd
 
     public function install()
     {
-        if (! $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_kto',
-                'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_kto` VARCHAR(50) NOT NULL') or
-            $this->hp->install_db(TABLE_CUSTOMERS, 'hpdd_own'
-                , 'ALTER TABLE `' . TABLE_CUSTOMERS . '` ADD `hpdd_own` VARCHAR(50) NOT NULL')) {
-            die('Error: alter table for direct debit');
-        }
-        
         $this->remove(true);
         
         $groupId = 6;
