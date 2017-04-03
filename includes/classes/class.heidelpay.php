@@ -398,8 +398,6 @@ class heidelpay
                 $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
                 $this->addHistoryComment($insertId, $comment, $status);
                 $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode, $res['all']['IDENTIFICATION.SHORTID']);
-                // $this->saveUniqueId($insertId, $res['all']['IDENTIFICATION.UNIQUEID'], $holder); // Unique ID in CC_NUMBER speichern
-                // $this->saveShortId($insertId, $res['all']['IDENTIFICATION.SHORTID']); // ShortID speichern
                 $this->setOrderStatus($insertId, $status);
                 if ($payCode == 'dd') {
                     $values = array(
@@ -407,7 +405,6 @@ class heidelpay
                             'blz' => $res['all']['ACCOUNT.BANK'],
                             'own' => $holder
                     );
-                    // $this->saveBankData($user_id, 'hpdd', $values);
                 }
             }
         } elseif (in_array($payCode, array(
@@ -420,8 +417,6 @@ class heidelpay
                 $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
                 $this->addHistoryComment($insertId, $comment, $status);
                 $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode, $res['all']['IDENTIFICATION.SHORTID']);
-                // $this->saveUniqueId($insertId, $res['all']['IDENTIFICATION.UNIQUEID'], $holder); // Unique ID in CC_NUMBER speichern
-                // $this->saveShortId($insertId, $res['all']['IDENTIFICATION.SHORTID']); // ShortID speichern
                 $this->setOrderStatus($insertId, $status);
                 $hpPayinfos = array(
                         'CONNECTOR_ACCOUNT_BANK' => $res['all']['CONNECTOR_ACCOUNT_BANK'],
@@ -1186,38 +1181,11 @@ WHERE heidelpay_transaction_data.uniqueID = "' . $uniqueId . '"
     public function checkOrderStatusHistory($orderId, $shortId)
     {
         $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '` WHERE `orders_id` = "' . ( int ) $orderId . '" AND `comments` LIKE "%' . $shortId . '%" ';
-        // echo $sql;
         $res = xtc_db_query($sql);
         $res = xtc_db_fetch_array($res);
-        // echo '<pre>'.print_r($res, 1).'</pre>';
         return ! empty($res);
     }
-    
-    public function saveBankData($customerId, $payType, $values)
-    {
-        // $data = $this->loadBankData($customerId, $payType);
-        $query = 'UPDATE `' . TABLE_CUSTOMERS . '` 
-    SET  
-      `' . $payType . '_kto` = "' . $values['kto'] . '",
-      `' . $payType . '_blz` = "' . $values['blz'] . '",
-      `' . $payType . '_own` = "' . utf8_decode($values['own']) . '"
-    WHERE `customers_id` = "' . addslashes($customerId) . '" ';
-        
-        return xtc_db_query($query);
-    }
-    
-    public function loadBankData($customerId, $payType)
-    {
-        $res = xtc_db_query('SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . addslashes($customerId) . '" ');
-        $res = xtc_db_fetch_array($res);
-        $tmp = array(
-                'kto' => $res[$payType . '_kto'],
-                'blz' => $res[$payType . '_blz'],
-                'own' => $res[$payType . '_own']
-        );
-        return $tmp;
-    }
-    
+
     public function getPayCodeByChannel($TRANSACTION_CHANNEL)
     {
         $otPayTypes = array(

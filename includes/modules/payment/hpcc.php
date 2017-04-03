@@ -71,7 +71,7 @@ class hpcc
     {
         global $order;
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
-            // Coupon Wiederherstellung
+            // coupon reset
             if (! empty($_SESSION['cc_id'])) {
                 $_SESSION['heidel_last_coupon'] = $_SESSION['cc_id'];
             } elseif (! empty($_SESSION['heidel_last_coupon'])) {
@@ -93,10 +93,8 @@ class hpcc
             return false;
         }
         
-        $src = '';
-        // if(isset($_GET['hpccreg'])){
         $src = $this->hp->handleRegister($order, $this->payCode);
-        // }
+
         $hpIframe = '';
         if (! empty($src)) {
             $hpIframe = '<iframe src="' . $src . '" frameborder="0" width="400" height="250"></iframe>';

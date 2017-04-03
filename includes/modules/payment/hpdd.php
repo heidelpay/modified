@@ -70,6 +70,7 @@ class hpdd extends heidelpayPaymentModules
     public function selection()
     {
         global $order;
+        $lastIban = null;
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpDDData']);
@@ -98,13 +99,13 @@ class hpdd extends heidelpayPaymentModules
 
         if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' or
             strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $sql = 'SELECT * FROM `' . TABLE_CUSTOMERS . '` WHERE `customers_id` = "' . $_SESSION['customer_id'] . '" ';
-            $tmp = xtc_db_fetch_array(xtc_db_query($sql));
+
+            $lastIban = $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban');
 
 
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-                'field' => '<input autocomplete="off" value="'.$tmp['hpsu_kto'].'" maxlength="50" 
+                'field' => '<input autocomplete="off" value="'.$lastIban.'" maxlength="50" 
                 name="hpdd[AccountIBAN]" type="TEXT">'
             );
             // load last direct debit information
@@ -181,8 +182,6 @@ class hpdd extends heidelpayPaymentModules
     public function install()
     {
         $this->remove(true);
-
-        $this->installPaymentInformationDatabase();
         
         $groupId = 6;
         $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
