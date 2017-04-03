@@ -132,7 +132,7 @@ class hpgp
         global $order;
         if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' or
             strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $_SESSION['hpLastData'] = $_POST;
+            $_SESSION['hpLastPost'] = $_POST;
             return;
         }
         $payment_error_return = 'payment_error=hpgp&error=' . urlencode(MODULE_PAYMENT_HPGP_DEBUGTEXT);
