@@ -74,6 +74,7 @@ class heidelpayPaymentModules
     public function process_button()
     {
         global $order;
+        $this->hp->rememberOrderData($order);
         return false;
     }
 
