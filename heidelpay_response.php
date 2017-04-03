@@ -95,28 +95,6 @@ if ($returnvalue) {
             // debit card registration
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard', $_POST['ACCOUNT_NUMBER']);
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard_reference', $_POST['IDENTIFICATION_UNIQUEID']);
-        } elseif ($_POST['PAYMENT_CODE'] == 'OT.RC' &&
-            ($_POST['ACCOUNT_NUMBER'] != '' || $_POST['ACCOUNT_IBAN'] != '')
-        ) {
-            // LS Daten speichern
-            $paymentType = $hp->getPayment($orderID);
-
-
-            if (isset($_POST['ACCOUNT_IBAN']) && isset($_POST['ACCOUNT_BIC'])) {
-                $values = array(
-                    'kto' => $_POST['ACCOUNT_IBAN'],
-                    'blz' => $_POST['ACCOUNT_BIC'],
-                    'own' => $_POST['ACCOUNT_HOLDER'],
-                );
-            } else {
-                $values = array(
-                    'kto' => $_POST['ACCOUNT_NUMBER'],
-                    'blz' => $_POST['ACCOUNT_BANK'],
-                    'own' => $_POST['ACCOUNT_HOLDER'],
-                );
-            }
-
-            $hp->saveBankData($customerID, $paymentType, $values);
         } elseif ($_POST['PAYMENT_CODE'] == 'IV.PA' && $_POST['ACCOUNT_BRAND'] == 'BILLSAFE') {
             $status = constant('MODULE_PAYMENT_HPBS_PENDING_STATUS_ID');
             $repl = array(

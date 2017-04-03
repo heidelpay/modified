@@ -142,7 +142,7 @@ class hpdd extends heidelpayPaymentModules
                 $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
                 xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
             } else {
-                $_SESSION['hpLastData'] = $_POST;
+                $_SESSION['hpLastPost'] = $_POST;
                 $_SESSION['hpDDData'] = $_POST['hpdd'];
             }
         } else {
