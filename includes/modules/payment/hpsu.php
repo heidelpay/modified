@@ -140,8 +140,7 @@ class hpsu
             strpos(MODULE_PAYMENT_HPSU_TEST_ACCOUNT, $order->customer['email_address']) !== false
         ) {
             $_SESSION['hpModuleMode'] = 'AFTER';
-            $_SESSION['hpLastPost'] = $_POST;
-            $_SESSION['hpSUData'] = $_POST['hpsu'];
+            $_SESSION['hpLastData'] = $_POST;
             return;
         }
 

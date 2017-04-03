@@ -101,7 +101,7 @@ class hpdd extends heidelpayPaymentModules
         if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' or
             strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
         ) {
-
+            $content = array();
             // load last direct debit information
             $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
                 ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
@@ -142,7 +142,7 @@ class hpdd extends heidelpayPaymentModules
                 $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
                 xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
             } else {
-                $_SESSION['hpLastPost'] = $_POST;
+                $_SESSION['hpLastData'] = $_POST;
                 $_SESSION['hpDDData'] = $_POST['hpdd'];
             }
         } else {

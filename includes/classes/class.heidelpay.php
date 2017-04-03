@@ -548,14 +548,6 @@ class heidelpay
         $parameters['FRONTEND.RETURN_ACCOUNT'] = "true";
         
         if ($this->actualPaymethod == 'SU') {
-            if (is_numeric($_SESSION['hpSUData']['AccountNumber']) && is_numeric($_SESSION['hpSUData']['BankCode'])) {
-                $parameters['ACCOUNT.NUMBER'] = $_SESSION['hpSUData']['AccountNumber'];
-                $parameters['ACCOUNT.BANK'] = $_SESSION['hpSUData']['BankCode'];
-            } else {
-                $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpSUData']['AccountNumber']);
-                $parameters['ACCOUNT.BIC'] = strtoupper($_SESSION['hpSUData']['BankCode']);
-            }
-            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpSUData']['Holder'];
             $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'IDL' && $ACT_MOD_MODE == 'NOWPF') {
             $parameters['ACCOUNT.NUMBER'] = $_SESSION['hpIdealData']['otAccountNumber'];
@@ -566,18 +558,9 @@ class heidelpay
             $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'DD') {
             $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpDDData']['Holder'];
-            if ($_SESSION['hpDDData']['AccountNumber'] != '') {
-                $parameters['ACCOUNT.NUMBER'] = $_SESSION['hpDDData']['AccountNumber'];
-            }
-            if ($_SESSION['hpDDData']['BankCode'] != '') {
-                $parameters['ACCOUNT.BANK'] = $_SESSION['hpDDData']['BankCode'];
-            }
             $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpDDData']['AccountIBAN']);
-            /* $parameters['ACCOUNT.BIC'] = strtoupper($_SESSION['hpDDData']['AccountBIC']); */
+            $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'GP') {
-            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpGPData']['AccountIBAN']);
-            $parameters['ACCOUNT.BIC'] = strtoupper($_SESSION['hpGPData']['AccountBIC']);
-            $parameters['ACCOUNT.HOLDER'] = utf8_encode($_SESSION['hpGPData']['Holder']);
             $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'PPAL') {
             $parameters['ACCOUNT.BRAND'] = 'PAYPAL';
