@@ -181,6 +181,8 @@ class hpdd extends heidelpayPaymentModules
     public function install()
     {
         $this->remove(true);
+
+        $this->installPaymentInformationDatabase();
         
         $groupId = 6;
         $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
