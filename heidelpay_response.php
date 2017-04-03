@@ -82,11 +82,12 @@ if ($returnvalue) {
             $hp->saveMEMO($customerID, 'heidelpay_last_ccard', $_POST['ACCOUNT_NUMBER']);
             $hp->saveMEMO($customerID, 'heidelpay_last_ccard_reference', $_POST['IDENTIFICATION_UNIQUEID']);
         } elseif (MODULE_PAYMENT_HPDC_SAVE_REGISTER == 'True'
-            && $_POST['PAYMENT_CODE'] == 'DD.RG'
+            && strpos($_POST['PAYMENT_CODE'], 'DD') === true
             && $_POST['ACCOUNT_NUMBER'] != ''
         ) {
             // direct debit registration
             $hp->saveMEMO($customerID, 'heidelpay_last_iban', $_POST['ACCOUNT_NUMBER']);
+            $hp->saveMEMO($customerID, 'heidelpay_last_holder', $_POST['ACCOUNT_HOLDER']);
         } elseif (MODULE_PAYMENT_HPDC_SAVE_REGISTER == 'True'
             && $_POST['PAYMENT_CODE'] == 'DC.RG'
             && $_POST['ACCOUNT_NUMBER'] != ''

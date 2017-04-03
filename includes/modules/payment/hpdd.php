@@ -12,7 +12,7 @@
  * @category modified
  */
 require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
-require_once(DIR_FS_EXTERNAL.'heidelpay/classes/heidelpayPaymentModules.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpdd extends heidelpayPaymentModules
 {
@@ -41,8 +41,8 @@ class hpdd extends heidelpayPaymentModules
     public function update_status()
     {
         global $order;
-        
-        if (($this->enabled == true) && (( int ) MODULE_PAYMENT_HPDD_ZONE > 0)) {
+
+        if (($this->enabled == true) && (( int )MODULE_PAYMENT_HPDD_ZONE > 0)) {
             $check_flag = false;
             $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES
                 . " where geo_zone_id = '" . MODULE_PAYMENT_HPDD_ZONE . "' and zone_country_id = '"
@@ -56,7 +56,7 @@ class hpdd extends heidelpayPaymentModules
                     break;
                 }
             }
-            
+
             if ($check_flag == false) {
                 $this->enabled = false;
             }
@@ -76,7 +76,8 @@ class hpdd extends heidelpayPaymentModules
             unset($_SESSION['hpDDData']);
         }
         if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0
-            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
+            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
+        ) {
             $total = $order->info['total'] + $order->info['tax'];
         } else {
             $total = $order->info['total'];
@@ -88,7 +89,7 @@ class hpdd extends heidelpayPaymentModules
         if (MODULE_PAYMENT_HPDD_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPDD_MAX_AMOUNT < $total) {
             return false;
         }
-        
+
 
         $content = array(
             array(
@@ -98,32 +99,35 @@ class hpdd extends heidelpayPaymentModules
         );
 
         if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
+            strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
+        ) {
 
-            $lastIban = $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban');
-
-
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-                'field' => '<input autocomplete="off" value="'.$lastIban.'" maxlength="50" 
-                name="hpdd[AccountIBAN]" type="TEXT">'
-            );
             // load last direct debit information
-            $holder = (!empty($tmp['hpdd_own'])) ? $tmp['hpdd_own']
-                // set customer name if last direct debit is empty
+            $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
+                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
+            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
+                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')
                 : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
 
+            // Iban input field
+            $content[] = array(
+                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
+                'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
+                name="hpdd[AccountIBAN]" type="TEXT">'
+            );
+
+            // Holder input field
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-                'field' => '<input value="' . $holder . '" maxlength="50" 
+                'field' => '<input value="' . $lastHolder . '" maxlength="50" 
                 name="hpdd[Holder]" type="TEXT">'
             );
         };
         return array(
-                'id' => $this->code,
-                'module' => $this->title,
-                'fields' => $content,
-                'description' => $this->info
+            'id' => $this->code,
+            'module' => $this->title,
+            'fields' => $content,
+            'description' => $this->info
         );
     }
 
@@ -160,18 +164,18 @@ class hpdd extends heidelpayPaymentModules
     public function get_error()
     {
         global $_GET;
-        
+
         $error = array(
-                'title' => MODULE_PAYMENT_HPDD_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
+            'title' => MODULE_PAYMENT_HPDD_TEXT_ERROR,
+            'error' => stripslashes(urldecode($_GET['error']))
         );
-        
+
         return $error;
     }
 
     public function check()
     {
-        if (! isset($this->_check)) {
+        if (!isset($this->_check)) {
             $check_query = xtc_db_query("select configuration_value from "
                 . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_HPDD_STATUS'");
             $this->_check = xtc_db_num_rows($check_query);
@@ -182,93 +186,93 @@ class hpdd extends heidelpayPaymentModules
     public function install()
     {
         $this->remove(true);
-        
+
         $groupId = 6;
         $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
         $prefix = 'MODULE_PAYMENT_HPDD_';
         $inst = array();
         $inst[] = array(
-                'configuration_key' => $prefix . 'STATUS',
-                'configuration_value' => 'True',
-                'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
+            'configuration_key' => $prefix . 'STATUS',
+            'configuration_value' => 'True',
+            'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'SECURITY_SENDER',
-                'configuration_value' => '31HA07BC8142C5A171745D00AD63D182'
+            'configuration_key' => $prefix . 'SECURITY_SENDER',
+            'configuration_value' => '31HA07BC8142C5A171745D00AD63D182'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'USER_LOGIN',
-                'configuration_value' => '31ha07bc8142c5a171744e5aef11ffd3'
+            'configuration_key' => $prefix . 'USER_LOGIN',
+            'configuration_value' => '31ha07bc8142c5a171744e5aef11ffd3'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'USER_PWD',
-                'configuration_value' => '93167DE7'
+            'configuration_key' => $prefix . 'USER_PWD',
+            'configuration_value' => '93167DE7'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'TRANSACTION_CHANNEL',
-                'configuration_value' => '31HA07BC8142C5A171744F3D6D155865'
+            'configuration_key' => $prefix . 'TRANSACTION_CHANNEL',
+            'configuration_value' => '31HA07BC8142C5A171744F3D6D155865'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'TRANSACTION_MODE',
-                'configuration_value' => 'TEST',
-                'set_function' => 'xtc_cfg_select_option(array(\'LIVE\', \'TEST\'), '
+            'configuration_key' => $prefix . 'TRANSACTION_MODE',
+            'configuration_value' => 'TEST',
+            'set_function' => 'xtc_cfg_select_option(array(\'LIVE\', \'TEST\'), '
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'TEST_ACCOUNT',
-                'configuration_value' => ''
+            'configuration_key' => $prefix . 'TEST_ACCOUNT',
+            'configuration_value' => ''
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'SORT_ORDER',
-                'configuration_value' => '1.3'
+            'configuration_key' => $prefix . 'SORT_ORDER',
+            'configuration_value' => '1.3'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'ZONE',
-                'configuration_value' => '',
-                'set_function' => 'xtc_cfg_pull_down_zone_classes(',
-                'use_function' => 'xtc_get_zone_class_title'
+            'configuration_key' => $prefix . 'ZONE',
+            'configuration_value' => '',
+            'set_function' => 'xtc_cfg_pull_down_zone_classes(',
+            'use_function' => 'xtc_get_zone_class_title'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'ALLOWED',
-                'configuration_value' => ''
+            'configuration_key' => $prefix . 'ALLOWED',
+            'configuration_value' => ''
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'MIN_AMOUNT',
-                'configuration_value' => ''
+            'configuration_key' => $prefix . 'MIN_AMOUNT',
+            'configuration_value' => ''
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'MAX_AMOUNT',
-                'configuration_value' => ''
+            'configuration_key' => $prefix . 'MAX_AMOUNT',
+            'configuration_value' => ''
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'PROCESSED_STATUS_ID',
-                'configuration_value' => '0',
-                'set_function' => 'xtc_cfg_pull_down_order_statuses(',
-                'use_function' => 'xtc_get_order_status_name'
+            'configuration_key' => $prefix . 'PROCESSED_STATUS_ID',
+            'configuration_value' => '0',
+            'set_function' => 'xtc_cfg_pull_down_order_statuses(',
+            'use_function' => 'xtc_get_order_status_name'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'PENDING_STATUS_ID',
-                'configuration_value' => '0',
-                'set_function' => 'xtc_cfg_pull_down_order_statuses(',
-                'use_function' => 'xtc_get_order_status_name'
+            'configuration_key' => $prefix . 'PENDING_STATUS_ID',
+            'configuration_value' => '0',
+            'set_function' => 'xtc_cfg_pull_down_order_statuses(',
+            'use_function' => 'xtc_get_order_status_name'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'CANCELED_STATUS_ID',
-                'configuration_value' => '0',
-                'set_function' => 'xtc_cfg_pull_down_order_statuses(',
-                'use_function' => 'xtc_get_order_status_name'
+            'configuration_key' => $prefix . 'CANCELED_STATUS_ID',
+            'configuration_value' => '0',
+            'set_function' => 'xtc_cfg_pull_down_order_statuses(',
+            'use_function' => 'xtc_get_order_status_name'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'NEWORDER_STATUS_ID',
-                'configuration_value' => '0',
-                'set_function' => 'xtc_cfg_pull_down_order_statuses(',
-                'use_function' => 'xtc_get_order_status_name'
+            'configuration_key' => $prefix . 'NEWORDER_STATUS_ID',
+            'configuration_value' => '0',
+            'set_function' => 'xtc_cfg_pull_down_order_statuses(',
+            'use_function' => 'xtc_get_order_status_name'
         );
         $inst[] = array(
-                'configuration_key' => $prefix . 'DEBUG',
-                'configuration_value' => 'False',
-                'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
+            'configuration_key' => $prefix . 'DEBUG',
+            'configuration_value' => 'False',
+            'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
         );
-        
+
         foreach ($inst as $k => $v) {
             $sql = $sqlBase . ' ';
             foreach ($v as $key => $val) {
@@ -291,21 +295,21 @@ class hpdd extends heidelpayPaymentModules
     {
         $prefix = 'MODULE_PAYMENT_HPDD_';
         return array(
-                $prefix . 'STATUS',
-                $prefix . 'SECURITY_SENDER',
-                $prefix . 'USER_LOGIN',
-                $prefix . 'USER_PWD',
-                $prefix . 'TRANSACTION_CHANNEL',
-                $prefix . 'TRANSACTION_MODE',
-                $prefix . 'TEST_ACCOUNT',
-                $prefix . 'MIN_AMOUNT',
-                $prefix . 'MAX_AMOUNT',
-                $prefix . 'PROCESSED_STATUS_ID',
-                $prefix . 'CANCELED_STATUS_ID',
-                $prefix . 'NEWORDER_STATUS_ID',
-                $prefix . 'SORT_ORDER',
-                $prefix . 'ALLOWED',
-                $prefix . 'ZONE'
+            $prefix . 'STATUS',
+            $prefix . 'SECURITY_SENDER',
+            $prefix . 'USER_LOGIN',
+            $prefix . 'USER_PWD',
+            $prefix . 'TRANSACTION_CHANNEL',
+            $prefix . 'TRANSACTION_MODE',
+            $prefix . 'TEST_ACCOUNT',
+            $prefix . 'MIN_AMOUNT',
+            $prefix . 'MAX_AMOUNT',
+            $prefix . 'PROCESSED_STATUS_ID',
+            $prefix . 'CANCELED_STATUS_ID',
+            $prefix . 'NEWORDER_STATUS_ID',
+            $prefix . 'SORT_ORDER',
+            $prefix . 'ALLOWED',
+            $prefix . 'ZONE'
         );
     }
 }
