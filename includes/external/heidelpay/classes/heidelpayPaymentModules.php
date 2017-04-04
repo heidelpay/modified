@@ -44,11 +44,11 @@ class heidelpayPaymentModules
 
     public function update_status()
     {
-
     }
 
     /**
      * javascript validation
+     *
      * @return bool
      */
     public function javascript_validation()

@@ -29,7 +29,8 @@ if (!empty($_SESSION['hpLastPost'])) {
 <br><br><br><br><br><br><br><br><br><br><br>
 <h2>Ihre Daten werden gepr&uuml;ft...</h2><br>
 <img src="<?php echo $base?>images/ladebalken.gif">
-<form action="<?php echo $base.$next.'?'.session_name().'='.session_id()?>&3ds=1" method="post" style="display: none" target="_top">
+<form action="<?php echo $base.$next.'?'.session_name().'='.session_id()?>&3ds=1"
+      method="post" style="display: none" target="_top">
 <?php foreach ($_POST as $k => $v) {
         ?>
   <?php if (is_array($v)) {

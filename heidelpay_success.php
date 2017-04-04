@@ -1,4 +1,16 @@
 <?php
+/**
+ * heidelpay success action
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
 include('includes/application_top.php');
 // create smarty elements
 $smarty = new Smarty;
@@ -22,7 +34,8 @@ $breadcrumb->add(NAVBAR_TITLE_2_CHECKOUT_SUCCESS);
 
 require(DIR_WS_INCLUDES.'header.php');
 
-$orders_query = xtc_db_query("select orders_id, orders_status from ".TABLE_ORDERS." where customers_id = '".$_SESSION['customer_id']."' order by orders_id desc limit 1");
+$orders_query = xtc_db_query("select orders_id, orders_status from ".TABLE_ORDERS." 
+where customers_id = '".$_SESSION['customer_id']."' order by orders_id desc limit 1");
 $orders = xtc_db_fetch_array($orders_query);
 $last_order = $orders['orders_id'];
 $order_status = $orders['orders_status'];
@@ -60,12 +73,15 @@ if (!empty($_SESSION['hpPrepaidData'])) {
     $text.= '<br><br>'.nl2br(strtr(HP_SUCCESS_PREPAID, $_SESSION['hpPrepaidData']));
 }
 
-$smarty->assign('FORM_ACTION', xtc_draw_form('order', xtc_href_link(FILENAME_CHECKOUT_SUCCESS, 'action=update', 'SSL')));
+$smarty->assign('FORM_ACTION', xtc_draw_form('order',
+xtc_href_link(FILENAME_CHECKOUT_SUCCESS, 'action=update', 'SSL')));
 $smarty->assign('BUTTON_CONTINUE', xtc_image_submit('button_continue.gif', IMAGE_BUTTON_CONTINUE));
-$smarty->assign('BUTTON_PRINT', '<img src="'.'templates/'.CURRENT_TEMPLATE.'/buttons/'.$_SESSION['language'].'/button_print.gif" style="cursor:hand" onclick="window.open(\''.xtc_href_link(FILENAME_PRINT_ORDER, 'oID='.$orders['orders_id']).'\', \'popup\', \'toolbar=0, width=640, height=600\')" />'.$text);
+$smarty->assign('BUTTON_PRINT', '<img src="'.'templates/'.CURRENT_TEMPLATE.'/buttons/'.
+    $_SESSION['language'].'/button_print.gif" style="cursor:hand" onclick="window.open(\''.xtc_href_link(FILENAME_PRINT_ORDER, 'oID='.$orders['orders_id']).'\', \'popup\', \'toolbar=0, width=640, height=600\')" />'.$text);
 $smarty->assign('FORM_END', '</form>');
 // GV Code Start
-$gv_query = xtc_db_query("select amount from ".TABLE_COUPON_GV_CUSTOMER." where customer_id='".$_SESSION['customer_id']."'");
+$gv_query = xtc_db_query("select amount from ".TABLE_COUPON_GV_CUSTOMER." where 
+customer_id='".$_SESSION['customer_id']."'");
 if ($gv_result = xtc_db_fetch_array($gv_query)) {
     if ($gv_result['amount'] > 0) {
         $smarty->assign('GV_SEND_LINK', xtc_href_link(FILENAME_GV_SEND));
@@ -77,8 +93,10 @@ if (GOOGLE_CONVERSION == 'true') {
     $smarty->assign('google_tracking', 'true');
     $smarty->assign('tracking_code', '
 		<noscript>
-		<a href="http://services.google.com/sitestats/'.GOOGLE_LANG.'.html" onclick="window.open(this.href); return false;">
-		<img height=27 width=135 border=0 src="http://www.googleadservices.com/pagead/conversion/'.GOOGLE_CONVERSION_ID.'/?hl='.GOOGLE_LANG.'" />
+		<a href="http://services.google.com/sitestats/'.GOOGLE_LANG.'.html" 
+		onclick="window.open(this.href); return false;">
+		<img height=27 width=135 border=0 src="http://www.googleadservices.com/pagead/conversion/'
+        .GOOGLE_CONVERSION_ID.'/?hl='.GOOGLE_LANG.'" />
 		</a>
 		</noscript>
 		    ');

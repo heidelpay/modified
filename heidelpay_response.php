@@ -1,6 +1,6 @@
 <?php
 /**
- * heidelpay payment class
+ * heidelpay response action
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
  * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
@@ -81,13 +81,6 @@ if ($returnvalue) {
             // credit card registration
             $hp->saveMEMO($customerID, 'heidelpay_last_ccard', $_POST['ACCOUNT_NUMBER']);
             $hp->saveMEMO($customerID, 'heidelpay_last_ccard_reference', $_POST['IDENTIFICATION_UNIQUEID']);
-        } elseif (MODULE_PAYMENT_HPDC_SAVE_REGISTER == 'True'
-            && strpos($_POST['PAYMENT_CODE'], 'DD') === true
-            && $_POST['ACCOUNT_NUMBER'] != ''
-        ) {
-            // direct debit registration
-            $hp->saveMEMO($customerID, 'heidelpay_last_iban', $_POST['ACCOUNT_NUMBER']);
-            $hp->saveMEMO($customerID, 'heidelpay_last_holder', $_POST['ACCOUNT_HOLDER']);
         } elseif (MODULE_PAYMENT_HPDC_SAVE_REGISTER == 'True'
             && $_POST['PAYMENT_CODE'] == 'DC.RG'
             && $_POST['ACCOUNT_NUMBER'] != ''

@@ -16,7 +16,6 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpdd extends heidelpayPaymentModules
 {
-
     /**
      * heidelpay sepa direct debit constructor
      */
@@ -65,6 +64,7 @@ class hpdd extends heidelpayPaymentModules
 
     /**
      * checkout payment form
+     *
      * @return array|bool
      */
     public function selection()
@@ -122,7 +122,7 @@ class hpdd extends heidelpayPaymentModules
                 'field' => '<input value="' . $lastHolder . '" maxlength="50" 
                 name="hpdd[Holder]" type="TEXT">'
             );
-        };
+        }
         return array(
             'id' => $this->code,
             'module' => $this->title,
@@ -137,7 +137,6 @@ class hpdd extends heidelpayPaymentModules
         if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE'
             or strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
         ) {
-
             if ((($_POST['hpdd']['AccountIBAN'] == '')) or ($_POST['hpdd']['Holder'] == '')) {
                 $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
                 xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));

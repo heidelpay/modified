@@ -45,13 +45,24 @@ class heidelpay
             'CONNECTOR_ACCOUNT_IBAN',
             'IDENTIFICATION_SHORTID'
     );
-    
+
+    /**
+     * heidelpay constructor.
+     */
     public function __construct()
     {
         ob_start();
         $this->pageURL = HTTPS_SERVER . '';
     }
-    
+
+    /**
+     * send and prepare request for registrations
+     *
+     * @param $order
+     * @param $payCode string payment code
+     *
+     * @return mixed|string
+     */
     public function handleRegister($order, $payCode)
     {
         $this->trackStep('handleRegister', 'order', $order);
@@ -64,7 +75,8 @@ class heidelpay
             return false;
         }
             // echo '<pre>'.print_r($order, 1).'</pre>';
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
+        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
+            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
             $total = $order->info['total'] + $order->info['tax'];
         } else {
             $total = $order->info['total'];
@@ -115,7 +127,8 @@ class heidelpay
         $processingresult = $res['result'];
         $redirectURL = $res['url'];
         $base = 'heidelpay_redirect.php?';
-        $src = $base . "payment_error=hp" . strtolower($this->actualPaymethod) . '&error=' . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
+        $src = $base . "payment_error=hp" . strtolower($this->actualPaymethod) . '&error='
+            . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
         if ($processingresult == "ACK" && strstr($redirectURL, "http")) {
             $src = $redirectURL;
         }
@@ -126,7 +139,16 @@ class heidelpay
         }
         return $src;
     }
-    
+
+    /**
+     * prepare and send request to heidelpay for authorise or debit
+     *
+     * @param $order
+     * @param $payCode
+     * @param bool $insertId
+     *
+     * @return string
+     */
     public function handleDebit($order, $payCode, $insertId = false)
     {
         $this->trackStep('handleDebit', 'order', $order);
@@ -153,15 +175,14 @@ class heidelpay
         ))) {
             $ACT_PAY_MODE = 'DB';
         }
-            // echo '<pre>'.print_r($order, 1).'</pre>';
         
-        $user_id = $_SESSION['hpLastData']['user_id'];
-        if ($user_id <= 0) {
-            $user_id = $_SESSION['customer_id'];
+        $userId = $_SESSION['hpLastData']['user_id'];
+        if ($userId <= 0) {
+            $userId = $_SESSION['customer_id'];
         } // Fallback User Id
-        $orderId = 'User ' . $user_id . '-' . date('YmdHis');
+        $orderId = 'User ' . $userId . '-' . date('YmdHis');
         if (! empty($insertId)) {
-            $orderId = 'User ' . $user_id . ' Order ' . $insertId;
+            $orderId = 'User ' . $userId . ' Order ' . $insertId;
         }
         $amount = $_SESSION['hpLastData']['amount'];
         $currency = $_SESSION['hpLastData']['currency'];
@@ -206,7 +227,6 @@ class heidelpay
         if ($payCode == 'OT' && $payMethod == 'DB') {
             $payMethod = 'PA';
         }
-            // if(strtoupper($payCode) == 'PP' && $payMethod == 'DB') $payMethod = 'PA'; // Vorkasse immer PA
         
         if (in_array(strtoupper($payCode), array(
                 'OT',
@@ -215,23 +235,35 @@ class heidelpay
         ))) {
             if ($payMethod == 'DB') {
                 $payMethod = 'PA';
-            } // Rechnung und Vorkasse immer PA
+            } // set invoice and prepayment always to transaction mode authorise
             if (in_array(strtoupper($payCode), array(
                     'PP',
                     'IV'
             ))) {
                 $capture = true;
-            } // Rechnung und Vorkasse immer ohne IFrame
+            } // use invoice and prepayment always without Iframe
             unset($_SESSION['hpUniqueID']);
         }
-        
-        $data = $this->prepareData($orderId, $amount, $currency, $payCode, $userData, $language, $payMethod, $capture, $_SESSION['hpUniqueID']);
+        // prepare the post payload for the api request
+        $data = $this->prepareData(
+                $orderId,
+                $amount,
+                $currency,
+                $payCode,
+                $userData,
+                $language,
+                $payMethod,
+                $capture,
+                $_SESSION['hpUniqueID']
+        );
         $this->trackStep('handleDebit', 'data', $data);
         
-        // echo '<pre>'.print_r($_SESSION, 1).'</pre>';
+
         if ($debug) {
             echo '<pre>' . print_r($data, 1) . '</pre>';
         }
+
+        // send api request to heidelpay api
         $res = $this->doRequest($data);
         $this->trackStep('handleDebit', 'result', $res);
         if ($debug) {
@@ -240,6 +272,8 @@ class heidelpay
         if ($debug) {
             echo '<pre>' . print_r($res, 1) . '</pre>';
         }
+
+        // parse the heidelpay result
         $res = $this->parseResult($res);
         $this->trackStep('handleDebit', 'parsedResult', $res);
         if ($debug) {
@@ -249,6 +283,12 @@ class heidelpay
         
         if (isset($res['all']['ACCOUNT.HOLDER']) && ($res['all']['ACCOUNT.HOLDER'] != '')) {
             $holder = $res['all']['ACCOUNT.HOLDER'];
+        }
+
+        if (strpos($res['all']['PAYMENT_CODE'], 'DD') === true && $_POST['ACCOUNT_IBAN'] != '') {
+            // save direct debit payment data
+            $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
+            $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
         }
         
         // 3D Secure
