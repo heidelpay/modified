@@ -1070,8 +1070,9 @@ class heidelpay
      *
      * @param $order_id string order number
      * @param $comment string order comment
-     * @param string $status order status
+     * @param string $status            order status
      * @param string $customer_notified customer notification
+     *
      * @return bool|mysqli_result|resource
      */
     public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
@@ -1102,6 +1103,7 @@ class heidelpay
      *
      * @param $order_id string order number
      * @param $search
+     *
      * @return bool
      */
     public function getHistoryComment($order_id, $search)
@@ -1120,9 +1122,11 @@ class heidelpay
 
     /**
      * test if the order has a order history
+     *
      * @param $order_id
      * @param $status
      * @param $customer_notified
+     *
      * @return bool
      */
     public function hasHistoryComment($order_id, $status, $customer_notified)
@@ -1144,7 +1148,9 @@ class heidelpay
 
     /**
      * get last order history
+     *
      * @param $order_id
+     *
      * @return array|bool|mixed|null
      */
     public function getLastHistoryComment($order_id)
@@ -1162,6 +1168,7 @@ class heidelpay
 
     /**
      * @param $order_id
+     *
      * @return array
      */
     public function getOrderHistory($order_id)
@@ -1187,6 +1194,7 @@ class heidelpay
      * @param $order_id
      * @param $status
      * @param bool $doubleCheck
+     *
      * @return bool
      */
     public function setOrderStatus($order_id, $status, $doubleCheck = false)
@@ -1211,10 +1219,12 @@ class heidelpay
 
     /**
      * set payment reference id
+     *
      * @param $uniqueId
      * @param $order_id
      * @param $paymentMethod
      * @param $shortId
+     *
      * @return bool|mysqli_result|resource
      */
     public function saveIds($uniqueId, $order_id, $paymentMethod, $shortId)
@@ -1238,8 +1248,10 @@ class heidelpay
 
     /**
      * save order comment
+     *
      * @param $order_id
      * @param $comment
+     *
      * @return bool|mysqli_result|resource
      */
     public function saveOrderComment($order_id, $comment)
@@ -1250,9 +1262,11 @@ class heidelpay
 
     /**
      * save customer memo
+     *
      * @param $customerId
      * @param $key
      * @param $value
+     *
      * @return bool|mysqli_result|resource
      */
     public function saveMEMO($customerId, $key, $value)
@@ -1271,8 +1285,10 @@ class heidelpay
 
     /**
      * load customer memo
+     *
      * @param $customerId
      * @param $key
+     *
      * @return mixed
      */
     public function loadMEMO($customerId, $key)
@@ -1285,7 +1301,9 @@ class heidelpay
 
     /**
      * get payment method from order
+     *
      * @param $orderId
+     *
      * @return mixed
      */
     public function getPayment($orderId)
@@ -1298,8 +1316,10 @@ class heidelpay
 
     /**
      * get all unpaid orders by date
+     *
      * @param $paymentClass
      * @param $payStatus
+     *
      * @return array|bool|mixed|null
      */
     public function getOpenOrdersDate($paymentClass, $payStatus)
@@ -1314,8 +1334,10 @@ class heidelpay
 
     /**
      * get all unpaid orders
+     *
      * @param $payment_class
      * @param $paystatus
+     *
      * @return array
      */
     public function getOpenOrders($payment_class, $paystatus)
@@ -1333,8 +1355,10 @@ class heidelpay
 
     /**
      * get unpaid orders by payment reference id
+     *
      * @param $uniqueId
      * @param $payment_class
+     *
      * @return array|bool|mixed|null
      */
     public function getOpenOrderByUniqueId($uniqueId, $payment_class)
@@ -1352,7 +1376,9 @@ class heidelpay
 
     /**
      * get language id
+     *
      * @param $code
+     *
      * @return mixed
      */
     public function getLangId($code)
@@ -1368,6 +1394,7 @@ class heidelpay
      * get order status name
      *
      * @param $statusId
+     *
      * @return mixed
      */
     public function getOrderStatusName($statusId)
