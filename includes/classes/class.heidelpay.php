@@ -289,11 +289,10 @@ class heidelpay
             $holder = $res['all']['ACCOUNT.HOLDER'];
         }
 
-        if (strpos($res['all']['PAYMENT.CODE'], 'DD') === true) {
+        if ($res['all']['PAYMENT_CODE'] == 'DD.PA' or $res['all']['PAYMENT_CODE'] == 'DD.DB') {
             // save direct debit payment data
             if ($debug) {
                 echo 'Save direct debit: '.$userId;
-                echo '<pre>' . print_r($res, 1) . '</pre>';
             }
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT.IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT.HOLDER']);
