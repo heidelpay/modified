@@ -1,7 +1,7 @@
 <?php
 $prefix = 'MODULE_PAYMENT_HPDDSEC_';
 
-define($prefix.'TEXT_TITLE', 'gesicherte Lastschrift');
+define($prefix.'TEXT_TITLE', 'gesicherte Lastschrift B2C');
 define($prefix.'TEXT_DESC', 'Lastschrift &uuml;ber Heidelberger Payment GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
