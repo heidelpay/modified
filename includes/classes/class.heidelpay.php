@@ -291,6 +291,10 @@ class heidelpay
 
         if (strpos($res['all']['PAYMENT.CODE'], 'DD') === true) {
             // save direct debit payment data
+            if ($debug) {
+                echo 'Save direct debit: '.$userId;
+                echo '<pre>' . print_r($res, 1) . '</pre>';
+            }
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT.IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT.HOLDER']);
         }
@@ -692,7 +696,7 @@ class heidelpay
                 $parameters["FRONTEND.PM." . ( string )($key + 1) . ".ENABLED"] = "false";
             }
         }
-        // Wenn der Payment Code noch nicht gesetzt wurde
+
         if (empty($parameters['PAYMENT.CODE'])) {
             $parameters['PAYMENT.CODE'] = $payCode . "." . $mode;
         }
@@ -899,7 +903,6 @@ class heidelpay
     public function doRequest($data, $xml = null)
     {
         $url = $this->demo_url_new;
-        $result = array();
         if (!empty($xml)) {
             $url = 'https://test-heidelpay.hpcgw.net/TransactionCore/xml';
         } // XML

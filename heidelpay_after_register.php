@@ -18,7 +18,7 @@ $payCode = strtolower($payCodeBig);
 
 $currentLanguage = ($_SESSION['language'] === 'german') ? 'german' : 'english';
 
-$usedPaymentMethod = ($payCode === 'hpdc') ? 'hpdc' : 'hpcc';
+$usedPaymentMethod = ($payCode === 'dc') ? 'dc' : 'cc';
 
 require_once(DIR_WS_LANGUAGES.$currentLanguage.'/modules/payment/hp'.$usedPaymentMethod.'.php');
 ?>
