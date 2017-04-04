@@ -15,7 +15,8 @@
 #### sofort
 - input fields for iban and bic in store front are not longer required. Please contact our support to switch your sofort project settings.
 ### Credit card
-- fix possible include injection in after registration action   
+- fix possible include injection in after registration action
+- escape string on after registration action
 
 ### Fixed
 
@@ -23,4 +24,3 @@
 ### direct debit
 - bic is not longer necessary for the 23 SEPA countries
 - account number and bank id will not longer be supported
- 

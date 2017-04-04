@@ -285,10 +285,10 @@ class heidelpay
             $holder = $res['all']['ACCOUNT.HOLDER'];
         }
 
-        if (strpos($res['all']['PAYMENT_CODE'], 'DD') === true && $_POST['ACCOUNT_IBAN'] != '') {
+        if (strpos($res['all']['PAYMENT.CODE'], 'DD') === true) {
             // save direct debit payment data
-            $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
-            $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
+            $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT.IBAN']);
+            $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT.HOLDER']);
         }
         
         // 3D Secure
