@@ -3,6 +3,7 @@
   "description": "This extension for modified eCommerce provides a direct integration of the heidelpay payment methods to your modified shop.",
   "require": {
     "php": ">=5.6.0",
+    "ext-bcmath" : "*",
     "slowprog/composer-copy-file": "~0.2"
   },
   "require-dev": {

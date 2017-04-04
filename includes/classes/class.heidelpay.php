@@ -408,10 +408,10 @@ class heidelpay
                             . '" value="' . utf8_encode($v) . '" type="hidden">';
                     }
                 }
-                // $form.= '<input type="submit"><br>';
+
                 $form .= '</form><script>document.getElementById("hpSURedirectForm").submit();</script>';
                 $_SESSION['HEIDELPAY_IFRAME'] = $form;
-                // echo '<pre>'.print_r($form, 1).'</pre>'; exit();
+
                 if (!$debug) {
                     header('Location: ' . $loc . 'heidelpay_checkout_iframe.php?' . session_name()
                         . '=' . session_id());
@@ -419,9 +419,8 @@ class heidelpay
                 if (!$debug) {
                     exit();
                 }
-                // if($debug) echo 'IFrame: '.$hpIframe.'<br>';
             } else {
-                // Giropay kann direkt angesprungen werden
+                // redirect to giropay
                 $src = $res['all']['PROCESSING.REDIRECT.URL'];
                 if (!$debug) {
                     header('Location: ' . $src . '');
@@ -442,15 +441,15 @@ class heidelpay
                 'dd'
             )) && ($ACT_MOD_MODE == 'DIRECT' || $ACT_MOD_MODE == 'NOWPF') && ($payMethod == 'DB' || $payMethod == 'PA')
         ) {
-            // Bei DB fuer CC / DC / DD keinen IFrame anzeigen
+            // in case of debit for credit card, direct debit and debit card, processing request in sync mode
             if (!$_SESSION['HEIDELPAY_IFRAME'] && $processingresult == "ACK" && $insertId > 0) {
                 $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
 
-                // Coupon im Erfolgsfall vergessen
+                // delet coupon code from session
                 if (isset($_SESSION['heidel_last_coupon'])) {
                     unset($_SESSION['heidel_last_coupon']);
                 }
-                // letzten Coupon im Erfolgsfall vergessen
+                // delet coupon code from session
                 if (isset($_SESSION['cc_id'])) {
                     unset($_SESSION['cc_id']);
                 }
@@ -485,7 +484,7 @@ class heidelpay
                 'iv'
             )) && $ACT_MOD_MODE == 'AFTER'
         ) {
-            // Bei PP und IV keinen IFrame anzeigen
+            // prepayment and invoice in sync mode
             if ($processingresult == "ACK" && $insertId > 0) {
                 $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
                 $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
@@ -559,7 +558,6 @@ class heidelpay
             }
             $_SESSION['HEIDELPAY_IFRAME'] = $hpIframe;
             $this->trackStep('handleDebit', 'session', $_SESSION);
-            // $_SESSION['hpLastPost'] = $_POST;
             if (!$debug) {
                 header('Location: ' . $loc . 'heidelpay_checkout_iframe.php?' . session_name() . '=' . session_id());
             }
@@ -901,6 +899,7 @@ class heidelpay
      */
     public function doRequest($data, $xml = null)
     {
+        $result = '';
         $url = $this->demo_url_new;
         if (!empty($xml)) {
             $url = 'https://test-heidelpay.hpcgw.net/TransactionCore/xml';
@@ -928,22 +927,22 @@ class heidelpay
         }
 
         if (function_exists('curl_init')) {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-            curl_setopt($ch, CURLOPT_TIMEOUT, 60);
-            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 60);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $strPOST);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($ch, CURLOPT_USERAGENT, "Heidelpay Request");
+            $curlInstance = curl_init();
+            curl_setopt($curlInstance, CURLOPT_URL, $url);
+            curl_setopt($curlInstance, CURLOPT_HEADER, 0);
+            curl_setopt($curlInstance, CURLOPT_FAILONERROR, 1);
+            curl_setopt($curlInstance, CURLOPT_TIMEOUT, 60);
+            curl_setopt($curlInstance, CURLOPT_CONNECTTIMEOUT, 60);
+            curl_setopt($curlInstance, CURLOPT_POST, 1);
+            curl_setopt($curlInstance, CURLOPT_POSTFIELDS, $strPOST);
+            curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
 
-            $this->response = curl_exec($ch);
-            $this->error = curl_error($ch);
-            curl_close($ch);
+            $this->response = curl_exec($curlInstance);
+            $this->error = curl_error($curlInstance);
+            curl_close($curlInstance);
 
             $res = $this->response;
             if (!$this->response && $this->error) {
@@ -1066,29 +1065,45 @@ class heidelpay
         return $xml;
     }
 
+    /**
+     * Add comment to order history
+     *
+     * @param $order_id string order number
+     * @param $comment string order comment
+     * @param string $status order status
+     * @param string $customer_notified customer notification
+     * @return bool|mysqli_result|resource
+     */
     public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
     {
         if (empty($order_id) || empty($comment)) {
             return false;
         }
-        // Alten Eintrag laden
+        // load current  oder history
         $orderHistory = $this->getLastHistoryComment($order_id);
-        // Kunde benachrichtigt
+        // set customer notification
         $orderHistory['customer_notified'] = $customer_notified;
-        // Timestamp korrekt erneuern
+        // set time stamp
         $orderHistory['date_added'] = date('Y-m-d H:i:s');
-        // Kommentar setzen
+        // set new comment
         $orderHistory['comments'] = urldecode($comment);
-        // Neuer Status eintragen
+        // set new order status
         if (!empty($status)) {
             $orderHistory['orders_status_id'] = addslashes($status);
         }
-        // Alte History ID entfernen
+        // remove old history id
         unset($orderHistory['orders_status_history_id']);
-        // Neue History eintragen
+        // save history
         return xtc_db_perform(TABLE_ORDERS_STATUS_HISTORY, $orderHistory);
     }
 
+    /**
+     * get all order history
+     *
+     * @param $order_id string order number
+     * @param $search
+     * @return bool
+     */
     public function getHistoryComment($order_id, $search)
     {
         if (empty($order_id) || empty($search)) {
@@ -1103,6 +1118,13 @@ class heidelpay
         return $ordersHistory['comments'];
     }
 
+    /**
+     * test if the order has a order history
+     * @param $order_id
+     * @param $status
+     * @param $customer_notified
+     * @return bool
+     */
     public function hasHistoryComment($order_id, $status, $customer_notified)
     {
         if (empty($order_id) || empty($status) || empty($customer_notified)) {
@@ -1120,6 +1142,11 @@ class heidelpay
         return count($ordersHistory) > 0;
     }
 
+    /**
+     * get last order history
+     * @param $order_id
+     * @return array|bool|mixed|null
+     */
     public function getLastHistoryComment($order_id)
     {
         if (empty($order_id)) {
@@ -1133,6 +1160,10 @@ class heidelpay
         return xtc_db_fetch_array($orderHistoryArray);
     }
 
+    /**
+     * @param $order_id
+     * @return array
+     */
     public function getOrderHistory($order_id)
     {
         if (empty($order_id)) {
@@ -1150,32 +1181,43 @@ class heidelpay
         return $ordersHistory;
     }
 
+    /**
+     * Set order status
+     *
+     * @param $order_id
+     * @param $status
+     * @param bool $doubleCheck
+     * @return bool
+     */
     public function setOrderStatus($order_id, $status, $doubleCheck = false)
     {
         global $db_link;
-        // Status History laden
+        // load status history
         $orderHistory = $this->getOrderHistory($order_id);
         if ($doubleCheck) {
-            // Pr�fen ob Status schon mal gesetzt
-            $found = false;
-            foreach ($orderHistory as $k => $v) {
-                if ($v['orders_status_id'] == $status) {
-                    $found = true;
+            // prove if status is already set
+            foreach ($orderHistory as $key => $value) {
+                if ($value['orders_status_id'] == $status) {
+                    return false;
                 }
             }
-            // Wenn Status schon mal gesetzt dann nichts tun
-            if ($found) {
-                return false;
-            }
         }
-        // Bestellstatus setzen
-        $res = xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `orders_status` = '"
+        // set order status
+        xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `orders_status` = '"
             . addslashes($status) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
         $stat = mysqli_affected_rows($db_link);
         return $stat > 0;
     }
 
-    public function saveIds($uniqueId, $order_id, $paymeth, $shortId)
+    /**
+     * set payment reference id
+     * @param $uniqueId
+     * @param $order_id
+     * @param $paymentMethod
+     * @param $shortId
+     * @return bool|mysqli_result|resource
+     */
+    public function saveIds($uniqueId, $order_id, $paymentMethod, $shortId)
     {
         $create = 'CREATE TABLE IF NOT EXISTS `heidelpay_transaction_data` ('
             . '`uniqueID` varchar(32) COLLATE latin1_german1_ci NOT NULL,'
@@ -1187,40 +1229,32 @@ class heidelpay
 
         $insert = 'INSERT INTO `heidelpay_transaction_data` SET `uniqueID`="'
             . addslashes($uniqueId) . '", `orderId`="' . addslashes($order_id) . '", `paymentmethod`="'
-            . addslashes($paymeth) . '", `shortID`="' . addslashes($shortId) . '"';
+            . addslashes($paymentMethod) . '", `shortID`="' . addslashes($shortId) . '"';
 
         xtc_db_query($create);
 
         return xtc_db_query($insert);
     }
 
+    /**
+     * save order comment
+     * @param $order_id
+     * @param $comment
+     * @return bool|mysqli_result|resource
+     */
     public function saveOrderComment($order_id, $comment)
     {
         return xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `comments` = '"
             . addslashes($comment) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
     }
 
-    public function install_db($tablename, $fieldname, $add_fieldspec, $setindex = false)
-    {
-        $q = xtc_db_query('SHOW COLUMNS FROM ' . $tablename);
-        while ($values = xtc_db_fetch_array($q)) {
-            if ($values['Field'] == $fieldname) {
-                return true;
-            }
-        }
-        xtc_db_query($add_fieldspec);
-        if ($setindex) {
-            xtc_db_query('ALTER TABLE `' . $tablename . '` ADD INDEX (`' . $fieldname . '`)');
-        }
-        $q = xtc_db_query('SHOW COLUMNS FROM ' . $tablename);
-        while ($values = xtc_db_fetch_array($q)) {
-            if ($values['Field'] == $fieldname) {
-                return true;
-            }
-        }
-        return false;
-    }
-
+    /**
+     * save customer memo
+     * @param $customerId
+     * @param $key
+     * @param $value
+     * @return bool|mysqli_result|resource
+     */
     public function saveMEMO($customerId, $key, $value)
     {
         $data = $this->loadMEMO($customerId, $key);
@@ -1235,6 +1269,12 @@ class heidelpay
         }
     }
 
+    /**
+     * load customer memo
+     * @param $customerId
+     * @param $key
+     * @return mixed
+     */
     public function loadMEMO($customerId, $key)
     {
         $res = xtc_db_query('SELECT * FROM `customers_memo` WHERE `customers_id` = "'
@@ -1243,6 +1283,11 @@ class heidelpay
         return $res['memo_text'];
     }
 
+    /**
+     * get payment method from order
+     * @param $orderId
+     * @return mixed
+     */
     public function getPayment($orderId)
     {
         $sql = 'SELECT `payment_class` FROM `' . TABLE_ORDERS . '` WHERE `orders_id` = "' . ( int )$orderId . '" ';
@@ -1251,6 +1296,12 @@ class heidelpay
         return $res['payment_class'];
     }
 
+    /**
+     * get all unpaid orders by date
+     * @param $paymentClass
+     * @param $payStatus
+     * @return array|bool|mixed|null
+     */
     public function getOpenOrdersDate($paymentClass, $payStatus)
     {
         $this->actualPaymethod = strtoupper(substr($paymentClass, 2, 2));
@@ -1261,6 +1312,12 @@ class heidelpay
         return xtc_db_fetch_array($res);
     }
 
+    /**
+     * get all unpaid orders
+     * @param $payment_class
+     * @param $paystatus
+     * @return array
+     */
     public function getOpenOrders($payment_class, $paystatus)
     {
         $sql = 'SELECT * FROM `' . TABLE_ORDERS . '` WHERE `payment_class` = "' . $payment_class
@@ -1274,6 +1331,12 @@ class heidelpay
         return $tmp;
     }
 
+    /**
+     * get unpaid orders by payment reference id
+     * @param $uniqueId
+     * @param $payment_class
+     * @return array|bool|mixed|null
+     */
     public function getOpenOrderByUniqueId($uniqueId, $payment_class)
     {
         $sql = 'SELECT * FROM `orders` JOIN `heidelpay_transaction_data`'
@@ -1287,6 +1350,11 @@ class heidelpay
         return xtc_db_fetch_array($res);
     }
 
+    /**
+     * get language id
+     * @param $code
+     * @return mixed
+     */
     public function getLangId($code)
     {
         $sql = 'SELECT `languages_id` FROM `' . TABLE_LANGUAGES . '` WHERE `code` = "' . addslashes($code) . '" ';
@@ -1296,6 +1364,12 @@ class heidelpay
         return $res['languages_id'];
     }
 
+    /**
+     * get order status name
+     *
+     * @param $statusId
+     * @return mixed
+     */
     public function getOrderStatusName($statusId)
     {
         $langId = $this->getLangId('de');
