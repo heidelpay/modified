@@ -70,23 +70,13 @@ class hpdd extends heidelpayPaymentModules
     public function selection()
     {
         global $order;
-        $lastIban = null;
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpDDData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0
-            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
-        ) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPDD_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPDD_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPDD_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPDD_MAX_AMOUNT < $total) {
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
             return false;
         }
 
@@ -105,8 +95,8 @@ class hpdd extends heidelpayPaymentModules
             // load last direct debit information
             $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
                 ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
-            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')
+            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
+                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
                 : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
 
             // Iban input field

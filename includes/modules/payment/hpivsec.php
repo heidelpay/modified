@@ -210,7 +210,7 @@ class hpivsec
         );
         $inst[] = array(
                 'configuration_key' => $prefix . 'SORT_ORDER',
-                'configuration_value' => '2.0'
+                'configuration_value' => '2.2'
         );
         $inst[] = array(
                 'configuration_key' => $prefix . 'ZONE',

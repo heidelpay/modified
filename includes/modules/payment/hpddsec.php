@@ -77,26 +77,15 @@ class hpddsec extends heidelpayPaymentModules
     public function selection()
     {
         global $order;
-        $lastIban = null;
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpddsecData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0
-            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
-        ) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPDDSEC_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPDDSEC_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPDDSEC_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPDDSEC_MAX_AMOUNT < $total) {
-            return false;
-        }
 
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
+        }
 
         $content = array(
             array(
@@ -112,8 +101,9 @@ class hpddsec extends heidelpayPaymentModules
             // load last direct debit information
             $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
                 ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
-            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')
+
+            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
+                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
                 : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
 
             $salutation = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_salutation')))
@@ -121,13 +111,13 @@ class hpddsec extends heidelpayPaymentModules
                 : ($_SESSION['customer_gender'] == 'f') ? 'MRS' : 'MR';
 
             // Salutation field
+            $selected = ($salutation == 'MRS') ? 'selected="selected">' : '>';
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDDSEC_SALUTATION,
                 'field' => '<select title="salutation" name="hpddsec["salutation" >'
                 .'<option value="MR">'.MODULE_PAYMENT_HPDDSEC_SALUTATION_MR.'</option>'
-                .'<option value="MRS" '.($salutation == 'MRS') ? 'selected="selected"' : '' .'>'
-                    .MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS.'</option>'
-                    .'</select>'
+                .'<option value="MRS" '.$selected .MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS.'</option>'
+                .'</select>'
 
             );
 
@@ -144,7 +134,6 @@ class hpddsec extends heidelpayPaymentModules
                 'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
                 name="hpddsec[AccountIBAN]" type="TEXT">'
             );
-            ;
         }
         return array(
             'id' => $this->code,
@@ -246,7 +235,7 @@ class hpddsec extends heidelpayPaymentModules
         );
         $inst[] = array(
             'configuration_key' => $prefix . 'SORT_ORDER',
-            'configuration_value' => '1.3'
+            'configuration_value' => '2.1'
         );
         $inst[] = array(
             'configuration_key' => $prefix . 'ZONE',

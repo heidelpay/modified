@@ -56,9 +56,24 @@ class heidelpayPaymentModules
         return false;
     }
 
-    public function selection()
+    /**
+     * weather this payment method is available
+     *
+     * @return bool
+     */
+    public function isAvailable()
     {
-        global $order;
+        // load current settings
+
+        // min/max amount for this payment method
+        if ($this->isAmountToHigh()) {
+            return false;
+        }
+        if ($this->isAmountToLow()) {
+            return false;
+        }
+
+        return $this->canCustomerUseThisPaymentMethod();
     }
 
     public function pre_confirmation_check()
@@ -120,5 +135,89 @@ class heidelpayPaymentModules
 
     public function keys()
     {
+    }
+
+    /**
+     * get the total amount of an order
+     *
+     * @return integer total amount including tax
+     */
+    public function getOrderAmountSelection()
+    {
+        // estimate total amount
+        $total = $this->order->info['total'];
+
+        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0
+            && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
+        ) {
+            // total amount including tax
+            $total = $this->order->info['total'] + $this->order->info['tax'];
+        }
+
+        return $total * 100;
+    }
+
+    /**
+     * Estimate if the oder amount is to high
+     *
+     * @return bool       true if amount to high
+     * @param  null|mixed $order
+     * @param  mixed      $maxAmount
+     */
+    public function isAmountToHigh($order = null, $maxAmount = 0)
+    {
+        // return false on an empty order object
+        if ($order === null) {
+            return true;
+        }
+
+        $totalAmount = $this->getOrderAmountSelection($order);
+
+        if ($maxAmount > 0 && $maxAmount < $totalAmount) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Estimate if the oder amount is to low
+     *
+     * @return bool true if amount to low
+     */
+    public function isAmountToLow()
+    {
+        // return false on an empty order object
+        if ($this->order === null) {
+            return true;
+        }
+
+        $min = constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_MIN_AMOUNT');
+
+        $totalAmount = $this->getOrderAmountSelection();
+
+        if ($min > 0 && $min > $totalAmount) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * return true if the customer can use this payment method
+     *
+     * @return bool return true if the customer can use this payment method
+     */
+    public function canCustomerUseThisPaymentMethod()
+    {
+        $testAccount = strtolower(constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_TEST_ACCOUNT'));
+        $transactionMode = constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_TRANSACTION_MODE');
+
+        if ($transactionMode === 'LIVE') {
+            return true;
+        }
+        if (strpos($testAccount, $this->order->customer['email_address']) !== false) {
+            return true;
+        }
+
+        return false;
     }
 }
