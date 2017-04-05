@@ -15,7 +15,7 @@ class hpivsec
     public $tmpStatus;
     
     // class constructor
-    public function constructor()
+    public function __construct()
     {
         global $order, $language;
         
