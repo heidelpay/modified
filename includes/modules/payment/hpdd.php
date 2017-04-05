@@ -72,6 +72,7 @@ class hpdd extends heidelpayPaymentModules
         // call parent selection
         $content = parent::selection();
 
+        // reset session data
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpDDData']);
@@ -113,31 +114,21 @@ class hpdd extends heidelpayPaymentModules
 
     public function pre_confirmation_check()
     {
-        global $order;
-        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE'
-            or strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
-        ) {
-            if ((($_POST['hpdd']['AccountIBAN'] == '')) or ($_POST['hpdd']['Holder'] == '')) {
-                $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
-                xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-            } else {
-                $_SESSION['hpLastPost'] = $_POST;
-                $_SESSION['hpDDData'] = $_POST['hpdd'];
-                return;
-            }
-        } else {
-            $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_DEBUGTEXT);
+        if ((($_POST['hpdd']['AccountIBAN'] == '')) or ($_POST['hpdd']['Holder'] == '')) {
+            $payment_error_return = 'payment_error=hpdd&error=' . urlencode(MODULE_PAYMENT_HPDD_PAYMENT_DATA);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+            return;
         }
+        $_SESSION['hpLastPost'] = $_POST;
+        $_SESSION['hpDDData'] = $_POST['hpdd'];
     }
 
     public function after_process()
     {
-        global $order, $xtPrice, $insert_id;
+        global $order, $insert_id;
         $this->hp->setOrderStatus($insert_id, $this->order_status);
-        $comment = ' ';
-        $this->hp->addHistoryComment($insert_id, $comment, $this->order_status);
-        $hpIframe = $this->hp->handleDebit($order, $this->payCode, $insert_id);
+        $this->hp->addHistoryComment($insert_id, '', $this->order_status);
+        $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
     }
 
@@ -167,10 +158,7 @@ class hpdd extends heidelpayPaymentModules
     {
         $this->remove(true);
 
-        $groupId = 6;
-        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
         $prefix = 'MODULE_PAYMENT_HPDD_';
-        $inst = array();
         $inst[] = array(
             'configuration_key' => $prefix . 'STATUS',
             'configuration_value' => 'True',
@@ -253,22 +241,7 @@ class hpdd extends heidelpayPaymentModules
             'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
         );
 
-        foreach ($inst as $k => $v) {
-            $sql = $sqlBase . ' ';
-            foreach ($v as $key => $val) {
-                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
-            }
-            $sql .= '`sort_order` = "' . $k . '", ';
-            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
-            $sql .= '`date_added` = NOW() ';
-            xtc_db_query($sql);
-        }
-    }
-
-    public function remove($install = false)
-    {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION
-            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        parent::defaultConfigSettings($inst);
     }
 
     public function keys()

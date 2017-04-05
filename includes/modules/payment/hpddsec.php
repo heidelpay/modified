@@ -76,7 +76,10 @@ class hpddsec extends heidelpayPaymentModules
      */
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
+        // reset session data
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpddsecData']);
@@ -86,7 +89,6 @@ class hpddsec extends heidelpayPaymentModules
         if ($this->isAvailable() === false) {
             return false;
         }
-
 
 
         if (MODULE_PAYMENT_HPDDSEC_TRANSACTION_MODE == 'LIVE' or
@@ -110,9 +112,9 @@ class hpddsec extends heidelpayPaymentModules
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDDSEC_SALUTATION,
                 'field' => '<select title="salutation" name="hpddsec["salutation" >'
-                .'<option value="MR">'.MODULE_PAYMENT_HPDDSEC_SALUTATION_MR.'</option>'
-                .'<option value="MRS" '.$selected .MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS.'</option>'
-                .'</select>'
+                    . '<option value="MR">' . MODULE_PAYMENT_HPDDSEC_SALUTATION_MR . '</option>'
+                    . '<option value="MRS" ' . $selected . MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS . '</option>'
+                    . '</select>'
 
             );
 
@@ -140,31 +142,21 @@ class hpddsec extends heidelpayPaymentModules
 
     public function pre_confirmation_check()
     {
-        global $order;
-        if (MODULE_PAYMENT_HPDDSEC_TRANSACTION_MODE == 'LIVE'
-            or strpos(MODULE_PAYMENT_HPDDSEC_TEST_ACCOUNT, $order->customer['email_address']) !== false
-        ) {
-            if ((($_POST['HPDDSEC']['AccountIBAN'] == '')) or ($_POST['HPDDSEC']['Holder'] == '')) {
-                $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
-                xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-            } else {
-                $_SESSION['hpLastPost'] = $_POST;
-                $_SESSION['hpddsecData'] = $_POST['hpddsec'];
-                return;
-            }
-        } else {
-            $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_DEBUGTEXT);
+        if ((($_POST['HPDDSEC']['AccountIBAN'] == '')) or ($_POST['HPDDSEC']['Holder'] == '')) {
+            $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+            return;
         }
+        $_SESSION['hpLastPost'] = $_POST;
+        $_SESSION['hpddsecData'] = $_POST['hpddsec'];
     }
 
     public function after_process()
     {
-        global $order, $xtPrice, $insert_id;
+        global $order, $insert_id;
         $this->hp->setOrderStatus($insert_id, $this->order_status);
-        $comment = ' ';
-        $this->hp->addHistoryComment($insert_id, $comment, $this->order_status);
-        $hpIframe = $this->hp->handleDebit($order, $this->payCode, $insert_id);
+        $this->hp->addHistoryComment($insert_id, '', $this->order_status);
+        $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
     }
 
@@ -194,8 +186,6 @@ class hpddsec extends heidelpayPaymentModules
     {
         $this->remove(true);
 
-        $groupId = 6;
-        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
         $prefix = 'MODULE_PAYMENT_HPDDSEC_';
         $inst = array();
         $inst[] = array(
@@ -280,22 +270,7 @@ class hpddsec extends heidelpayPaymentModules
             'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
         );
 
-        foreach ($inst as $k => $v) {
-            $sql = $sqlBase . ' ';
-            foreach ($v as $key => $val) {
-                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
-            }
-            $sql .= '`sort_order` = "' . $k . '", ';
-            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
-            $sql .= '`date_added` = NOW() ';
-            xtc_db_query($sql);
-        }
-    }
-
-    public function remove($install = false)
-    {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION
-            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        parent::defaultConfigSettings($inst);
     }
 
     public function keys()

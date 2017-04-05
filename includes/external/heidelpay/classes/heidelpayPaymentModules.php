@@ -27,6 +27,8 @@ class heidelpayPaymentModules
     protected $order;
     /** @var string $transactionMode transaction mode for this payment method */
     protected $transactionMode;
+    /** @var  string $order_status */
+    protected $order_status;
 
     /**
      * heidelpay payment constructor
@@ -72,7 +74,9 @@ class heidelpayPaymentModules
        return array(
             array(
                 'title' => '',
-                'field' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_DEBUGTEXT')
+                'field' => '<strong style="color: darkred">'
+                    .constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_DEBUGTEXT')
+                .'</strong>'
             )
         );
 
@@ -145,18 +149,30 @@ class heidelpayPaymentModules
     {
     }
 
-    public function install()
+    /**
+     * install default config settings to database
+     * @param array $configSettings configuration option
+     */
+    public function defaultConfigSettings($configSettings=array())
     {
+        $groupId = 6;
+        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
+        foreach ($configSettings as $configKey => $configValue) {
+            $sql = $sqlBase . ' ';
+            foreach ($configValue as $key => $val) {
+                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
+            }
+            $sql .= '`sort_order` = "' . $configKey . '", ';
+            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
+            $sql .= '`date_added` = NOW() ';
+            xtc_db_query($sql);
+        }
     }
 
-    public function remove($install = false)
+    public function remove()
     {
         xtc_db_query("delete from " . TABLE_CONFIGURATION
             . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
-    }
-
-    public function keys()
-    {
     }
 
     /**

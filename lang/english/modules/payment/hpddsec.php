@@ -56,7 +56,7 @@ define($prefix.'ALLOWED_TITLE', 'Allowed Zones');
 define($prefix.'ALLOWED_DESC', 'Please enter the zones <b>separately</b> which should be allowed to use this modul (e. g. AT,DE (leave empty if you want to allow all zones))');
 
 define($prefix.'DEBUG_TITLE', 'Debug Mode');
-define($prefix.'DEBUG_DESC', 'Please activate only if heidelpay told this to you. Otherwise the checkout will not work in your shop correctly.');
+define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
 
 define($prefix.'TEXT_INFO', '');
 define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use another one or try again later.');
