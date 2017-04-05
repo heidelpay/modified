@@ -106,7 +106,7 @@ class hpddsec extends heidelpayPaymentModules
             $selected = ($salutation == 'MRS') ? 'selected="selected">' : '>';
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDDSEC_SALUTATION,
-                'field' => '<select title="salutation" name="hpddsec["salutation" >'
+                'field' => '<select title="salutation" name="hpddsec[salutation]">'
                     . '<option value="MR">' . MODULE_PAYMENT_HPDDSEC_SALUTATION_MR . '</option>'
                     . '<option value="MRS" ' . $selected . MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS . '</option>'
                     . '</select>'
@@ -125,6 +125,9 @@ class hpddsec extends heidelpayPaymentModules
                 'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
                 name="hpddsec[AccountIBAN]" type="TEXT">'
             );
+
+            //Birthdate select
+            $content[] = $this->birthDateSelection();
 
         return array(
             'id' => $this->code,

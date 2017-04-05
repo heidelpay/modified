@@ -261,4 +261,44 @@ class heidelpayPaymentModules
 
         return false;
     }
+
+    public function birthDateSelection()
+    {
+        // Birth day selection
+        $formFields='<select title="birthday" name="hp'.$this->payCode.'[day]" >';
+        $formFields.='<option value="">--</option>';
+
+        for($day=1; $day <=31; $day++){
+            $formFields.='<option value="'.$day.'">'.$day.'</option>';
+        }
+
+        $formFields.='</select>';
+
+        // Birth mouth selection
+        $formFields.='<select title="birthmonth" name="hp'.$this->payCode.'[month]" >';
+        $formFields.='<option value="">--</option>';
+
+        for($month=1; $month <=12; $month++){
+            $formFields.='<option value="'.$month.'">'.$month.'</option>';
+        }
+
+        $formFields.='</select>';
+
+        // Birth year selection
+        $formFields.='<select title="birthyear" name="hp'.$this->payCode.'[year]" >';
+        $formFields.='<option value="">--</option>';
+
+        for ($year = 17; $year <= 80; $year++) {
+            $yearNumber = date('Y', strtotime("last day of -$year year"));
+            $formFields.='<option value="'.$yearNumber.'">'.$yearNumber.'</option>';
+        }
+
+        $formFields.='</select>';
+
+        return array(
+            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION'),
+            'field' => $formFields
+        );
+
+    }
 }
