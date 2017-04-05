@@ -1,8 +1,8 @@
 <?php
 $prefix = 'MODULE_PAYMENT_HPDDSEC_';
 
-define($prefix.'TEXT_TITLE', 'Direct Debit secured b2c');
-define($prefix.'TEXT_DESC', 'Direct Debit over Heidelberger Payment GmbH');
+define($prefix.'TEXT_TITLE', 'direct debit secured b2c');
+define($prefix.'TEXT_DESC', 'direct debit secured b2c over Heidelberger Payment GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');
@@ -64,16 +64,11 @@ define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use 
 define($prefix.'ERROR_NO_PAYDATA', 'Please enter your payment information.');
 define($prefix.'PAYMENT_DATA', 'Please enter the missing direct debit data.');
 
-define($prefix.'ACCOUNT_NUMBER', 'Account no. :');
-define($prefix.'ACCOUNT_BANK', 'Bank no. :');
 define($prefix.'ACCOUNT_HOLDER', 'Account holder :');
-
 define($prefix.'ACCOUNT_IBAN', 'IBAN :');
-define($prefix.'ACCOUNT_BIC', 'BIC :');
-
-define($prefix.'ACCOUNT_SWITCH', 'Account information :');
-define($prefix.'ACCOUNT_SWITCH_CLASSIC', 'Account no. & Bank no.');
-define($prefix.'ACCOUNT_SWITCH_IBAN', 'IBAN');
+define($prefix.'SALUTATION', 'Salutation :');
+define($prefix.'SALUTATION_MR', 'mr.');
+define($prefix.'SALUTATION_MRS', 'mrs.');
 
 define($prefix.'SUCCESS', 'The amount will be debited from this account within the next days:<br/><br/>
 IBAN: {ACC_IBAN}<br>
