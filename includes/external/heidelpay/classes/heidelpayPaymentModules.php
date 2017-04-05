@@ -265,27 +265,29 @@ class heidelpayPaymentModules
     public function birthDateSelection()
     {
         // Birth day selection
-        $formFields='<select title="birthday" name="hp'.$this->payCode.'[day]" >';
+        $formFields='<select title="birthday" name="hp'.$this->payCode.'[day]" style="width:25%">';
         $formFields.='<option value="">--</option>';
 
         for($day=1; $day <=31; $day++){
-            $formFields.='<option value="'.$day.'">'.$day.'</option>';
+            $day2Digits = sprintf("%02d",$day);
+            $formFields.='<option value="'.$day2Digits.'">'.$day2Digits.'</option>';
         }
 
         $formFields.='</select>';
 
         // Birth mouth selection
-        $formFields.='<select title="birthmonth" name="hp'.$this->payCode.'[month]" >';
+        $formFields.='<select title="birthmonth" name="hp'.$this->payCode.'[month]" style="width:25%">';
         $formFields.='<option value="">--</option>';
 
         for($month=1; $month <=12; $month++){
-            $formFields.='<option value="'.$month.'">'.$month.'</option>';
+            $month2Digits = sprintf("%02d",$month);
+            $formFields.='<option value="'.$month2Digits.'">'.$month2Digits.'</option>';
         }
 
         $formFields.='</select>';
 
         // Birth year selection
-        $formFields.='<select title="birthyear" name="hp'.$this->payCode.'[year]" >';
+        $formFields.='<select title="birthyear" name="hp'.$this->payCode.'[year]" style="width:50%">';
         $formFields.='<option value="">--</option>';
 
         for ($year = 17; $year <= 80; $year++) {
