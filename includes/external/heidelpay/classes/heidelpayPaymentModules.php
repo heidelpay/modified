@@ -25,6 +25,8 @@ class heidelpayPaymentModules
     protected $tmpOrders = false;
     /** @var  $order */
     protected $order;
+    /** @var string $transactionMode transaction mode for this payment method */
+    protected $transactionMode;
 
     /**
      * heidelpay payment constructor
@@ -36,6 +38,7 @@ class heidelpayPaymentModules
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
         $this->version = $this->hp->version;
+        $this->transactionMode = constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_TRANSACTION_MODE');
 
         if (is_object($order)) {
             $this->update_status();
@@ -54,6 +57,25 @@ class heidelpayPaymentModules
     public function javascript_validation()
     {
         return false;
+    }
+
+    public function selection()
+    {
+        // update order instance
+        global $order;
+        $this->order = $order;
+
+        // if transaction mode is live return empty array
+        if($this->transactionMode === 'LIVE') return array();
+
+        // if transaction mode is test return a warning text
+       return array(
+            array(
+                'title' => '',
+                'field' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_DEBUGTEXT')
+            )
+        );
+
     }
 
     /**
@@ -167,11 +189,11 @@ class heidelpayPaymentModules
     public function isAmountToHigh($order = null, $maxAmount = 0)
     {
         // return false on an empty order object
-        if ($order === null) {
+        if ($this->order === null) {
             return true;
         }
 
-        $totalAmount = $this->getOrderAmountSelection($order);
+        $totalAmount = $this->getOrderAmountSelection();
 
         if ($maxAmount > 0 && $maxAmount < $totalAmount) {
             return true;
@@ -209,9 +231,9 @@ class heidelpayPaymentModules
     public function canCustomerUseThisPaymentMethod()
     {
         $testAccount = strtolower(constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_TEST_ACCOUNT'));
-        $transactionMode = constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_TRANSACTION_MODE');
 
-        if ($transactionMode === 'LIVE') {
+
+        if ($this->transactionMode === 'LIVE') {
             return true;
         }
         if (strpos($testAccount, $this->order->customer['email_address']) !== false) {

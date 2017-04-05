@@ -69,7 +69,9 @@ class hpdd extends heidelpayPaymentModules
      */
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpDDData']);
@@ -80,39 +82,27 @@ class hpdd extends heidelpayPaymentModules
             return false;
         }
 
+        // load last direct debit information
+        $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
+            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
+        $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
+            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
+            : $this->order->customer['firstname'] . ' ' . $this->order->customer['lastname'];
 
-        $content = array(
-            array(
-                'title' => '',
-                'field' => MODULE_PAYMENT_HPDD_DEBUGTEXT
-            )
+        // Iban input field
+        $content[] = array(
+            'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
+            'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
+                name="hpdd[AccountIBAN]" type="TEXT">'
         );
 
-        if (MODULE_PAYMENT_HPDD_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPDD_TEST_ACCOUNT, $order->customer['email_address']) !== false
-        ) {
-            $content = array();
-            // load last direct debit information
-            $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
-            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
-                : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
-
-            // Iban input field
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-                'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
-                name="hpdd[AccountIBAN]" type="TEXT">'
-            );
-
-            // Holder input field
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-                'field' => '<input value="' . $lastHolder . '" maxlength="50" 
+        // Holder input field
+        $content[] = array(
+            'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
+            'field' => '<input value="' . $lastHolder . '" maxlength="50" 
                 name="hpdd[Holder]" type="TEXT">'
-            );
-        }
+        );
+
         return array(
             'id' => $this->code,
             'module' => $this->title,

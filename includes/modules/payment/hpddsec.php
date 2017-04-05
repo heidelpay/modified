@@ -87,12 +87,7 @@ class hpddsec extends heidelpayPaymentModules
             return false;
         }
 
-        $content = array(
-            array(
-                'title' => '',
-                'field' => MODULE_PAYMENT_HPDDSEC_DEBUGTEXT
-            )
-        );
+
 
         if (MODULE_PAYMENT_HPDDSEC_TRANSACTION_MODE == 'LIVE' or
             strpos(MODULE_PAYMENT_HPDDSEC_TEST_ACCOUNT, $order->customer['email_address']) !== false
