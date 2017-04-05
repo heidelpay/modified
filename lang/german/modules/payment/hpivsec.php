@@ -1,5 +1,5 @@
 <?php
-$prefix = 'MODULE_PAYMENT_HPIV_';
+$prefix = 'MODULE_PAYMENT_HPIVSEC_';
 
 define($prefix.'TEXT_TITLE', 'gesicherte Rechnung B2C');
 define($prefix.'TEXT_DESC', 'gesicherte Rechnung B2C &uuml;ber Heidelberger Payment GmbH');
