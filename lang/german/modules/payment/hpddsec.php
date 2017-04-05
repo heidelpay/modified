@@ -59,7 +59,7 @@ define($prefix.'DEBUG_TITLE', 'Debug Modus');
 define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von Heidelpay an, da sonst eine Bezahlung im Shop nicht mehr funktioniert.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'Testsystemmodus aktive. Bitte benutzen Sie keine echten Zahldaten.');
+define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Zahldaten.');
 
 define($prefix.'ERROR_NO_PAYDATA', 'Bitte geben Sie Ihre Zahlungsinformationen ein.');
 define($prefix.'PAYMENT_DATA', 'Die angegebenen Lastschriftdaten sind unvollst&auml;ndig. Bitte geben Sie die fehlenden Daten an.');

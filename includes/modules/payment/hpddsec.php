@@ -90,11 +90,6 @@ class hpddsec extends heidelpayPaymentModules
             return false;
         }
 
-
-        if (MODULE_PAYMENT_HPDDSEC_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPDDSEC_TEST_ACCOUNT, $order->customer['email_address']) !== false
-        ) {
-            $content = array();
             // load last direct debit information
             $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
                 ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
@@ -117,7 +112,6 @@ class hpddsec extends heidelpayPaymentModules
                     . '</select>'
 
             );
-
             // Holder input field
             $content[] = array(
                 'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
@@ -131,7 +125,7 @@ class hpddsec extends heidelpayPaymentModules
                 'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
                 name="hpddsec[AccountIBAN]" type="TEXT">'
             );
-        }
+
         return array(
             'id' => $this->code,
             'module' => $this->title,

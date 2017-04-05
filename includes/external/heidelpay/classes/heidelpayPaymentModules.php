@@ -68,7 +68,9 @@ class heidelpayPaymentModules
         $this->order = $order;
 
         // if transaction mode is live return empty array
-        if($this->transactionMode === 'LIVE') return array();
+        if ($this->transactionMode === 'LIVE') {
+            return array();
+        }
 
         // if transaction mode is test return a warning text
        return array(
@@ -79,7 +81,6 @@ class heidelpayPaymentModules
                 .'</strong>'
             )
         );
-
     }
 
     /**
@@ -151,6 +152,7 @@ class heidelpayPaymentModules
 
     /**
      * install default config settings to database
+     *
      * @param array $configSettings configuration option
      */
     public function defaultConfigSettings($configSettings=array())
@@ -198,9 +200,10 @@ class heidelpayPaymentModules
     /**
      * Estimate if the oder amount is to high
      *
-     * @return bool       true if amount to high
-     * @param  null|mixed $order
-     * @param  mixed      $maxAmount
+     * @return bool true if amount to high
+     *
+     * @param null|mixed $order
+     * @param mixed      $maxAmount
      */
     public function isAmountToHigh($order = null, $maxAmount = 0)
     {
