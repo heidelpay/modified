@@ -21,6 +21,11 @@ class hpddsec extends heidelpayPaymentModules
      */
     public function __construct()
     {
+        global $order;
+        $this->order = $order;
+        $this->hp = new heidelpay();
+        $this->hp->actualPaymethod = strtoupper($this->payCode);
+        $this->version = $this->hp->version;
         $this->payCode = 'ddsec';
         $this->code = 'hp' . $this->payCode;
         $this->title = MODULE_PAYMENT_HPDDSEC_TEXT_TITLE;
@@ -31,7 +36,9 @@ class hpddsec extends heidelpayPaymentModules
         $this->tmpStatus = MODULE_PAYMENT_HPDDSEC_NEWORDER_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_HPDDSEC_NEWORDER_STATUS_ID;
 
-        parent::__construct();
+        if (is_object($order)) {
+            $this->update_status();
+        }
     }
 
     /**
