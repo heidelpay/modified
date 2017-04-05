@@ -19,7 +19,7 @@ class hpivsec
     {
         global $order, $language;
         
-        $this->payCode = 'iv';
+        $this->payCode = 'ivsec';
         $this->code = 'hp' . $this->payCode;
         $this->title = MODULE_PAYMENT_HPIVSEC_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_HPIVSEC_TEXT_DESC;
