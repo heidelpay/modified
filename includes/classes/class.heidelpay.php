@@ -456,11 +456,11 @@ class heidelpay
             if (!$_SESSION['HEIDELPAY_IFRAME'] && $processingresult == "ACK" && $insertId > 0) {
                 $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
 
-                // delet coupon code from session
+                // delete coupon code from session
                 if (isset($_SESSION['heidel_last_coupon'])) {
                     unset($_SESSION['heidel_last_coupon']);
                 }
-                // delet coupon code from session
+                // delete coupon code from session
                 if (isset($_SESSION['cc_id'])) {
                     unset($_SESSION['cc_id']);
                 }
