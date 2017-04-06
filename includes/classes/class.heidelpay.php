@@ -297,22 +297,16 @@ class heidelpay
             }
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
-            //Save saluation and birthdate
-            if (!empty($res['all']['NAME_BIRTHDATE'])) {
-                $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME_SALUTATION']);
-                $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME_BIRTHDATE']);
-            }
         }
 
-        // save invoice secured recognition data
-        if ($res['all']['PAYMENT_CODE'] == 'IV.PA' and
-            !empty($res['all']['NAME_BIRTHDATE'])) {
-            // save direct debit payment data
-            if ($debug) {
-                echo 'Save invoice secured: '.$userId;
-            }
-            $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME_SALUTATION']);
-            $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME_BIRTHDATE']);
+        // save salutation
+        if (array_key_exists('NAME.SALUTATION',$data)){
+           $this->saveMEMO($userId, 'heidelpay_last_salutation', $data['NAME.SALUTATION']);
+        }
+
+        // save birthdate
+        if (array_key_exists('NAME.BIRTHDATE',$data)){
+            $this->saveMEMO($userId, 'heidelpay_last_birtdate', $data['NAME.BIRTHDATE']);
         }
 
         // 3D Secure
