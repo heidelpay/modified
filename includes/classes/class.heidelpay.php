@@ -295,24 +295,24 @@ class heidelpay
             if ($debug) {
                 echo 'Save direct debit: '.$userId;
             }
-            $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT.IBAN']);
-            $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT.HOLDER']);
+            $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
+            $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
             //Save saluation and birthdate
-            if (array_key_exists('NAME.BIRTHDATE', $res['all'])) {
-                $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME.SALUTATION']);
-                $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME.BIRTHDATE']);
+            if (array_key_exists('NAME_BIRTHDATE', $res['all'])) {
+                $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME_SALUTATION']);
+                $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME_BIRTHDATE']);
             }
         }
 
         // save invoice secured recognition data
         if ($res['all']['PAYMENT_CODE'] == 'IV.PA' and
-            array_key_exists('NAME.BIRTHDATE', $res['all']['PAYMENT_CODE'])) {
+            array_key_exists('NAME_BIRTHDATE', $res['all'])) {
             // save direct debit payment data
             if ($debug) {
                 echo 'Save invoice secured: '.$userId;
             }
-            $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME.SALUTATION']);
-            $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME.BIRTHDATE']);
+            $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME_SALUTATION']);
+            $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME_BIRTHDATE']);
         }
 
         // 3D Secure
@@ -579,7 +579,7 @@ class heidelpay
                 header('Location: ' . $loc . 'heidelpay_checkout_iframe.php?' . session_name() . '=' . session_id());
             }
             if ($debug) {
-                echo 'IFrame: ' . $hpIframe . '<br>';
+                echo 'IFrame: ' . htmlspecialchars($hpIframe) . '<br>';
             }
             exit();
         }
@@ -726,7 +726,7 @@ class heidelpay
         $parameters['NAME.GIVEN'] = trim($userData['firstname']);
         $parameters['NAME.FAMILY'] = trim($userData['lastname']);
         $parameters['NAME.SALUTATION'] = $userData['salutation'];
-        $parameters['NAME.COMPANY'] = $userData['company'];
+        $parameters['NAME.COMPANY'] = trim($userData['company']);
         $parameters['ADDRESS.STREET'] = $userData['street'];
         $parameters['ADDRESS.ZIP'] = $userData['zip'];
         $parameters['ADDRESS.CITY'] = $userData['city'];
