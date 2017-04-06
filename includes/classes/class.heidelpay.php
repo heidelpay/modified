@@ -298,7 +298,7 @@ class heidelpay
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
             //Save saluation and birthdate
-            if (array_key_exists('NAME_BIRTHDATE', $res['all'])) {
+            if (!empty($res['all']['NAME_BIRTHDATE'])) {
                 $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME_SALUTATION']);
                 $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME_BIRTHDATE']);
             }
@@ -306,7 +306,7 @@ class heidelpay
 
         // save invoice secured recognition data
         if ($res['all']['PAYMENT_CODE'] == 'IV.PA' and
-            array_key_exists('NAME_BIRTHDATE', $res['all'])) {
+            !empty($res['all']['NAME_BIRTHDATE'])) {
             // save direct debit payment data
             if ($debug) {
                 echo 'Save invoice secured: '.$userId;
@@ -388,9 +388,7 @@ class heidelpay
                 header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
             }
             exit();
-        } elseif ($ACT_MOD_MODE == 'AFTER') {
-            // $_SESSION['hpLastPost'] = $_POST;
-        }
+        };
         $processingresult = $res['result'];
         $redirectURL = $res['url'];
         $base = 'heidelpay_redirect.php?';
@@ -455,7 +453,8 @@ class heidelpay
         if (in_array($payCode, array(
                 'cc',
                 'dc',
-                'dd'
+                'dd',
+                'ddsec'
             )) && ($ACT_MOD_MODE == 'DIRECT' || $ACT_MOD_MODE == 'NOWPF') && ($payMethod == 'DB' || $payMethod == 'PA')
         ) {
             // in case of debit for credit card, direct debit and debit card, processing request in sync mode
@@ -540,18 +539,8 @@ class heidelpay
                 $comment = 'Payment Info: ' . $prePaidData . '<br>';
                 $this->addHistoryComment($insertId, $comment, $status);
             }
-            // BarPay
-        } elseif (!empty($res['all']['CRITERION_BARPAY_PAYCODE_URL'])) {
-            $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
-            $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
-            $this->addHistoryComment($insertId, $comment, $status);
-            $comment = 'Download Link: ' . $res['all']['CRITERION_BARPAY_PAYCODE_URL'];
-            $this->addHistoryComment($insertId, $comment, $status);
-            $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode,
-                $res['all']['IDENTIFICATION.SHORTID']);
-            $this->setOrderStatus($insertId, $status);
         } else {
-            if ($this->actualPaymethod == 'TP' || $this->actualPaymethod == 'SU') {
+            if ($this->actualPaymethod == 'SU') {
                 if (@constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod)
                         . '_DIRECT_MODE') == 'LIGHTBOX'
                 ) {
