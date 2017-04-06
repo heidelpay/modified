@@ -448,7 +448,8 @@ class heidelpay
                 'cc',
                 'dc',
                 'dd',
-                'ddsec'
+                'ddsec',
+                'ivsec'
             )) && ($ACT_MOD_MODE == 'DIRECT' || $ACT_MOD_MODE == 'NOWPF') && ($payMethod == 'DB' || $payMethod == 'PA')
         ) {
             // in case of debit for credit card, direct debit and debit card, processing request in sync mode
