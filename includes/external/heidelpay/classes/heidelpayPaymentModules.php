@@ -205,16 +205,18 @@ class heidelpayPaymentModules
      * @param null|mixed $order
      * @param mixed      $maxAmount
      */
-    public function isAmountToHigh($order = null, $maxAmount = 0)
+    public function isAmountToHigh()
     {
         // return false on an empty order object
         if ($this->order === null) {
             return true;
         }
 
+        $max = constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_MAX_AMOUNT');
+
         $totalAmount = $this->getOrderAmountSelection();
 
-        if ($maxAmount > 0 && $maxAmount < $totalAmount) {
+        if ($max > 0 && $max < $totalAmount) {
             return true;
         }
         return false;
@@ -262,6 +264,11 @@ class heidelpayPaymentModules
         return false;
     }
 
+    /**
+     * generate birthdate form fields
+     *
+     * @return array birthdate form fields
+     */
     public function birthDateSelection()
     {
         // Birth day selection
@@ -300,6 +307,67 @@ class heidelpayPaymentModules
         return array(
             'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION'),
             'field' => $formFields
+        );
+
+    }
+
+    /**
+     * generates the account holder input field
+     *
+     * @return array account holder input field
+     */
+    public function accountHolderSelection()
+    {
+        $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
+            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
+            : $this->order->customer['firstname'] . ' ' . $this->order->customer['lastname'];
+
+        return array(
+            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_ACCOUNT_HOLDER'),
+            'field' => '<input value="' . $lastHolder . '" maxlength="50" 
+                name="hp'.$this->payCode.'[Holder]" type="TEXT">'
+        );
+    }
+
+    /**
+     * generates the salutation input field
+     *
+     * @return array salutation input field
+     */
+    public function salutationSelection()
+    {
+        $salutation = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_salutation')))
+            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_salutation')
+            : ($_SESSION['customer_gender'] == 'f') ? 'MRS' : 'MR';
+
+        // Salutation field
+        $selected = ($salutation == 'MRS') ? 'selected="selected">' : '>';
+
+        $formField =  '<select title="salutation" name="hp'.$this->payCode.'[salutation]">';
+        $formField .= '<option value="MR">' .constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION_MR');
+        $formField .= '</option>';
+        $formField .= '<option value="MRS" ' . $selected;
+        $formField .=  constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION_MRS');
+        $formField .= '</option>';
+        $formField .= '</select>';
+
+        return array(
+            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION'),
+            'field' => $formField
+        );
+    }
+
+    public function accountIbanSelection()
+    {
+        // load last direct debit information
+        $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
+            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
+
+        // Iban input field
+        return array(
+            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_ACCOUNT_IBAN,'),
+            'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
+                name="hpdd[AccountIBAN]" type="TEXT">'
         );
 
     }

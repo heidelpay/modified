@@ -83,26 +83,11 @@ class hpdd extends heidelpayPaymentModules
             return false;
         }
 
-        // load last direct debit information
-        $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
-            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
-        $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
-            ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
-            : $this->order->customer['firstname'] . ' ' . $this->order->customer['lastname'];
+        // Holder input field
+        $content[] = $this->accountHolderSelection();
 
         // Iban input field
-        $content[] = array(
-            'title' => MODULE_PAYMENT_HPDD_ACCOUNT_IBAN,
-            'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
-                name="hpdd[AccountIBAN]" type="TEXT">'
-        );
-
-        // Holder input field
-        $content[] = array(
-            'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-            'field' => '<input value="' . $lastHolder . '" maxlength="50" 
-                name="hpdd[Holder]" type="TEXT">'
-        );
+        $content[] = $this->accountIbanSelection();
 
         return array(
             'id' => $this->code,

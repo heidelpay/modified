@@ -89,44 +89,17 @@ class hpddsec extends heidelpayPaymentModules
         if ($this->isAvailable() === false) {
             return false;
         }
+            // Salutation select field
+            $content[] = $this->salutationSelection();
 
-            // load last direct debit information
-            $lastIban = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_iban') : '';
-
-            $lastHolder = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_holder')
-                : $order->customer['firstname'] . ' ' . $order->customer['lastname'];
-
-            $salutation = (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_salutation')))
-                ? $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_salutation')
-                : ($_SESSION['customer_gender'] == 'f') ? 'MRS' : 'MR';
-
-            // Salutation field
-            $selected = ($salutation == 'MRS') ? 'selected="selected">' : '>';
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDDSEC_SALUTATION,
-                'field' => '<select title="salutation" name="hpddsec[salutation]">'
-                    . '<option value="MR">' . MODULE_PAYMENT_HPDDSEC_SALUTATION_MR . '</option>'
-                    . '<option value="MRS" ' . $selected . MODULE_PAYMENT_HPDDSEC_SALUTATION_MRS . '</option>'
-                    . '</select>'
-
-            );
             // Holder input field
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDD_ACCOUNT_HOLDER,
-                'field' => '<input value="' . $lastHolder . '" maxlength="50" 
-                name="hpdd[Holder]" type="TEXT">'
-            );
+            $content[] = $this->accountHolderSelection();
 
-            // Iban input field
-            $content[] = array(
-                'title' => MODULE_PAYMENT_HPDDSEC_ACCOUNT_IBAN,
-                'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
-                name="hpddsec[AccountIBAN]" type="TEXT">'
-            );
+        // Iban input field
+        $content[] = $this->accountIbanSelection();
 
-            //Birthdate select
+
+        //Birthdate select
             $content[] = $this->birthDateSelection();
 
         return array(
