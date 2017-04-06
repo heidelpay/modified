@@ -112,7 +112,13 @@ class hpddsec extends heidelpayPaymentModules
 
     public function pre_confirmation_check()
     {
-        if ((($_POST['HPDDSEC']['AccountIBAN'] == '')) or ($_POST['HPDDSEC']['Holder'] == '')) {
+        if ($_POST['hpddsec']['AccountIBAN'] == '' or
+            $_POST['hpddsec']['Holder'] == '' or
+            $_POST['hpddsec']['salutation'] == '' or
+            $_POST['hpddsec']['day'] == '' or
+            $_POST['hpddsec']['month'] == '' or
+            $_POST['hpddsec']['year'] == ''
+            ) {
             $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
             return;

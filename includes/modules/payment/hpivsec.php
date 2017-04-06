@@ -95,7 +95,15 @@ class hpivsec extends heidelpayPaymentModules
 
     public function pre_confirmation_check()
     {
-        global $order;
+        if ($_POST['hpivsec']['salutation'] == '' or
+            $_POST['hpivsec']['day'] == '' or
+            $_POST['hpivsec']['month'] == '' or
+            $_POST['hpivsec']['year'] == ''
+        ) {
+            $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
+            xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+            return;
+        }
         $_SESSION['hpModuleMode'] = 'AFTER';
         $_SESSION['hpLastPost'] = $_POST;
         $_SESSION['hpivsecData'] = $_POST['hpivsec'];
