@@ -67,6 +67,9 @@ define($prefix.'DEBUG_DESC', 'Please activate only if heidelpay told this to you
 define($prefix.'TEXT_INFO', '');
 define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
 
+define($prefix.'SALUTATION', 'Salutation :');
+define($prefix.'SALUTATION_MR', 'mr.');
+define($prefix.'SALUTATION_MRS', 'mrs.');
 define($prefix.'BIRTHDAY', 'Birthday:');
 
 define($prefix.'SUCCESS', 'Your transaction was successfull! 

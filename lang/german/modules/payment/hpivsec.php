@@ -67,6 +67,9 @@ define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von Heidelpa
 define($prefix.'TEXT_INFO', '');
 define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Zahldaten.');
 
+define($prefix.'SALUTATION', 'Anrede :');
+define($prefix.'SALUTATION_MR', 'Herr');
+define($prefix.'SALUTATION_MRS', 'Frau');
 define($prefix.'BIRTHDAY', 'Geburtstag :');
 
 define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
