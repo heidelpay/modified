@@ -18,7 +18,7 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 class hpivsec extends heidelpayPaymentModules
 {
 
-    protected $payCode = 'ivsec';
+    public $payCode = 'ivsec';
 
     // class constructor
     public function __construct()
