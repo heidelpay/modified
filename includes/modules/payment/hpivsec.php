@@ -17,7 +17,6 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpivsec extends heidelpayPaymentModules
 {
-
     public $payCode = 'ivsec';
 
     // class constructor
@@ -97,9 +96,9 @@ class hpivsec extends heidelpayPaymentModules
     public function pre_confirmation_check()
     {
         global $order;
-            $_SESSION['hpModuleMode'] = 'AFTER';
-            $_SESSION['hpLastPost'] = $_POST;
-            $_SESSION['hpivsecData'] = $_POST['hpivsec'];
+        $_SESSION['hpModuleMode'] = 'AFTER';
+        $_SESSION['hpLastPost'] = $_POST;
+        $_SESSION['hpivsecData'] = $_POST['hpivsec'];
     }
 
     public function after_process()

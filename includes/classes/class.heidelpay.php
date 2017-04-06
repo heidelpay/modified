@@ -289,6 +289,7 @@ class heidelpay
             $holder = $res['all']['ACCOUNT.HOLDER'];
         }
 
+        // save direct debit and direct debit secured recognition data
         if ($res['all']['PAYMENT_CODE'] == 'DD.PA' or $res['all']['PAYMENT_CODE'] == 'DD.DB') {
             // save direct debit payment data
             if ($debug) {
@@ -296,6 +297,22 @@ class heidelpay
             }
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT.IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT.HOLDER']);
+            //Save saluation and birthdate
+            if (array_key_exists('NAME.BIRTHDATE', $res['all'])) {
+                $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME.SALUTATION']);
+                $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME.BIRTHDATE']);
+            }
+        }
+
+        // save invoice secured recognition data
+        if ($res['all']['PAYMENT_CODE'] == 'IV.PA' and
+            array_key_exists('NAME.BIRTHDATE', $res['all']['PAYMENT_CODE'])) {
+            // save direct debit payment data
+            if ($debug) {
+                echo 'Save invoice secured: '.$userId;
+            }
+            $this->saveMEMO($userId, 'heidelpay_last_salutation', $res['all']['NAME.SALUTATION']);
+            $this->saveMEMO($userId, 'heidelpay_last_birtdate', $res['all']['NAME.BIRTHDATE']);
         }
 
         // 3D Secure
@@ -677,13 +694,19 @@ class heidelpay
             $order = $order = new order($oId);
             $bsParams = $this->getBillsafeBasket($order);
             $parameters = array_merge($parameters, $bsParams);
-        } elseif ($this->actualPaymethod == 'BP') {
-            $parameters['PAYMENT.CODE'] = "PP.PA";
-            $parameters['ACCOUNT.BRAND'] = "BARPAY";
+        } elseif ($this->actualPaymethod == 'IVSEC') {
+            $parameters['PAYMENT.CODE'] = "IV.PA";
+            $userData['salutation'] =$_SESSION['hpivsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'].'-'.$_SESSION['hpivsecData']['month']
+            .'-'.$_SESSION['hpivsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'MK') {
-            $parameters['PAYMENT.CODE'] = "PC.PA";
-            $parameters['ACCOUNT.BRAND'] = "MANGIRKART";
+        } elseif ($this->actualPaymethod == 'DDSEC') {
+            $parameters['PAYMENT.CODE'] = "DD.DB";
+            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpddsecData']['Holder'];
+            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpddsecData']['AccountIBAN']);
+            $userData['salutation'] =$_SESSION['hpddsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'].'-'.$_SESSION['hpddsecData']['month']
+                .'-'.$_SESSION['hpddsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
         }
 
