@@ -69,7 +69,7 @@ define($prefix.'ACCOUNT_IBAN', 'IBAN :');
 define($prefix.'SALUTATION', 'Anrede :');
 define($prefix.'SALUTATION_MR', 'Herr');
 define($prefix.'SALUTATION_MRS', 'Frau');
-
+define($prefix.'BIRTHDAY', 'Geburtstag :');
 
 
 define($prefix.'SUCCESS', 'Der Betrag wird in den naechsten Tagen von folgendem Konto abgebucht:<br><br>

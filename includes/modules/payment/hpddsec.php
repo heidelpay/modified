@@ -16,18 +16,19 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpddsec extends heidelpayPaymentModules
 {
+    protected $payCode = 'ddsec';
+
     /**
      * heidelpay sepa direct debit secured constructor
      */
     public function __construct()
     {
         global $order;
+        $this->code = 'hp' . $this->payCode;
         $this->order = $order;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
         $this->version = $this->hp->version;
-        $this->payCode = 'ddsec';
-        $this->code = 'hp' . $this->payCode;
         $this->title = MODULE_PAYMENT_HPDDSEC_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_HPDDSEC_TEXT_DESC;
         $this->sort_order = MODULE_PAYMENT_HPDDSEC_SORT_ORDER;
@@ -98,8 +99,7 @@ class hpddsec extends heidelpayPaymentModules
         // Iban input field
         $content[] = $this->accountIbanSelection();
 
-
-        //Birthdate select
+        //Birthday select
             $content[] = $this->birthDateSelection();
 
         return array(

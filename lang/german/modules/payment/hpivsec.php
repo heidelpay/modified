@@ -65,7 +65,9 @@ define($prefix.'DEBUG_TITLE', 'Debug Modus');
 define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von Heidelpay an, da sonst eine Bezahlung im Shop nicht mehr funktioniert.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'Das Zahlverfahren wird gerade gewartet. Bitte w&auml;hlen Sie ein anderes Zahlverfahren oder versuchen Sie es zu einem sp&auml;teren Zeitpunkt.');
+define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Zahldaten.');
+
+define($prefix.'BIRTHDAY', 'Geburtstag :');
 
 define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
 

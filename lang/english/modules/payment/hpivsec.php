@@ -65,7 +65,9 @@ define($prefix.'DEBUG_TITLE', 'Debug Mode');
 define($prefix.'DEBUG_DESC', 'Please activate only if heidelpay told this to you. Otherwise the checkout will not work in your shop correctly.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use another one or try again later.');
+define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
+
+define($prefix.'BIRTHDAY', 'Birthday:');
 
 define($prefix.'SUCCESS', 'Your transaction was successfull! 
 

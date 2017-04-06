@@ -1,51 +1,59 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpivsec
+/**
+ * Sepa direct debit secured b2c payment method class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
+ */
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+
+class hpivsec extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
-    
+
+    protected $payCode = 'ivsec';
+
     // class constructor
     public function __construct()
     {
-        global $order, $language;
-        
-        $this->payCode = 'ivsec';
+        global $order;
         $this->code = 'hp' . $this->payCode;
         $this->title = MODULE_PAYMENT_HPIVSEC_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_HPIVSEC_TEXT_DESC;
         $this->sort_order = MODULE_PAYMENT_HPIVSEC_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_HPIVSEC_STATUS == 'True') ? true : false);
         $this->info = MODULE_PAYMENT_HPIVSEC_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
         $this->tmpOrders = false;
         $this->tmpStatus = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
         $this->order_status = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
+        $this->version = $this->hp->version;
         
         if (is_object($order)) {
             $this->update_status();
         }
     }
 
+    /**
+     * update_status
+     */
     public function update_status()
     {
         global $order;
         
         if (($this->enabled == true) && (( int ) MODULE_PAYMENT_HPIVSEC_ZONE > 0)) {
             $check_flag = false;
-            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '" . MODULE_PAYMENT_HPZONE . "' and zone_country_id = '" . $order->billing['country']['id'] . "' order by zone_id");
+            $check_query = xtc_db_query("select zone_id from " . TABLE_ZONES_TO_GEO_ZONES . " where geo_zone_id = '"
+                . MODULE_PAYMENT_HPZONE . "' and zone_country_id = '" . $order->billing['country']['id']
+                . "' order by zone_id");
             while ($check = xtc_db_fetch_array($check_query)) {
                 if ($check['zone_id'] < 1) {
                     $check_flag = true;
@@ -62,35 +70,22 @@ class hpivsec
         }
     }
 
-    public function javascript_validation()
-    {
-        return false;
-    }
-
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
+        // reset session data
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
         }
-        // $_SESSION['hpModuleMode'] = 'AFTER';
-        
-        if (MODULE_PAYMENT_HPIVSEC_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPIVSEC_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => ''
-                    )
-            );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPIVSEC_DEBUGTEXT
-                    )
-            );
-        }
-        
+        // Salutation select field
+        $content[] = $this->salutationSelection();
+
+        //Birthday select
+        $content[] = $this->birthDateSelection();
+
+
         return array(
                 'id' => $this->code,
                 'module' => $this->title,
@@ -102,51 +97,18 @@ class hpivsec
     public function pre_confirmation_check()
     {
         global $order;
-        // echo 'HPIVSEC: '.__FUNCTION__; exit();
-        if (MODULE_PAYMENT_HPIVSEC_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPIVSEC_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
             $_SESSION['hpModuleMode'] = 'AFTER';
             $_SESSION['hpLastPost'] = $_POST;
-        } else {
-            $payment_error_return = 'payment_error=hppp&error=' . urlencode(MODULE_PAYMENT_HPIVSEC_DEBUGTEXT);
-            xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-        }
-    }
-
-    public function confirmation()
-    {
-        return false;
-    }
-
-    public function process_button()
-    {
-        global $order;
-        $this->hp->rememberOrderData($order);
-        return false;
-    }
-
-    public function payment_action()
-    {
-        return true;
-    }
-
-    public function before_process()
-    {
-        return false;
+            $_SESSION['hpivsecData'] = $_POST['hpivsec'];
     }
 
     public function after_process()
     {
-        global $order, $xtPrice, $insert_id;
+        global $order, $insert_id;
         $this->hp->setOrderStatus($insert_id, $this->order_status);
-        $comment = ' ';
-        $this->hp->addHistoryComment($insert_id, $comment, $this->order_status);
-        $hpIframe = $this->hp->handleDebit($order, $this->payCode, $insert_id);
+        $this->hp->addHistoryComment($insert_id, '', $this->order_status);
+        $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function admin_order($oID)
-    {
-        return false;
     }
 
     public function get_error()
@@ -164,7 +126,8 @@ class hpivsec
     public function check()
     {
         if (! isset($this->_check)) {
-            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_HPIVSEC_STATUS'");
+            $check_query = xtc_db_query("select configuration_value from " . TABLE_CONFIGURATION
+                . " where configuration_key = 'MODULE_PAYMENT_HPIVSEC_STATUS'");
             $this->_check = xtc_db_num_rows($check_query);
         }
         return $this->_check;
@@ -173,9 +136,7 @@ class hpivsec
     public function install()
     {
         $this->remove(true);
-        
-        $groupId = 6;
-        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
+
         $prefix = 'MODULE_PAYMENT_HPIVSEC_';
         $inst = array();
         $inst[] = array(
@@ -259,23 +220,8 @@ class hpivsec
                 'configuration_value' => 'False',
                 'set_function' => 'xtc_cfg_select_option(array(\'True\', \'False\'), '
         );
-        
-        foreach ($inst as $k => $v) {
-            $sql = $sqlBase . ' ';
-            foreach ($v as $key => $val) {
-                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
-            }
-            $sql .= '`sort_order` = "' . $k . '", ';
-            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
-            $sql .= '`date_added` = NOW() ';
-            // echo $sql.'<br>';
-            xtc_db_query($sql);
-        }
-    }
 
-    public function remove($install = false)
-    {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        parent::defaultConfigSettings($inst);
     }
 
     public function keys()
@@ -298,8 +244,6 @@ class hpivsec
                 $prefix . 'SORT_ORDER',
                 $prefix . 'ALLOWED',
                 $prefix . 'ZONE'
-        )
-        // $prefix.'',
-;
+        );
     }
 }

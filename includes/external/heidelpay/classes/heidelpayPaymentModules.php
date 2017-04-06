@@ -275,8 +275,8 @@ class heidelpayPaymentModules
         $formFields='<select title="birthday" name="hp'.$this->payCode.'[day]" style="width:25%">';
         $formFields.='<option value="">--</option>';
 
-        for($day=1; $day <=31; $day++){
-            $day2Digits = sprintf("%02d",$day);
+        for ($day=1; $day <=31; $day++) {
+            $day2Digits = sprintf("%02d", $day);
             $formFields.='<option value="'.$day2Digits.'">'.$day2Digits.'</option>';
         }
 
@@ -286,8 +286,8 @@ class heidelpayPaymentModules
         $formFields.='<select title="birthmonth" name="hp'.$this->payCode.'[month]" style="width:25%">';
         $formFields.='<option value="">--</option>';
 
-        for($month=1; $month <=12; $month++){
-            $month2Digits = sprintf("%02d",$month);
+        for ($month=1; $month <=12; $month++) {
+            $month2Digits = sprintf("%02d", $month);
             $formFields.='<option value="'.$month2Digits.'">'.$month2Digits.'</option>';
         }
 
@@ -305,10 +305,9 @@ class heidelpayPaymentModules
         $formFields.='</select>';
 
         return array(
-            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_SALUTATION'),
+            'title' => constant('MODULE_PAYMENT_HP'.strtoupper($this->payCode).'_BIRTHDAY'),
             'field' => $formFields
         );
-
     }
 
     /**
@@ -357,6 +356,11 @@ class heidelpayPaymentModules
         );
     }
 
+    /**
+     * generates the input field for account iban
+     *
+     * @return array
+     */
     public function accountIbanSelection()
     {
         // load last direct debit information
@@ -369,6 +373,5 @@ class heidelpayPaymentModules
             'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
                 name="hpdd[AccountIBAN]" type="TEXT">'
         );
-
     }
 }

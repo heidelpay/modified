@@ -69,6 +69,7 @@ define($prefix.'ACCOUNT_IBAN', 'IBAN :');
 define($prefix.'SALUTATION', 'Salutation :');
 define($prefix.'SALUTATION_MR', 'mr.');
 define($prefix.'SALUTATION_MRS', 'mrs.');
+define($prefix.'BIRTHDAY', 'Birthday:');
 
 define($prefix.'SUCCESS', 'The amount will be debited from this account within the next days:<br/><br/>
 IBAN: {ACC_IBAN}<br>
