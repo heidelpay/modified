@@ -196,7 +196,8 @@ class heidelpay
             echo '<pre>SESSION: ' . print_r($_SESSION['hpLastData'], 1) . '</pre>';
         }
         $capture = false;
-        if (strtoupper($payCode) == 'DD' or strtoupper($payCode) == 'DDSEC') {
+        $upperPayCode = strtoupper($payCode);
+        if ( $upperPayCode == 'DD' or $upperPayCode == 'DDSEC' or $upperPayCode == 'IVSEC') {
             $ACT_MOD_MODE = 'DIRECT';
         }
         if ($ACT_MOD_MODE == 'DIRECT') {
