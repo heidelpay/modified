@@ -171,14 +171,9 @@ class heidelpay
         ) {
             $ACT_MOD_MODE = 'AFTER';
         }
-        $ACT_PAY_MODE = @constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_PAY_MODE');
-        if (!in_array($ACT_PAY_MODE, array(
-            'DB',
-            'PA'
-        ))
-        ) {
-            $ACT_PAY_MODE = 'DB';
-        }
+        $ACT_PAY_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_PAY_MODE'))
+            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_PAY_MODE')
+            : 'DB';
 
         $userId = $_SESSION['hpLastData']['user_id'];
         if ($userId <= 0) {
@@ -294,7 +289,7 @@ class heidelpay
         if ($res['all']['PAYMENT_CODE'] == 'DD.PA' or $res['all']['PAYMENT_CODE'] == 'DD.DB') {
             // save direct debit payment data
             if ($debug) {
-                echo 'Save direct debit: '.$userId;
+                echo 'Save direct debit: ' . $userId;
             }
             $this->saveMEMO($userId, 'heidelpay_last_iban', $res['all']['ACCOUNT_IBAN']);
             $this->saveMEMO($userId, 'heidelpay_last_holder', $res['all']['ACCOUNT_HOLDER']);
@@ -484,7 +479,7 @@ class heidelpay
                         '<br>' => ''
                     );
                     // load text lock from local
-                    $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
+                    $template = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_SUCCESS');
                     // replace space holder
                     $prePaidData = strtr($template, $replace);
                     $comment = $prePaidData;
@@ -496,15 +491,15 @@ class heidelpay
                     $customerNotified = 1;
                     // Collect variable data
                     $replace = array(
-                        '{CURRENCY}' =>  $res['all']['PRESENTATION_CURRENCY'],
-                        '{AMOUNT}' =>  $res['all']['PRESENTATION_AMOUNT'],
+                        '{CURRENCY}' => $res['all']['PRESENTATION_CURRENCY'],
+                        '{AMOUNT}' => $res['all']['PRESENTATION_AMOUNT'],
                         '{ACC_OWNER}' => $res['all']['CONNECTOR_ACCOUNT_HOLDER'],
                         '{ACC_IBAN}' => $res['all']['CONNECTOR_ACCOUNT_IBAN'],
                         '{ACC_BIC}' => $res['all']['CONNECTOR_ACCOUNT_BIC'],
                         '{SHORTID}' => $res['all']['IDENTIFICATION_SHORTID'],
                         '<br>' => ''
                     );
-                    $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
+                    $template = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_SUCCESS');
 
                     $prePaidData = strtr($template, $replace);
                     $comment = $prePaidData;
@@ -633,15 +628,10 @@ class heidelpay
         $currency = strtoupper($currency);
         $userData = $this->encodeData($userData);
 
-        $ACT_MOD_MODE = @constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE');
-        if (!in_array($ACT_MOD_MODE, array(
-            'DIRECT',
-            'AFTER',
-            'NOWPF'
-        ))
-        ) {
-            $ACT_MOD_MODE = 'AFTER';
-        }
+        $ACT_MOD_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE'))
+            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE')
+            : 'AFTER';
+
 
         $parameters['SECURITY.SENDER'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER');
         $parameters['USER.LOGIN'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN');
@@ -707,17 +697,17 @@ class heidelpay
             $parameters = array_merge($parameters, $bsParams);
         } elseif ($this->actualPaymethod == 'IVSEC') {
             $parameters['PAYMENT.CODE'] = "IV.PA";
-            $userData['salutation'] =$_SESSION['hpivsecData']['salutation'];
-            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'].'-'.$_SESSION['hpivsecData']['month']
-            .'-'.$_SESSION['hpivsecData']['day'];
+            $userData['salutation'] = $_SESSION['hpivsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'] . '-' . $_SESSION['hpivsecData']['month']
+                . '-' . $_SESSION['hpivsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'DDSEC') {
             $parameters['PAYMENT.CODE'] = "DD.DB";
             $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpddsecData']['Holder'];
             $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpddsecData']['AccountIBAN']);
-            $userData['salutation'] =$_SESSION['hpddsecData']['salutation'];
-            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'].'-'.$_SESSION['hpddsecData']['month']
-                .'-'.$_SESSION['hpddsecData']['day'];
+            $userData['salutation'] = $_SESSION['hpddsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'] . '-' . $_SESSION['hpddsecData']['month']
+                . '-' . $_SESSION['hpddsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
         }
 
