@@ -395,7 +395,7 @@ class heidelpayPaymentModules
      */
     public function isCompany()
     {
-        if (!empty($this->order->customer['company'])) {
+        if (!empty($this->order->delivery['company'])) {
             return true;
         }
         return false;
