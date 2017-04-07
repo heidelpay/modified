@@ -455,6 +455,9 @@ class heidelpay
         ) {
             // in case of debit for credit card, direct debit and debit card, processing request in sync mode
             if (!$_SESSION['HEIDELPAY_IFRAME'] && $processingresult == "ACK" && $insertId > 0) {
+                // default status
+                $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
+
                 $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
 
                 // delete coupon code from session
@@ -466,30 +469,46 @@ class heidelpay
                     unset($_SESSION['cc_id']);
                 }
 
-                if ($payCode == 'dd') {
-                    $repl = array(
+
+                // Direct debit and direct debit secured
+                if ($payCode == 'dd' or $payCode == 'ddsec') {
+                    // Collect variable data
+                    $replace = array(
                         '{ACC_IBAN}' => $res['all']['ACCOUNT_IBAN'],
-                        /*'{ACC_BIC}'				=> $res['all']['ACCOUNT_BIC'],*/
                         '{ACC_IDENT}' => $res['all']['ACCOUNT_IDENTIFICATION'],
                         '{IDENT_CRED_ID}' => $res['all']['IDENTIFICATION_CREDITOR_ID'],
                         '<br>' => ''
                     );
-                    $prePaidData = strtr(MODULE_PAYMENT_HPDD_SUCCESS, $repl);
+                    // load text lock from local
+                    $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
+                    // replace space holder
+                    $prePaidData = strtr($template, $replace);
                     $comment .= ' | Payment Info: ' . $prePaidData;
                 }
 
-                $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
+                // invoice and invoice secured
+                if ($payCode == 'iv' or $payCode == 'ivsec') {
+                    // Collect variable data
+                    $replace = array(
+                        '{ACC_OWNER}' => $res['all']['CONNECTOR_ACCOUNT_HOLDER'],
+                        '{ACC_IBAN}' => $res['all']['CONNECTOR_ACCOUNT_IBAN'],
+                        '{ACC_BIC}' => $res['all']['CONNECTOR_ACCOUNT_BIC'],
+                        '{SHORTID}' => $res['all']['IDENTIFICATION_SHORTID'],
+                        '<br>' => ''
+                    );
+                    $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
+
+                    $prePaidData = strtr($template, $replace);
+                    $comment .= ' | Payment Info: ' . $prePaidData;
+                    // Pending status
+                    $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
+                }
+
+
                 $this->addHistoryComment($insertId, $comment, $status);
                 $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode,
                     $res['all']['IDENTIFICATION.SHORTID']);
                 $this->setOrderStatus($insertId, $status);
-                if ($payCode == 'dd') {
-                    $values = array(
-                        'kto' => $res['all']['ACCOUNT.NUMBER'],
-                        'blz' => $res['all']['ACCOUNT.BANK'],
-                        'own' => $holder
-                    );
-                }
             }
         } elseif (in_array($payCode, array(
                 'pp',
@@ -515,7 +534,7 @@ class heidelpay
                     'PRESENTATION_CURRENCY' => $res['all']['PRESENTATION_CURRENCY'],
                     'IDENTIFICATION_SHORTID' => $res['all']['IDENTIFICATION_SHORTID']
                 );
-                $repl = array(
+                $replace = array(
                     '{AMOUNT}' => $hpPayinfos['PRESENTATION_AMOUNT'],
                     '{CURRENCY}' => $hpPayinfos['PRESENTATION_CURRENCY'],
                     '{ACC_COUNTRY}' => $hpPayinfos['CONNECTOR_ACCOUNT_COUNTRY'],
@@ -528,9 +547,9 @@ class heidelpay
                 );
 
                 if ($payCode == 'pp') {
-                    $prePaidData = strtr(MODULE_PAYMENT_HPPP_SUCCESS, $repl);
+                    $prePaidData = strtr(MODULE_PAYMENT_HPPP_SUCCESS, $replace);
                 } else {
-                    $prePaidData = strtr(MODULE_PAYMENT_HPIV_SUCCESS, $repl);
+                    $prePaidData = strtr(MODULE_PAYMENT_HPIV_SUCCESS, $replace);
                 }
                 $comment = 'Payment Info: ' . $prePaidData . '<br>';
                 $this->addHistoryComment($insertId, $comment, $status);

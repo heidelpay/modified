@@ -271,13 +271,24 @@ class heidelpayPaymentModules
      */
     public function birthDateSelection()
     {
+        // load existing birthdate from database
+        $savedDay = '';
+        $savedMonth = '';
+        $savedYear = '';
+
+        if (!empty($this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_birtdate'))) {
+            list($savedYear, $savedMonth, $savedDay) = explode('-',
+                $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_birtdate'));
+        }
+
         // Birth day selection
         $formFields='<select title="birthday" name="hp'.$this->payCode.'[day]" style="width:25%">';
         $formFields.='<option value="">--</option>';
 
         for ($day=1; $day <=31; $day++) {
             $day2Digits = sprintf("%02d", $day);
-            $formFields.='<option value="'.$day2Digits.'">'.$day2Digits.'</option>';
+            $selected = ($savedDay == $day2Digits) ? 'selected="selected"' : '';
+            $formFields.='<option value="'.$day2Digits.'" '.$selected.'>'.$day2Digits.'</option>';
         }
 
         $formFields.='</select>';
@@ -288,7 +299,8 @@ class heidelpayPaymentModules
 
         for ($month=1; $month <=12; $month++) {
             $month2Digits = sprintf("%02d", $month);
-            $formFields.='<option value="'.$month2Digits.'">'.$month2Digits.'</option>';
+            $selected = ($savedMonth == $month2Digits) ? 'selected="selected"' : '';
+            $formFields.='<option value="'.$month2Digits.'" '.$selected.'>'.$month2Digits.'</option>';
         }
 
         $formFields.='</select>';
@@ -299,7 +311,8 @@ class heidelpayPaymentModules
 
         for ($year = 17; $year <= 80; $year++) {
             $yearNumber = date('Y', strtotime("last day of -$year year"));
-            $formFields.='<option value="'.$yearNumber.'">'.$yearNumber.'</option>';
+            $selected = ($savedYear == $yearNumber) ? 'selected="selected"' : '';
+            $formFields.='<option value="'.$yearNumber.'" '.$selected.'>'.$yearNumber.'</option>';
         }
 
         $formFields.='</select>';

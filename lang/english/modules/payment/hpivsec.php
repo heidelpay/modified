@@ -74,16 +74,12 @@ define($prefix.'BIRTHDAY', 'Birthday:');
 
 define($prefix.'SUCCESS', 'Your transaction was successfull! 
 
-            Transfer the amount of {CURRENCY} {AMOUNT} to the following account
-            Country :         {ACC_COUNTRY}
+            Please transfer the amount of {CURRENCY} {AMOUNT} to the following account
             Account holder :  {ACC_OWNER}
-            Account No. :     {ACC_NUMBER}
-            Bank Code:        {ACC_BANKCODE}
             IBAN:             {ACC_IBAN} 
             BIC:              {ACC_BIC}
-            When you transfer the money you HAVE TO use the identification number
-        {SHORTID}
-        as the descriptor and nothing else. Otherwise we cannot match your transaction!');
+            Please use only this identification number as the descriptor :
+        {SHORTID}');
         
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');

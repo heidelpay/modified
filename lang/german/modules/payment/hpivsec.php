@@ -75,15 +75,12 @@ define($prefix.'BIRTHDAY', 'Geburtstag :');
 define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
 
             Ueberweisen Sie uns den Betrag von {CURRENCY} {AMOUNT} auf folgendes Konto
-            Land :         {ACC_COUNTRY}
             Kontoinhaber : {ACC_OWNER}
-            Konto-Nr. :    {ACC_NUMBER}
-            Bankleitzahl:  {ACC_BANKCODE}
             IBAN:          {ACC_IBAN}
             BIC:           {ACC_BIC}
-            Geben sie bitte im Verwendungszweck UNBEDINGT die Identifikationsnummer
+            Geben sie bitte im Verwendungszweck ausschliesslich die Identifikationsnummer
         {SHORTID}
-        und NICHTS ANDERES an.');
+        an.');
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');

@@ -70,7 +70,6 @@ define($prefix.'DEBUGTEXT', 'Das Zahlverfahren wird gerade gewartet. Bitte w&aum
 define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
 
             Ueberweisen Sie uns den Betrag von {CURRENCY} {AMOUNT} auf folgendes Konto
-            Land :         {ACC_COUNTRY}
             Kontoinhaber : {ACC_OWNER}
             Konto-Nr. :    {ACC_NUMBER}
             Bankleitzahl:  {ACC_BANKCODE}
