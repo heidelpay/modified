@@ -191,7 +191,7 @@ class hpivsec extends heidelpayPaymentModules
         );
         $inst[] = array(
                 'configuration_key' => $prefix . 'TRANSACTION_CHANNEL',
-                'configuration_value' => '31HA07BC8142C5A171749A60D979B6E4'
+                'configuration_value' => '31HA07BC81856CAD6D8E05CDDE7E2AC8'
         );
         $inst[] = array(
                 'configuration_key' => $prefix . 'TRANSACTION_MODE',

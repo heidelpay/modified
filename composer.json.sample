@@ -14,7 +14,7 @@
   },
   "extra": {
     "copy-file": {
-      "vendor/heidelpay/modified/admin/includes/modules/export/": "admin/include/modules/export/",
+      "vendor/heidelpay/modified/admin/includes/modules/export/": "admin/includes/modules/export/",
       "vendor/heidelpay/modified/images/ladebalken.gif": "images/ladebalken.gif",
       "vendor/heidelpay/modified/includes/classes/class.heidelpay.php": "includes/classes/class.heidelpay.php",
       "vendor/heidelpay/modified/includes/modules/payment/": "includes/modules/payment/",
