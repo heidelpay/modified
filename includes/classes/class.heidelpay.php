@@ -457,6 +457,8 @@ class heidelpay
             if (!$_SESSION['HEIDELPAY_IFRAME'] && $processingresult == "ACK" && $insertId > 0) {
                 // default status
                 $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
+                // Customer notification is disabled
+                $customerNotified = 0;
 
                 $comment = 'ShortID: ' . $res['all']['IDENTIFICATION.SHORTID'];
 
@@ -472,6 +474,8 @@ class heidelpay
 
                 // Direct debit and direct debit secured
                 if ($payCode == 'dd' or $payCode == 'ddsec') {
+                    // Customer notification is enabled
+                    $customerNotified = 1;
                     // Collect variable data
                     $replace = array(
                         '{ACC_IBAN}' => $res['all']['ACCOUNT_IBAN'],
@@ -483,11 +487,13 @@ class heidelpay
                     $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
                     // replace space holder
                     $prePaidData = strtr($template, $replace);
-                    $comment .= ' | Payment Info: ' . $prePaidData;
+                    $comment = $prePaidData;
                 }
 
                 // invoice and invoice secured
                 if ($payCode == 'iv' or $payCode == 'ivsec') {
+                    // Customer notification is enabled
+                    $customerNotified = 1;
                     // Collect variable data
                     $replace = array(
                         '{CURRENCY}' =>  $res['all']['PRESENTATION_CURRENCY'],
@@ -501,12 +507,12 @@ class heidelpay
                     $template = constant('MODULE_PAYMENT_HP'.strtoupper($payCode).'_SUCCESS');
 
                     $prePaidData = strtr($template, $replace);
-                    $comment .= ' | Payment Info: ' . $prePaidData;
+                    $comment = $prePaidData;
                     // Pending status
                     $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
                 }
 
-                $this->addHistoryComment($insertId, $comment, $status);
+                $this->addHistoryComment($insertId, $comment, $status, $customerNotified);
                 $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode,
                     $res['all']['IDENTIFICATION.SHORTID']);
                 $this->setOrderStatus($insertId, $status);
