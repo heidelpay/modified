@@ -409,6 +409,9 @@ class heidelpayPaymentModules
      */
     public function equalAddress()
     {
+        global $order;
+        $this->order = $order;
+
         $keyList = array(
             'firstname',
             'lastname',
