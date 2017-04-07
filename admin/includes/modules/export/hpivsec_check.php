@@ -14,7 +14,7 @@ if (file_exists(DIR_WS_CLASSES.'class.heidelpay.php')) {
     require_once(DIR_FS_CATALOG.DIR_WS_CLASSES.'class.heidelpay.php');
 }
 
-class hpiv_check
+class hpivsec_check
 {
     public $code;
     public $title;
