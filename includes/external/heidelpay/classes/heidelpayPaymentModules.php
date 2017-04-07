@@ -356,7 +356,8 @@ class heidelpayPaymentModules
         $selected = ($salutation == 'MRS') ? 'selected="selected">' : '>';
 
         $formField = '<select title="salutation" name="hp' . $this->payCode . '[salutation]">';
-        $formField .= '<option value="MR">' . constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_SALUTATION_MR');
+        $formField .= '<option value="MR">' . constant('MODULE_PAYMENT_HP'
+                . strtoupper($this->payCode) . '_SALUTATION_MR');
         $formField .= '</option>';
         $formField .= '<option value="MRS" ' . $selected;
         $formField .= constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_SALUTATION_MRS');

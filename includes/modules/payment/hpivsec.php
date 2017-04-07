@@ -89,7 +89,7 @@ class hpivsec extends heidelpayPaymentModules
         }
 
         // billing and delivery address has to be equal
-        if ($this->equalAddress() !== false) {
+        if ($this->equalAddress() === false) {
             return array(
                 'id' => $this->code,
                 'module' => $this->title,
