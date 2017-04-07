@@ -71,6 +71,8 @@ define($prefix.'SALUTATION_MR', 'mr.');
 define($prefix.'SALUTATION_MRS', 'mrs.');
 define($prefix.'BIRTHDAY', 'Birthday:');
 
+define($prefix.'ADDRESSCHECK', 'The payment is not available due to different billing and delivery address.');
+
 define($prefix.'SUCCESS', 'The amount will be debited from this account within the next days:<br/><br/>
 IBAN: {ACC_IBAN}<br>
 BIC: {ACC_BIC}<br>

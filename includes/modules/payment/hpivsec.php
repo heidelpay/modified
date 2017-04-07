@@ -78,6 +78,31 @@ class hpivsec extends heidelpayPaymentModules
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
         }
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
+        }
+        // only usable for b2c customers
+        if ($this->isCompany()) {
+            return false;
+        }
+
+        // billing and delivery address has to be equal
+        if ($this->equalAddress() !== false) {
+            return array(
+                'id' => $this->code,
+                'module' => $this->title,
+                'fields' => array(
+                    array(
+                        'title' => '',
+                        'field' => constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_ADDRESSCHECK')
+                    )
+                ),
+                'description' => $this->info
+            );
+        }
+
         // Salutation select field
         $content[] = $this->salutationSelection();
 
@@ -98,7 +123,8 @@ class hpivsec extends heidelpayPaymentModules
         if ($_POST['hpivsec']['salutation'] == '' or
             $_POST['hpivsec']['day'] == '' or
             $_POST['hpivsec']['month'] == '' or
-            $_POST['hpivsec']['year'] == ''
+            $_POST['hpivsec']['year'] == '' or
+            $this->equalAddress() === false
         ) {
             $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));

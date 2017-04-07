@@ -71,6 +71,8 @@ define($prefix.'SALUTATION_MR', 'Herr');
 define($prefix.'SALUTATION_MRS', 'Frau');
 define($prefix.'BIRTHDAY', 'Geburtstag :');
 
+define($prefix.'ADDRESSCHECK', 'Das Zahlverfahren steht Ihnen nicht zur Verf&uuml;gung, da die Rechnungsadresse von der Lieferadresse abweicht.');
+
 
 define($prefix.'SUCCESS', 'Der Betrag wird in den naechsten Tagen von folgendem Konto abgebucht:<br><br>
 IBAN: {ACC_IBAN}<br>

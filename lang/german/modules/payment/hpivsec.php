@@ -72,6 +72,8 @@ define($prefix.'SALUTATION_MR', 'Herr');
 define($prefix.'SALUTATION_MRS', 'Frau');
 define($prefix.'BIRTHDAY', 'Geburtstag :');
 
+define($prefix.'ADDRESSCHECK', 'Das Zahlverfahren steht Ihnen nicht zur Verf&uuml;gung, da die Rechnungsadresse von der Lieferadresse abweicht.');
+
 define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
 
             Ueberweisen Sie uns den Betrag von {CURRENCY} {AMOUNT} auf folgendes Konto

@@ -90,17 +90,37 @@ class hpddsec extends heidelpayPaymentModules
         if ($this->isAvailable() === false) {
             return false;
         }
-            // Salutation select field
-            $content[] = $this->salutationSelection();
+        // only usable for b2c customers
+        if ($this->isCompany()) {
+            return false;
+        }
 
-            // Holder input field
-            $content[] = $this->accountHolderSelection();
+        // billing and delivery address has to be equal
+        if ($this->equalAddress() !== false) {
+            return array(
+                'id' => $this->code,
+                'module' => $this->title,
+                'fields' => array(
+                    array(
+                        'title' => '',
+                        'field' => constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_ADDRESSCHECK')
+                    )
+                ),
+                'description' => $this->info
+            );
+        }
+
+        // Salutation select field
+        $content[] = $this->salutationSelection();
+
+        // Holder input field
+        $content[] = $this->accountHolderSelection();
 
         // Iban input field
         $content[] = $this->accountIbanSelection();
 
         //Birthday select
-            $content[] = $this->birthDateSelection();
+        $content[] = $this->birthDateSelection();
 
         return array(
             'id' => $this->code,
@@ -117,8 +137,9 @@ class hpddsec extends heidelpayPaymentModules
             $_POST['hpddsec']['salutation'] == '' or
             $_POST['hpddsec']['day'] == '' or
             $_POST['hpddsec']['month'] == '' or
-            $_POST['hpddsec']['year'] == ''
-            ) {
+            $_POST['hpddsec']['year'] == '' or
+            $this->equalAddress() === false
+        ) {
             $payment_error_return = 'payment_error=HPDDSEC&error=' . urlencode(MODULE_PAYMENT_HPDDSEC_PAYMENT_DATA);
             xtc_redirect(xtc_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
             return;

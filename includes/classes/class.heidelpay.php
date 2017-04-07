@@ -197,7 +197,7 @@ class heidelpay
         }
         $capture = false;
         $upperPayCode = strtoupper($payCode);
-        if ( $upperPayCode == 'DD' or $upperPayCode == 'DDSEC' or $upperPayCode == 'IVSEC') {
+        if ($upperPayCode == 'DD' or $upperPayCode == 'DDSEC' or $upperPayCode == 'IVSEC') {
             $ACT_MOD_MODE = 'DIRECT';
         }
         if ($ACT_MOD_MODE == 'DIRECT') {
@@ -301,12 +301,12 @@ class heidelpay
         }
 
         // save salutation
-        if (array_key_exists('NAME.SALUTATION',$data)){
-           $this->saveMEMO($userId, 'heidelpay_last_salutation', $data['NAME.SALUTATION']);
+        if (array_key_exists('NAME.SALUTATION', $data)) {
+            $this->saveMEMO($userId, 'heidelpay_last_salutation', $data['NAME.SALUTATION']);
         }
 
         // save birthdate
-        if (array_key_exists('NAME.BIRTHDATE',$data)){
+        if (array_key_exists('NAME.BIRTHDATE', $data)) {
             $this->saveMEMO($userId, 'heidelpay_last_birtdate', $data['NAME.BIRTHDATE']);
         }
 
@@ -383,7 +383,7 @@ class heidelpay
                 header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
             }
             exit();
-        };
+        }
         $processingresult = $res['result'];
         $redirectURL = $res['url'];
         $base = 'heidelpay_redirect.php?';
@@ -490,6 +490,8 @@ class heidelpay
                 if ($payCode == 'iv' or $payCode == 'ivsec') {
                     // Collect variable data
                     $replace = array(
+                        '{CURRENCY}' =>  $res['all']['PRESENTATION_CURRENCY'],
+                        '{AMOUNT}' =>  $res['all']['PRESENTATION_AMOUNT'],
                         '{ACC_OWNER}' => $res['all']['CONNECTOR_ACCOUNT_HOLDER'],
                         '{ACC_IBAN}' => $res['all']['CONNECTOR_ACCOUNT_IBAN'],
                         '{ACC_BIC}' => $res['all']['CONNECTOR_ACCOUNT_BIC'],
@@ -503,7 +505,6 @@ class heidelpay
                     // Pending status
                     $status = constant('MODULE_PAYMENT_HP' . strtoupper($payCode) . '_PROCESSED_STATUS_ID');
                 }
-
 
                 $this->addHistoryComment($insertId, $comment, $status);
                 $this->saveIds($res['all']['IDENTIFICATION.UNIQUEID'], $insertId, 'hp' . $payCode,

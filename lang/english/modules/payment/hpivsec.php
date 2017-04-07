@@ -72,6 +72,8 @@ define($prefix.'SALUTATION_MR', 'mr.');
 define($prefix.'SALUTATION_MRS', 'mrs.');
 define($prefix.'BIRTHDAY', 'Birthday:');
 
+define($prefix.'ADDRESSCHECK', 'The payment is not available due to different billing and delivery address.');
+
 define($prefix.'SUCCESS', 'Your transaction was successfull! 
 
             Please transfer the amount of {CURRENCY} {AMOUNT} to the following account
