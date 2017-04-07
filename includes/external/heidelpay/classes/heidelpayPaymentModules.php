@@ -383,7 +383,7 @@ class heidelpayPaymentModules
 
         // Iban input field
         return array(
-            'title' => constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_ACCOUNT_IBAN,'),
+            'title' => constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_ACCOUNT_IBAN'),
             'field' => '<input autocomplete="off" value="' . $lastIban . '" maxlength="50" 
                 name="hp' . $this->payCode . '[AccountIBAN]" type="TEXT">'
         );
