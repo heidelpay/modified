@@ -75,7 +75,10 @@ class heidelpay
         if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_DEBUG') == 'True') {
             $debug = true;
         }
-        $ACT_MOD_MODE = constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE');
+        $ACT_MOD_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE'))
+            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE')
+            : 'AFTER';
+
         if ($ACT_MOD_MODE == 'AFTER') {
             return false;
         }
@@ -162,15 +165,10 @@ class heidelpay
         if (SEARCH_ENGINE_FRIENDLY_URLS == 'true') {
             $loc = DIR_WS_CATALOG;
         }
-        $ACT_MOD_MODE = @constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE');
-        if (!in_array($ACT_MOD_MODE, array(
-            'DIRECT',
-            'AFTER',
-            'NOWPF'
-        ))
-        ) {
-            $ACT_MOD_MODE = 'AFTER';
-        }
+        $ACT_MOD_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE'))
+            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE')
+            : 'AFTER';
+
         $ACT_PAY_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_PAY_MODE'))
             ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_PAY_MODE')
             : 'DB';
