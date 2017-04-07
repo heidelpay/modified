@@ -1,8 +1,8 @@
 <?php
-$prefix = 'MODULE_PAYMENT_HPDD_';
+$prefix = 'MODULE_PAYMENT_HPDDSEC_';
 
-define($prefix.'TEXT_TITLE', 'Lastschrift');
-define($prefix.'TEXT_DESC', 'Lastschrift &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_TITLE', 'gesicherte Lastschrift B2C');
+define($prefix.'TEXT_DESC', 'gesicherte Lastschrift b2c &uuml;ber Heidelberger Payment GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');
@@ -64,16 +64,15 @@ define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Za
 define($prefix.'ERROR_NO_PAYDATA', 'Bitte geben Sie Ihre Zahlungsinformationen ein.');
 define($prefix.'PAYMENT_DATA', 'Die angegebenen Lastschriftdaten sind unvollst&auml;ndig. Bitte geben Sie die fehlenden Daten an.');
 
-define($prefix.'ACCOUNT_NUMBER', 'Kontonummer :');
-define($prefix.'ACCOUNT_BANK', 'Bankleitzahl :');
 define($prefix.'ACCOUNT_HOLDER', 'Kontoinhaber :');
-
 define($prefix.'ACCOUNT_IBAN', 'IBAN :');
-define($prefix.'ACCOUNT_BIC', 'BIC :');
+define($prefix.'SALUTATION', 'Anrede :');
+define($prefix.'SALUTATION_MR', 'Herr');
+define($prefix.'SALUTATION_MRS', 'Frau');
+define($prefix.'BIRTHDAY', 'Geburtstag :');
 
-define($prefix.'ACCOUNT_SWITCH', 'Kontoinformationen :');
-define($prefix.'ACCOUNT_SWITCH_CLASSIC', 'Kontonummer & Bankleitzahl');
-define($prefix.'ACCOUNT_SWITCH_IBAN', 'IBAN');
+define($prefix.'ADDRESSCHECK', 'Das Zahlverfahren steht Ihnen nicht zur Verf&uuml;gung, da die Rechnungsadresse von der Lieferadresse abweicht.');
+
 
 define($prefix.'SUCCESS', 'Der Betrag wird in den naechsten Tagen von folgendem Konto abgebucht:<br><br>
 IBAN: {ACC_IBAN}<br>

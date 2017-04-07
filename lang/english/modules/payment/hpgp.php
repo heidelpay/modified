@@ -72,4 +72,3 @@ define($prefix.'ACCOUNT_OWNER', 'Account holder :');
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>
