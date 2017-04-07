@@ -244,7 +244,6 @@ class hpiv_check
 
     public function keys()
     {
-        return array();
         return array('MODULE_HPIV_CHECK_STATUS');
     }
 }

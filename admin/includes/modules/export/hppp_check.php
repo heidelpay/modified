@@ -43,7 +43,6 @@ class hppp_check
         $payName = $this->hp->getOrderStatusName($paystatus);
         $finishName = $this->hp->getOrderStatusName($finishstatus);
 
-        #echo '<pre>'.print_r($_POST, 1).'</pre>';
 
         if (!empty($_POST['finalizeOrders'])) {
             $dat = $_POST['book'];
@@ -251,7 +250,6 @@ class hppp_check
 
     public function keys()
     {
-        return array();
         return array('MODULE_HPPP_CHECK_STATUS');
     }
 }

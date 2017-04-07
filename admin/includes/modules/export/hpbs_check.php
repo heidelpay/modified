@@ -245,7 +245,6 @@ class hpbs_check
 
     public function keys()
     {
-        return array();
         return array('MODULE_HPBS_CHECK_STATUS');
     }
 }
