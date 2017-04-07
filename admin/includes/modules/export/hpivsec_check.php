@@ -27,7 +27,7 @@ class hpivsec_check
         global $order;
         $this->order = $order;
 
-        $this->code = 'hpiv_check';
+        $this->code = 'hpivsec_check';
         $this->title = MODULE_HPIVSEC_CHECK_TEXT_TITLE;
         $this->description = MODULE_HPIVSEC_CHECK_TEXT_DESCRIPTION;
         $this->sort_order = MODULE_HPIVSEC_CHECK_SORT_ORDER;

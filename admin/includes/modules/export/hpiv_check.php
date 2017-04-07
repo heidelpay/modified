@@ -2,7 +2,7 @@
 defined('_VALID_XTC') or die('Direct Access to this location is not allowed.');
 
 define('MODULE_HPIV_CHECK_TEXT_DESCRIPTION', 'Prüfen Sie die Zahlungseingänge über Heidelpay Rechnung');
-define('MODULE_HPIV_CHECK_TEXT_TITLE', 'Heidelpay Rechnung Pr�fung');
+define('MODULE_HPIV_CHECK_TEXT_TITLE', 'Heidelpay Rechnung Prüfung');
 define('MODULE_HPIV_CHECK_STATUS_DESC', 'Modulstatus');
 define('MODULE_HPIV_CHECK_STATUS_TITLE', 'Status');
 define('HPIV_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen Rechnungszahlungen mit Heidelpay abzugleichen!');
