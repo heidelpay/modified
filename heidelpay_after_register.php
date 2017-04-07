@@ -25,8 +25,9 @@ require_once(DIR_WS_LANGUAGES.$currentLanguage.'/modules/payment/hp'.$usedPaymen
 <html>
 <head>
 <script>
-  top.document.getElementById('hp<?php echo $usedPaymentMethod?>UniqueId').value = "
-  <?php echo htmlspecialchars($_GET['uniqueId'])?>";
+    <?php $uniqueId = htmlspecialchars($_GET['uniqueId']);
+    echo 'top.document.getElementById(\'hp'.$usedPaymentMethod.'UniqueId\').value = "'.$uniqueId.'";';
+    ?>
   var radios = top.document.getElementsByName('payment');
   for (e in radios){
     if(radios[e].value == "hp<?php echo $usedPaymentMethod?>"){
