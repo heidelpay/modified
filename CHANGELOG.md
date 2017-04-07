@@ -1,15 +1,19 @@
 # Release Notes - heidelpay extension for modified
 
-## v17.3.30
+## v17.4.7
 
 ### Added
 - new payment method invoice secured
 - new payment method direct debit secured
 - add doc blocks to file and functions
+- customer address has to be equal for all b2c payment methods
+- disable b2c payment methods when company is set
+
 
 ### Changed
 - enforce code style
-- add composer support   
+- add composer support
+- replace mysql with mysqli api, required for php7 support 
 #### giropay
 - input fields for iban and bic in store front are not longer required
 #### sofort

@@ -4,6 +4,7 @@
   "require": {
     "php": ">=5.6.0",
     "ext-bcmath" : "*",
+    "ext-simplexml": "*",
     "slowprog/composer-copy-file": "~0.2"
   },
   "require-dev": {
