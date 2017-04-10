@@ -5,10 +5,10 @@
 
 # Welcome to the heidelpay payment extension for modified eCommerce
 
-This plugin will integrate the heidelpay payment methods in our modified eCommerce.
-Other xtc fork can also use this plugin as long as they stick to the xtc3 standards. 
+This plugin will integrate the heidelpay payment methods in your modified eCommerce.
+Other xtc forks can also use this plugin as long as they stick to the xtc3 standards. 
 
-Tested on Modified eCommerce Version 2.0.
+Tested on modified eCommerce version 2.0.
 
 ## Currently supported payment methods:
 
@@ -36,7 +36,7 @@ You can find a copy of this license in [LICENSE.txt](LICENSE.txt).
 
 ## Installation with composer
  Our plugin can be installed using composer. You can use the [composer.json.sample](composer.json.sample) 
- and rename it to composer.json.
+ and rename it to composer.json. Please also see the manual for details.
  
 ## Installation instruction
 

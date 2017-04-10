@@ -2,7 +2,7 @@
     "name": "myshop/modified",
     "type": "shop",
     "require": {
-        "heidelpay/modified": "17.4.15"
+        "heidelpay/modified": "17.4.7"
     },
   "scripts": {
     "post-install-cmd": [
