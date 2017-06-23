@@ -25,6 +25,7 @@ Tested on modified eCommerce version 2.0.
 * direct debit secured
 * invoice secured
 
+
 ### SYSTEM REQUIREMENTS
 
 The extension requires PHP 5.6 or 7.0;
