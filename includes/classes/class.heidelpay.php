@@ -323,7 +323,7 @@ class heidelpay
             }
             //$hpIframe = '<iframe src="about:blank" frameborder="0" width="400" height="600" name="heidelpay_frame">'
             //    . '</iframe>';
-            $hpIframe .= '<form method="post" action="' . $src . ' id="heidelpay_form">';
+            $hpIframe .= '<form method="post" action="' . $src . '" id="heidelpay_form">';
             $hpIframe .= '<input type="hidden" name="TermUrl" value="'
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.TermUrl'] . '">';
             $hpIframe .= '<input type="hidden" name="PaReq" value="'
