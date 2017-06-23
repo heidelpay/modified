@@ -1,8 +1,8 @@
 <?php
-$prefix = 'MODULE_PAYMENT_HPBP_';
+$prefix = 'MODULE_PAYMENT_HPIVSEC_';
 
-define($prefix.'TEXT_TITLE', 'BarPay');
-define($prefix.'TEXT_DESC', 'BarPay &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_TITLE', 'gesicherte Rechnung B2C');
+define($prefix.'TEXT_DESC', 'gesicherte Rechnung B2C &uuml;ber Heidelberger Payment GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');
@@ -38,7 +38,7 @@ define($prefix.'FINISHED_STATUS_ID_TITLE', 'Bestellstatus - Bezahlt');
 define($prefix.'FINISHED_STATUS_ID_DESC', 'Dieser Status wird gesetzt wenn der Geldeingang verbucht wurde.');
 
 define($prefix.'PROCESSED_STATUS_ID_TITLE', 'Bestellstatus - Erfolgreich');
-define($prefix.'PROCESSED_STATUS_ID_DESC', 'Dieser Status wird gesetzt wenn die Bezahlung erfolgreich war.');
+define($prefix.'PROCESSED_STATUS_ID_DESC', 'Dieser Status wird gesetzt wenn die Vorkasse erfolgreich war. Noch kein Geldeingang!');
 
 define($prefix.'PENDING_STATUS_ID_TITLE', 'Bestellstatus - Wartend');
 define($prefix.'PENDING_STATUS_ID_DESC', 'Dieser Status wird gesetzt wenn die der Kunde auf einem Fremdsystem ist.');
@@ -65,11 +65,24 @@ define($prefix.'DEBUG_TITLE', 'Debug Modus');
 define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von Heidelpay an, da sonst eine Bezahlung im Shop nicht mehr funktioniert.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'Das Zahlverfahren wird gerade gewartet. Bitte w&auml;hlen Sie ein anderes Zahlverfahren oder versuchen Sie es zu einem sp&auml;teren Zeitpunkt.');
+define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Zahldaten.');
 
-define($prefix.'BARPAY_INFO', 'Sicher, schnell und ohne Geb&uuml;hren: mit BarPay zahlen Sie Internet-Eink&auml;ufe mit Bargeld. Ohne Anmeldung. Ohne Kreditkarte. Ohne Kontodetails.<br><br>Nach Auswahl von BarPay &uuml;bermittelt Ihnen Ihr Online-H&auml;ndler einen individuellen Barcode per E-Mail oder zum Download auf Ihren Computer. Diesen k&ouml;nnen Sie ausdrucken und in &uuml;ber 18.000 BarPay-Akzeptanzstellen bezahlen. Der Zahlungseingang wird dem Online-H&auml;ndler in Echtzeit &uuml;bermittelt, und die bestellte Ware geht umgehend in den Versand. <br><br>');
-define($prefix.'BARPAY_DOWNLOAD', '<br><br><a href="{LINK}" target="_blank"><img src="/images/BarPay.jpg" border="0"><br>Klicken Sie hier um Ihren Barcode runterzuladen</a><br><br>Drucken Sie den Barcode aus oder speichern Sie diesen auf Ihrem mobilen Endger&auml;t. Gehen Sie nun zu einer Kasse der <b>18.000 Akzeptanzstellen in Deutschland</b> und bezahlen Sie ganz einfach in bar. <br><br>In dem Augenblick, wenn der Rechnungsbetrag beglichen wird, erh&auml;lt der Online-H&auml;ndler die Information &uuml;ber den Zahlungseingang. Die bestellte Ware oder Dienstleistung geht umgehend in den Versand.');
+define($prefix.'SALUTATION', 'Anrede :');
+define($prefix.'SALUTATION_MR', 'Herr');
+define($prefix.'SALUTATION_MRS', 'Frau');
+define($prefix.'BIRTHDAY', 'Geburtstag :');
+
+define($prefix.'ADDRESSCHECK', 'Das Zahlverfahren steht Ihnen nicht zur Verf&uuml;gung, da die Rechnungsadresse von der Lieferadresse abweicht.');
+
+define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
+
+            Ueberweisen Sie uns den Betrag von {CURRENCY} {AMOUNT} auf folgendes Konto
+            Kontoinhaber : {ACC_OWNER}
+            IBAN:          {ACC_IBAN}
+            BIC:           {ACC_BIC}
+            Geben sie bitte im Verwendungszweck ausschliesslich die Identifikationsnummer
+        {SHORTID}
+        an.');
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');
-?>

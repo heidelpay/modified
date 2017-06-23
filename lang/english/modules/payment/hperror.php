@@ -15,5 +15,3 @@ define('HP_ERROR_800.100.160', 'Please choose another payment method');
 define('HP_ERROR_800.100.168', 'Please choose another payment method');
 define('HP_ERROR_800.100.171', 'Please choose another payment method');
 define('HP_ERROR_800.300.101', 'Please choose another payment method');
-
-?>

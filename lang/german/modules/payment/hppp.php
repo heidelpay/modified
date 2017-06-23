@@ -79,7 +79,6 @@ define($prefix.'SUCCESS', 'Ihre Transaktion war erfolgreich!
             Geben sie bitte im Verwendungszweck UNBEDINGT die Identifikationsnummer
         {SHORTID}
         und NICHTS ANDERES an.');
-		
+        
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Weiter');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Vorherige Seite');
-?>

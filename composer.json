@@ -1,0 +1,39 @@
+{
+  "name": "heidelpay/modified",
+  "description": "This extension for modified eCommerce provides a direct integration of the heidelpay payment methods to your modified shop.",
+  "require": {
+    "php": ">=5.6.0",
+    "ext-bcmath" : "*",
+    "ext-simplexml": "*",
+    "slowprog/composer-copy-file": "~0.2"
+  },
+  "require-dev": {
+    "heidelpay/phpdocumentor": "2.9.1",
+    "friendsofphp/php-cs-fixer": "2.1.0"
+  },
+  "type": "modified-extension",
+  "license": "Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.",
+  "autoload": {
+    "psr-4": {
+      "Heidelpay\\Modified\\": ""
+    }
+  },
+  "support": {
+    "email": "support@heidelpay.de"
+  },
+  "homepage": "https://dev.heidelpay.de",
+  "authors": [
+    {
+      "name": "Jens Richter",
+      "email": "development@heidelpay.de",
+      "homepage": "https://dev.heidelpay.de/magento2"
+    }
+  ],
+  "keywords": [
+    "modified",
+    "modified eCommerce",
+    "xtc-fork",
+    "php",
+    "payment-gateway"
+  ]
+}
