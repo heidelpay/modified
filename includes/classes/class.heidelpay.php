@@ -222,6 +222,7 @@ class heidelpay
         if (empty($payMethod)) {
             $payMethod = 'DB';
         }
+        //fix for ot.pa over hpc
         if ($payCode == 'OT' && $payMethod == 'DB') {
             $payMethod = 'PA';
         }
@@ -304,22 +305,25 @@ class heidelpay
         }
 
         // 3D Secure
+        //sgw status 80 should be 3d
         if ($res['all']['PROCESSING.STATUS.CODE'] == '80' &&
             $res['all']['PROCESSING.RETURN.CODE'] == '000.200.000' &&
             $res['all']['PROCESSING.REASON.CODE'] == '00'
         ) {
             $src = $res['all']['PROCESSING.REDIRECT.URL'];
+            //capture billsafe case
             if ($this->actualPaymethod == 'BS') {
                 $hpIframe = '<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;'
                     . 'background: rgba(0,0,0,.5); z-index: 9998"></div>' . '<div style="position: absolute;'
                     . 'top: 0; left: 0; z-index: 9999"><iframe src="' . $src . '" allowtransparency="true"' .
                     ' frameborder="0" width="925" height="800" name="heidelpay_frame"></iframe></div>';
                 header('Location: ' . $src);
+                //exit
                 exit();
             }
-            $hpIframe = '<iframe src="about:blank" frameborder="0" width="400" height="600" name="heidelpay_frame">'
-                . '</iframe>';
-            $hpIframe .= '<form method="post" action="' . $src . '" target="heidelpay_frame" id="heidelpay_form">';
+            //$hpIframe = '<iframe src="about:blank" frameborder="0" width="400" height="600" name="heidelpay_frame">'
+            //    . '</iframe>';
+            $hpIframe .= '<form method="post" action="' . $src . ' id="heidelpay_form">';
             $hpIframe .= '<input type="hidden" name="TermUrl" value="'
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.TermUrl'] . '">';
             $hpIframe .= '<input type="hidden" name="PaReq" value="'
@@ -328,7 +332,8 @@ class heidelpay
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.MD'] . '">';
             $hpIframe .= '</form>';
             $hpIframe .= '<script>document.getElementById("heidelpay_form").submit();</script>';
-            if (@constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_DIRECT_MODE')
+            //gambio 1 lightbox
+            /*if (@constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_DIRECT_MODE')
                 == 'GAMBIOLIGHTBOX'
             ) {
                 global $smarty;
@@ -360,9 +365,9 @@ class heidelpay
                 $hpIframeCode .= '<br><a href="" onClick="document.getElementById(\'hpBox\').style.display=\'none\';'
                     . ' return false;">close</a></div></div></center>';
                 $_SESSION['HEIDELPAY_IFRAME'] = $hpIframeCode;
-            } else {
-                $_SESSION['HEIDELPAY_IFRAME'] = $hpIframe;
-            }
+            } else {*/
+            $_SESSION['HEIDELPAY_IFRAME'] = $hpIframe;
+            //}
             $_SESSION['hpLastPost'] = $_POST;
             if (empty($_SESSION['hpLastPost'])) {
                 $_SESSION['hpLastPost']['hp'] = 1;
@@ -373,7 +378,8 @@ class heidelpay
             // if($debug) echo '<pre>'.print_r($GLOBALS, 1).'</pre>';
             $this->trackStep('handleDebit', 'session', $_SESSION);
             if (!$debug) {
-                header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
+                //header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
+                echo $hpIframe;
             }
             exit();
         }
