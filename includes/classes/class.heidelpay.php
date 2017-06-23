@@ -378,8 +378,7 @@ class heidelpay
             // if($debug) echo '<pre>'.print_r($GLOBALS, 1).'</pre>';
             $this->trackStep('handleDebit', 'session', $_SESSION);
             if (!$debug) {
-                //header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
-                echo $hpIframe;
+                header('Location: ' . $loc . 'heidelpay_3dsecure.php?' . session_name() . '=' . session_id());
             }
             exit();
         }
