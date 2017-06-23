@@ -82,7 +82,6 @@ define($prefix.'SUCCESS_BILLSAFE', 'Your transaction was successfull!
             When you transfer the money you HAVE TO use the identification number
         {SHORTID}
         as the descriptor and nothing else. Otherwise we cannot match your transaction!');
-		
+        
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>

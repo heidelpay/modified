@@ -66,4 +66,3 @@ define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use 
 
 define($prefix.'FRONTEND_BUTTON_CONTINUE', 'Continue');
 define($prefix.'FRONTEND_BUTTON_CANCEL', 'Previous Page');
-?>
