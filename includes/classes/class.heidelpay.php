@@ -321,8 +321,6 @@ class heidelpay
                 //exit
                 exit();
             }
-            //$hpIframe = '<iframe src="about:blank" frameborder="0" width="400" height="600" name="heidelpay_frame">'
-            //    . '</iframe>';
             $hpIframe .= '<form method="post" action="' . $src . '" id="heidelpay_form">';
             $hpIframe .= '<input type="hidden" name="TermUrl" value="'
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.TermUrl'] . '">';
@@ -332,42 +330,7 @@ class heidelpay
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.MD'] . '">';
             $hpIframe .= '</form>';
             $hpIframe .= '<script>document.getElementById("heidelpay_form").submit();</script>';
-            //gambio 1 lightbox
-            /*if (@constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_DIRECT_MODE')
-                == 'GAMBIOLIGHTBOX'
-            ) {
-                global $smarty;
-                $smarty->assign('LIGHTBOX', gm_get_conf('GM_LIGHTBOX_CHECKOUT'));
-                if ($_SESSION['style_edit_mode'] == 'edit') {
-                    $smarty->assign('STYLE_EDIT', 1);
-                } else {
-                    $smarty->assign('STYLE_EDIT', 0);
-                }
-                $smarty->assign('language', $_SESSION['language']);
-                $smarty->assign('content', '<center>' . $hpIframe . '</center>');
-                $content = $smarty->fetch(CURRENT_TEMPLATE . '/module/checkout_payment_hp.html');
-                $_SESSION['HEIDELPAY_IFRAME'] = $content;
-                if (!$debug) {
-                    header('Location: ' . $loc . 'heidelpay_checkout_iframe.php?'
-                        . session_name() . '=' . session_id());
-                }
-                exit();
-            } elseif (@constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod)
-                    . '_DIRECT_MODE') == 'LIGHTBOX'
-            ) {
-                $hpIframeCode = '<center><div id="hpBox"><div style="background-color: #666; position:fixed;'
-                    . ' display:block; margin:0; padding:0; top:0; left:0; opacity: 0.9; -moz-opacity: 0.9;'
-                    . ' -khtml-opacity: 0.9; filter:alpha(opacity=90); z-index: 1000; width: 100%;'
-                    . ' height: 100%;"></div>';
-                $hpIframeCode .= '<div style="z-index: 1001; position: absolute; width: 800px; top: 50%;'
-                    . ' left: 50%; margin-top: -325px; margin-left: -400px;">';
-                $hpIframeCode .= $hpIframe;
-                $hpIframeCode .= '<br><a href="" onClick="document.getElementById(\'hpBox\').style.display=\'none\';'
-                    . ' return false;">close</a></div></div></center>';
-                $_SESSION['HEIDELPAY_IFRAME'] = $hpIframeCode;
-            } else {*/
             $_SESSION['HEIDELPAY_IFRAME'] = $hpIframe;
-            //}
             $_SESSION['hpLastPost'] = $_POST;
             if (empty($_SESSION['hpLastPost'])) {
                 $_SESSION['hpLastPost']['hp'] = 1;
