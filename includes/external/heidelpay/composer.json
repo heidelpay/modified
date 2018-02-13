@@ -1,0 +1,12 @@
+{
+    "name": "david.owusu/heidelpay",
+    "authors": [
+        {
+            "name": "David.Owusu",
+            "email": "david.owusu@heidelpay.de"
+        }
+    ],
+    "require": {
+        "heidelpay/php-basket-api":"^1.0"
+    }
+}
