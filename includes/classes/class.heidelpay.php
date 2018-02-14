@@ -270,7 +270,7 @@ class heidelpay
             $order = $order = new order($oId);
             try {
                 $basketId = $this->getBasket($order); // TODO: Use Exceptions to check.
-                $parameters['BASKET.ID'] = $basketId;
+                //$parameters['BASKET.ID'] = $basketId;
             } catch (Exception $e) {
             }
 
@@ -468,9 +468,10 @@ class heidelpay
         return $shipping_tax_rate;
     }
 
+
     /**
      * @param order $order
-     * @param array $data
+     * @return null|string
      */
     public function getBasket(order $order)
     {
@@ -532,6 +533,10 @@ class heidelpay
         return null;
     }
 
+    /**
+     * @param array $shipping
+     * @param BasketItem $shippingItem
+     */
     public function mapToTotals(array $shipping, BasketItem $shippingItem)
     {
         $shippingItem->setBasketItemReferenceId($shipping['orders_total_id']);
@@ -542,6 +547,11 @@ class heidelpay
         $shippingItem->setAmountPerUnit((int)($shipping['value'] * 100));
     }
 
+    /**
+     * @param array $product
+     * @param BasketItem $item
+     * @return BasketItem
+     */
     public function mapToProduct(array $product, BasketItem $item)
     {
         $item->setBasketItemReferenceId($product['model']);
