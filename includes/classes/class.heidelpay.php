@@ -476,38 +476,39 @@ class heidelpay
      */
     public function sendBasketFromOrder(order $order)
     {
-        $basket = new Basket();
         $authentication = new Authentication(
             constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN'),
             constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_PWD'),
             constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER')
         );
+        $basket = new Basket();
         $request = new Request($authentication, $basket);
-        $shippingItem = new BasketItem();
-        $couponItem = new BasketItem();
+
         $basket->setCurrencyCode($order->info['currency']);
         $basket->setBasketReferenceId($order->info['order_id']);
         $shippingVat = 0;
 
-        // add all products to Basket
+        // add all products to basket
         foreach ($order->products as $product) {
             $item = new BasketItem();
             $this->mapToProduct($product, $item);
             if($item->getVat() > $shippingVat) {
                 $shippingVat = (int)$item->getVat();
             }
+            $item->setBasketItemReferenceId($basket->getItemCount()+1);
             $basket->addBasketItem($item, null, true);
         }
 
         $shipping = null;
 
-        // get coupons and shipping from order
+        // add coupons and shipping to the basket
         foreach ($order->totals as $total) {
             if (!empty($total['class']) && $total['class'] === 'ot_shipping' ) {
                 $item = new BasketItem();
                 $this->mapToTotals($total, $item);
                 $item->setType('shipping');
                 $item->setVat($shippingVat);
+                $item->setBasketItemReferenceId($basket->getItemCount()+1);
                 $basket->addBasketItem($item, null, true);
             }
             if (!empty($total['class'])
@@ -516,6 +517,7 @@ class heidelpay
                 $item = new BasketItem();
                 $this->mapToTotals($total, $item);
                 $item->setType('class');
+                $item->setBasketItemReferenceId($basket->getItemCount()+1);
                 $basket->addBasketItem($item, null, true);
             }
         }
