@@ -1,11 +1,6 @@
 <?php
 
-require_once(DIR_FS_EXTERNAL . 'heidelpay/vendor/autoload.php');
-
-use Heidelpay\PhpBasketApi\Object\Authentication;
-use Heidelpay\PhpBasketApi\Object\Basket;
-use Heidelpay\PhpBasketApi\Object\BasketItem;
-use Heidelpay\PhpBasketApi\Request;
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayBasketHelper.php');
 
 /**
  * heidelpay payment class
@@ -271,10 +266,13 @@ class heidelpay
             $parameters['FRONTEND.ENABLED'] = "false";
             // create the basket for the transaction
             $oId = preg_replace('/.*Order /', '', $orderId);
-            $order = $order = new order($oId);
-            $respond = $this->sendBasketFromOrder($order);
+            global $order ;
+            $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod); //
             if ($respond->isSuccess()) {
                 $parameters['BASKET.ID'] = $respond->getBasketId();
+            } else {
+                mail('david.owusu@heidelpay.de', 'basket_error', print_r($respond, 1));
+                //TODO: log if sending the basket failed
             }
         } elseif ($this->actualPaymethod == 'DDSEC') {
             $parameters['PAYMENT.CODE'] = "DD.DB";
@@ -468,106 +466,6 @@ class heidelpay
         $tax_class_id = $configuration['configuration_value'];
         $shipping_tax_rate = xtc_get_tax_rate($tax_class_id);
         return $shipping_tax_rate;
-    }
-
-
-    /**
-     * Create a basket and send it to hPP.
-     * If the process of sending the basket to hPP was successful the response will contain a BASKET.ID which can be
-     * added as a parameter to the transaction.
-     * @param order $order
-     * @return \Heidelpay\PhpBasketApi\Response
-     */
-    public function sendBasketFromOrder(order $order)
-    {
-        $authentication = new Authentication(
-            constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN'),
-            constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_PWD'),
-            constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER')
-        );
-        $basket = new Basket();
-        $request = new Request($authentication, $basket);
-
-        $basket->setCurrencyCode($order->info['currency']);
-        $basket->setBasketReferenceId($order->info['order_id']);
-        $vatMax = 0;
-
-        // add all products to basket
-        foreach ($order->products as $product) {
-            $item = new BasketItem();
-            $this->mapToProduct($product, $item);
-            if ($item->getVat() > $vatMax) {
-                $vatMax = (int)$item->getVat();
-            }
-            $item->setBasketItemReferenceId($basket->getItemCount() + 1);
-            $basket->addBasketItem($item, null, true);
-        }
-
-        $shipping = null;
-
-        // add coupons and shipping to the basket
-        foreach ($order->totals as $total) {
-            if (!empty($total['class']) && $total['class'] === 'ot_shipping') {
-                $item = new BasketItem();
-                $item->setVat($vatMax);
-                $this->mapToTotals($total, $item);
-                $item->setType('shipment');
-                $item->setBasketItemReferenceId($basket->getItemCount() + 1);
-                $basket->addBasketItem($item, null, true);
-            }
-            if (!empty($total['class'])
-                && ($total['class'] === 'ot_coupon'
-                    OR $total['class'] === 'ot_gv')) {
-                $item = new BasketItem();
-                $item->setVat($vatMax);
-                $this->mapToTotals($total, $item);
-                $item->setType('voucher');
-                $item->setBasketItemReferenceId($basket->getItemCount() + 1);
-                $basket->addBasketItem($item, null, true);
-            }
-        }
-        return $request->addNewBasket();
-    }
-
-    /**
-     * @param array $product
-     * @param BasketItem $item
-     * @return BasketItem
-     */
-    public function mapToProduct(array $product, BasketItem $item)
-    {
-        $item->setTitle($product['name']);
-        $item->setBasketItemReferenceId($product['id']);
-        $item->setUnit(!empty($product['unit']) ? $product['unit'] : '');
-        $item->setQuantity($product['quantity']);
-        $item->setArticleId($product['id']);
-        $item->setVat((int)$product['tax']);
-        $item->setType('goods');
-        $item->setAmountPerUnit((int)(bcmul($product['price'] , 100)));
-
-        $item->setAmountGross((int)(bcmul($product['final_price'] , 100)));
-        $item->setAmountVat((int)(bcmul($item->getAmountGross() , bcdiv($item->getVat(), 100, 2))));
-        $item->setAmountNet(($item->getAmountGross() - $item->getAmountVat()));
-
-        $item->setAmountDiscount((int)($product['discount_made']));
-
-        return $item;
-    }
-
-    /**
-     * @param array $total contain totals of the order
-     * @param BasketItem $item
-     */
-    public function mapToTotals(array $total, BasketItem $item)
-    {
-        $item->setBasketItemReferenceId($total['orders_total_id']);
-        $item->setTitle($total['title']);
-        $item->setQuantity('1');
-        $item->setArticleId(str_replace('ot_', '', $total['class']) . $total['orders_id']);
-        $item->setAmountGross((int)(bcmul($total['value'] , 100)));
-        $item->setAmountVat((int)($total['value'] * 100 * bcdiv((string)$item->getVat() , (string)100, 2)));
-        $item->setAmountNet((int)($total['value'] * 100 - $item->getAmountVat()));
-        $item->setAmountPerUnit((int)(bcmul($total['value'] , 100)));
     }
 
     /**
