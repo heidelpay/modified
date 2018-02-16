@@ -265,14 +265,13 @@ class heidelpay
                 . '-' . $_SESSION['hpivsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
             // create the basket for the transaction
-            $oId = preg_replace('/.*Order /', '', $orderId);
             global $order ;
             $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod); //
             if ($respond->isSuccess()) {
                 $parameters['BASKET.ID'] = $respond->getBasketId();
+                $this->addHistoryComment($order->info['orders_id'], 'Basket was added to transaction');
             } else {
-                mail('david.owusu@heidelpay.de', 'basket_error', print_r($respond, 1));
-                //TODO: log if sending the basket failed
+                $this->addHistoryComment($order->info['orders_id'], 'Basket could not be added to transaction');
             }
         } elseif ($this->actualPaymethod == 'DDSEC') {
             $parameters['PAYMENT.CODE'] = "DD.DB";
@@ -682,8 +681,6 @@ class heidelpay
             $_SESSION['hpUniqueID']
         );
         $this->trackStep('handleDebit', 'data', $data);
-
-        //$data['BASKET.ID'] = $this->setupBasket($order, $data);
 
         if ($debug) {
             echo '<pre>' . print_r($data, 1) . '</pre>';

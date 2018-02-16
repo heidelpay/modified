@@ -14,7 +14,13 @@ use Heidelpay\PhpBasketApi\Request;
 
 class heidelpayBasketHelper
 {
-
+    /**
+     * Create a basket and send it to hPP.
+     * If the process of sending the basket to hPP was successful the response will contain a BASKET.ID which can be
+     * added as a parameter to the transaction.
+     * @param order $order
+     * @return \Heidelpay\PhpBasketApi\Response
+     */
     public static function sendBasketFromOrder(order $order, $payMethod)
     {
         $authentication = new Authentication(
@@ -41,8 +47,6 @@ class heidelpayBasketHelper
             $basket->addBasketItem($item, null, true);
         }
 
-        $shipping = null;
-
         // add coupons and shipping to the basket
         foreach ($order->totals as $total) {
             // find the shipping from totals using the class key
@@ -66,11 +70,13 @@ class heidelpayBasketHelper
                 $basket->addBasketItem($item, null, true);
             }
         }
+
         return $request->addNewBasket();
     }
 
     /**
      * Map a product from an order to parameters for the basket-api
+     * The AmountVat is calculated based on
      * @param array $product
      * @param BasketItem $item
      * @return BasketItem
