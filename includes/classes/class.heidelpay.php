@@ -186,6 +186,9 @@ class heidelpay
         $uniqueId = null
     )
     {
+        global $order ;
+
+        mail('david.owusu@heidelpay.de', 'order details', print_r($order,1));
         $payCode = strtoupper($payCode);
         $amount = sprintf('%1.2f', $amount);
         $currency = strtoupper($currency);
@@ -264,15 +267,8 @@ class heidelpay
             $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'] . '-' . $_SESSION['hpivsecData']['month']
                 . '-' . $_SESSION['hpivsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
-            // create the basket for the transaction
-            global $order ;
-            $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod); //
-            if ($respond->isSuccess()) {
-                $parameters['BASKET.ID'] = $respond->getBasketId();
-                $this->addHistoryComment($order->info['orders_id'], 'Basket was added to transaction');
-            } else {
-                $this->addHistoryComment($order->info['orders_id'], 'Basket could not be added to transaction');
-            }
+            // add BasketId to parameters
+            $parameters = $this->addBasketId($parameters);
         } elseif ($this->actualPaymethod == 'DDSEC') {
             $parameters['PAYMENT.CODE'] = "DD.DB";
             $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpddsecData']['Holder'];
@@ -281,6 +277,7 @@ class heidelpay
             $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'] . '-' . $_SESSION['hpddsecData']['month']
                 . '-' . $_SESSION['hpddsecData']['day'];
             $parameters['FRONTEND.ENABLED'] = "false";
+            $parameters = $this->addBasketId($parameters);
         }
 
         foreach ($this->availablePayments as $key => $value) {
@@ -322,6 +319,26 @@ class heidelpay
 
         $parameters['SHOP.TYPE'] = "XTC 3.4";
         $parameters['SHOPMODULE.VERSION'] = "Premium " . $this->version;
+        return $parameters;
+    }
+
+    /**
+     * Send Basket request and add BasketId to parameters if successful.
+     * If the Basket request failed add a comment to the corresponding order.
+     * @param array $parameters
+     * @return array
+     */
+    public function addBasketId(array $parameters = [])
+    {
+        global $order;
+        $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod);
+
+        if ($respond->isSuccess()) {
+            $parameters['BASKET.ID'] = $respond->getBasketId();
+        } else {
+            $msg = constant('MODULE_PAYMENT_'.$this->actualPaymethod.'_MISSING_BASKET');
+            $this->addHistoryComment($order->info['orders_id'], $msg);
+        }
         return $parameters;
     }
 
@@ -579,10 +596,6 @@ class heidelpay
         $this->trackStep('handleDebit', 'order', $order);
         $debug = false;
 
-        mail('david.owusu@heidelpay.de',
-            'order details',
-            '<pre>' . print_r($order, 1) . '</pre>');
-
         if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_DEBUG') == 'True') {
             $debug = true;
         }
@@ -708,7 +721,7 @@ class heidelpay
             $holder = $res['all']['ACCOUNT.HOLDER'];
         }
 
-        // save insurance provider validation data
+        // save insurance provider validation data in if Sync-mode is used
         if (isset($res['all']['CRITERION_INSURANCE-RESERVATION'])) {
             $_SESSION['hpResponse']['INSURANCE-RESERVATION'] = $res['all']['CRITERION_INSURANCE-RESERVATION'];
         } else {

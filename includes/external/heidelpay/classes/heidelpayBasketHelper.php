@@ -58,30 +58,37 @@ class heidelpayBasketHelper
                 $item->setBasketItemReferenceId($basket->getItemCount() + 1);
                 $basket->addBasketItem($item, null, true);
             }
-            // find coupons and discounts from totals using class key
-            if (!empty($total['class'])
-                && ($total['class'] === 'ot_coupon'
-                    OR $total['class'] === 'ot_gv')) {
-                $item = new BasketItem();
-                $item->setVat($vatMax);
-                self::mapToTotals($total, $item);
-                $item->setType('goods');
-                $item->setBasketItemReferenceId($basket->getItemCount() + 1);
-                $basket->addBasketItem($item, null, true);
+
+            // find coupons and discounts from totals using class keys
+            $discountClasses = array(
+                'ot_coupon',
+                'ot_gv',
+                'ot_discount'
+            );
+
+            if (!empty($total['class'])) {
+                $class = $total['class'];
+                if (in_array($class, $discountClasses)) {
+                    $item = new BasketItem();
+                    $item->setVat($vatMax);
+                    self::mapToTotals($total, $item);
+                    $item->setType('goods');
+                    $item->setBasketItemReferenceId($basket->getItemCount() + 1);
+                    $basket->addBasketItem($item, null, true);
+                }
             }
         }
-
         return $request->addNewBasket();
     }
 
     /**
-     * Map a product from an order to parameters for the basket-api
-     * The AmountVat is calculated based on
+     * Map a product from an order to parameters of basket-api
+     * The AmountVat is calculated based on Vat and AmountGross
      * @param array $product
      * @param BasketItem $item
      * @return BasketItem
      */
-    public static function mapToProduct(array $product, BasketItem $item)
+    private static function mapToProduct(array $product, BasketItem $item)
     {
         $item->setTitle($product['name']);
         $item->setBasketItemReferenceId($product['id']);
@@ -90,28 +97,43 @@ class heidelpayBasketHelper
         $item->setArticleId($product['id']);
         $item->setVat((int)$product['tax']);
         $item->setType('goods');
-        $item->setAmountPerUnit((int)(bcmul($product['price'], 100)));
-        $item->setAmountGross((int)(bcmul($product['final_price'], 100)));
-        $item->setAmountVat((int)(bcmul($item->getAmountGross(), bcdiv($item->getVat(), 100, 2))));
-        $item->setAmountNet(($item->getAmountGross() - $item->getAmountVat()));
+        $item->setAmountPerUnit(self::calcPrice($product['price']));
+        $item->setAmountGross(self::calcPrice($product['final_price']));
 
-        $item->setAmountDiscount((int)($product['discount_made']));
+        $item->setAmountVat((int)(bcmul($item->getAmountGross(), bcdiv($item->getVat(), 100, 2))));
+        $item->setAmountNet($item->getAmountGross() - $item->getAmountVat());
+
+        $item->setAmountDiscount(self::calcPrice($product['discount_made']));
         return $item;
     }
 
     /**
+     * Map a product from an order to parameters of basket-api
+     * The AmountVat is calculated based on Vat and AmountGross
      * @param array $total contain totals of the order
      * @param BasketItem $item
      */
-    public static function mapToTotals(array $total, BasketItem $item)
+    private static function mapToTotals(array $total, BasketItem $item)
     {
         $item->setBasketItemReferenceId($total['orders_total_id']);
         $item->setTitle($total['title']);
         $item->setQuantity('1');
         $item->setArticleId(str_replace('ot_', '', $total['class']) . $total['orders_id']);
-        $item->setAmountGross((int)(bcmul($total['value'], 100)));
-        $item->setAmountVat((int)($total['value'] * 100 * bcdiv((string)$item->getVat(), (string)100, 2)));
-        $item->setAmountNet((int)($total['value'] * 100 - $item->getAmountVat()));
-        $item->setAmountPerUnit((int)(bcmul($total['value'], 100)));
+        $item->setAmountGross(self::calcPrice($total['value']));
+        $item->setAmountPerUnit(self::calcPrice($total['value']));
+
+        $item->setAmountVat((int)(self::calcPrice($total['value']) * bcdiv((string)$item->getVat(), (string)100, 2)));
+        $item->setAmountNet(self::calcPrice($total['value']) - $item->getAmountVat());
+    }
+
+    /**
+     * Convert an Amount to its smallest unit.
+     * @param $price
+     * @param int $factor
+     * @return int
+     */
+    private static function calcPrice($price, $factor = 100)
+    {
+        return (int)bcmul($price, $factor);
     }
 }
