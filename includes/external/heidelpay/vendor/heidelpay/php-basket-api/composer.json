@@ -1,0 +1,51 @@
+{
+  "name": "heidelpay/php-basket-api",
+  "description": "Client library for heidelpay basket api.",
+  "license": "Use of this software requires acceptance of the License Agreement. See LICENSE file.",
+  "authors": [
+    {
+      "name": "Jens Richter",
+      "email": "development@heidelpay.de",
+      "homepage": "http://dev.heidelpay.com",
+      "role": "Developer"
+    },
+    {
+      "name": "Stephano Vogel",
+      "email": "development@heidelpay.de",
+      "homepage": "http://dev.heidelpay.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "~5.6.0|~7.0.0|~7.1.0",
+    "lib-curl": ">=7.26.0",
+    "lib-openssl": ">=1.0.1.5"
+  },
+  "require-dev": {
+    "codacy/coverage": "~1.1.0",
+    "friendsofphp/php-cs-fixer" : "^2.0",
+    "phpunit/phpunit": "~5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Heidelpay\\PhpBasketApi\\": "lib"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Heidelpay\\Tests\\PhpBasketApi\\": "tests/"
+    }
+  },
+  "support": {
+    "email": "development@heidelpay.de"
+  },
+  "homepage": "https://dev.heidelpay.de",
+  "minimum-stability": "dev",
+  "type": "library",
+  "keywords": [
+    "php",
+    "api",
+    "sdk",
+    "basket-api"
+  ]
+}

@@ -1,10 +1,17 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: David.Owusu
- * Date: 15.02.2018
- * Time: 16:35
+ * Basket helper class
+ *
+ * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ *
+ * @link  https://dev.heidelpay.de/modified/
+ *
+ * @package  heidelpay
+ * @subpackage modified
+ * @category modified
  */
+
 require_once(DIR_FS_EXTERNAL . 'heidelpay/vendor/autoload.php');
 
 use Heidelpay\PhpBasketApi\Object\Authentication;
@@ -17,6 +24,7 @@ class heidelpayBasketHelper
     /**
      * Create a basket and send it to hPP.
      * If the process of sending the basket to hPP was successful the response will contain a BASKET.ID which can be
+     *
      * added as a parameter to the transaction.
      * @param order $order
      * @return \Heidelpay\PhpBasketApi\Response
@@ -82,8 +90,9 @@ class heidelpayBasketHelper
     }
 
     /**
-     * Map a product from an order to parameters of basket-api
+     * Map a product from an order to parameters of basket-api.
      * The AmountVat is calculated based on Vat and AmountGross
+     *
      * @param array $product
      * @param BasketItem $item
      * @return BasketItem
@@ -103,13 +112,40 @@ class heidelpayBasketHelper
         $item->setAmountVat((int)(bcmul($item->getAmountGross(), bcdiv($item->getVat(), 100, 2))));
         $item->setAmountNet($item->getAmountGross() - $item->getAmountVat());
 
-        $item->setAmountDiscount(self::calcPrice($product['discount_made']));
+        $item->setAmountDiscount(self::calcDiscount($product['final_price'], $product['discount']));
         return $item;
     }
 
     /**
-     * Map a product from an order to parameters of basket-api
+     * Convert an Amount to its smallest unit.
+     * @param $price
+     * @param int $factor
+     * @return int
+     */
+    private static function calcPrice($price, $factor = 100)
+    {
+        return (int)bcmul($price, $factor);
+    }
+
+    /**
+     * Calculate the discount amount given.
+     * Uses the final price and the percentage discount to calculate back the amount
+     *
+     * @param $finalPrice
+     * @param $discount
+     * @return int
+     */
+    private static function calcDiscount($finalPrice, $discount)
+    {
+        $finalPrice = self::calcPrice($finalPrice);
+        $percentage = bcdiv(100 - $discount, 100, 4);
+        return (int)(bcdiv($finalPrice, $percentage) - $finalPrice);
+    }
+
+    /**
+     * Map a product from an order to parameters of basket-api.
      * The AmountVat is calculated based on Vat and AmountGross
+     *
      * @param array $total contain totals of the order
      * @param BasketItem $item
      */
@@ -124,16 +160,5 @@ class heidelpayBasketHelper
 
         $item->setAmountVat((int)(self::calcPrice($total['value']) * bcdiv((string)$item->getVat(), (string)100, 2)));
         $item->setAmountNet(self::calcPrice($total['value']) - $item->getAmountVat());
-    }
-
-    /**
-     * Convert an Amount to its smallest unit.
-     * @param $price
-     * @param int $factor
-     * @return int
-     */
-    private static function calcPrice($price, $factor = 100)
-    {
-        return (int)bcmul($price, $factor);
     }
 }

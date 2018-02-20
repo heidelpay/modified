@@ -186,9 +186,7 @@ class heidelpay
         $uniqueId = null
     )
     {
-        global $order ;
-
-        mail('david.owusu@heidelpay.de', 'order details', print_r($order,1));
+        global $order;
         $payCode = strtoupper($payCode);
         $amount = sprintf('%1.2f', $amount);
         $currency = strtoupper($currency);
@@ -319,26 +317,6 @@ class heidelpay
 
         $parameters['SHOP.TYPE'] = "XTC 3.4";
         $parameters['SHOPMODULE.VERSION'] = "Premium " . $this->version;
-        return $parameters;
-    }
-
-    /**
-     * Send Basket request and add BasketId to parameters if successful.
-     * If the Basket request failed add a comment to the corresponding order.
-     * @param array $parameters
-     * @return array
-     */
-    public function addBasketId(array $parameters = [])
-    {
-        global $order;
-        $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod);
-
-        if ($respond->isSuccess()) {
-            $parameters['BASKET.ID'] = $respond->getBasketId();
-        } else {
-            $msg = constant('MODULE_PAYMENT_'.$this->actualPaymethod.'_MISSING_BASKET');
-            $this->addHistoryComment($order->info['orders_id'], $msg);
-        }
         return $parameters;
     }
 
@@ -482,6 +460,79 @@ class heidelpay
         $tax_class_id = $configuration['configuration_value'];
         $shipping_tax_rate = xtc_get_tax_rate($tax_class_id);
         return $shipping_tax_rate;
+    }
+
+    /**
+     * Send Basket request and add BasketId to parameters if successful.
+     * If the Basket request failed add a comment to the corresponding order.
+     * @param array $parameters
+     * @return array
+     */
+    public function addBasketId(array $parameters = [])
+    {
+        global $order;
+        $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod);
+
+        if ($respond->isSuccess()) {
+            $parameters['BASKET.ID'] = $respond->getBasketId();
+        } else {
+            $msg = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_MISSING_BASKET');
+            $this->addHistoryComment($order->info['orders_id'], $msg);
+        }
+        return $parameters;
+    }
+
+    /**
+     * Add comment to order history
+     *
+     * @param $order_id string order number
+     * @param $comment string order comment
+     * @param string $status order status
+     * @param string $customer_notified customer notification
+     *
+     * @return bool|mysqli_result|resource
+     */
+    public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
+    {
+        if (empty($order_id) || empty($comment)) {
+            return false;
+        }
+        // load current  oder history
+        $orderHistory = $this->getLastHistoryComment($order_id);
+        // set customer notification
+        $orderHistory['customer_notified'] = $customer_notified;
+        // set time stamp
+        $orderHistory['date_added'] = date('Y-m-d H:i:s');
+        // set new comment
+        $orderHistory['comments'] = urldecode($comment);
+        // set new order status
+        if (!empty($status)) {
+            $orderHistory['orders_status_id'] = addslashes($status);
+        }
+        // remove old history id
+        unset($orderHistory['orders_status_history_id']);
+        // save history
+        return xtc_db_perform(TABLE_ORDERS_STATUS_HISTORY, $orderHistory);
+    }
+
+    /**
+     * get last order history
+     *
+     * @param $order_id
+     *
+     * @return array|bool|mixed|null
+     */
+    public function getLastHistoryComment($order_id)
+    {
+        if (empty($order_id)) {
+            return array();
+        }
+        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
+      WHERE `orders_id` = "' . addslashes($order_id) . '"
+      ORDER BY `orders_status_history_id` DESC
+      ';
+        $orderHistoryArray = xtc_db_query($sql);
+        return xtc_db_fetch_array($orderHistoryArray);
     }
 
     /**
@@ -1044,59 +1095,6 @@ class heidelpay
             . addslashes($customerId) . '" AND `memo_title` = "' . addslashes($key) . '"');
         $res = xtc_db_fetch_array($res);
         return $res['memo_text'];
-    }
-
-    /**
-     * Add comment to order history
-     *
-     * @param $order_id string order number
-     * @param $comment string order comment
-     * @param string $status order status
-     * @param string $customer_notified customer notification
-     *
-     * @return bool|mysqli_result|resource
-     */
-    public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
-    {
-        if (empty($order_id) || empty($comment)) {
-            return false;
-        }
-        // load current  oder history
-        $orderHistory = $this->getLastHistoryComment($order_id);
-        // set customer notification
-        $orderHistory['customer_notified'] = $customer_notified;
-        // set time stamp
-        $orderHistory['date_added'] = date('Y-m-d H:i:s');
-        // set new comment
-        $orderHistory['comments'] = urldecode($comment);
-        // set new order status
-        if (!empty($status)) {
-            $orderHistory['orders_status_id'] = addslashes($status);
-        }
-        // remove old history id
-        unset($orderHistory['orders_status_history_id']);
-        // save history
-        return xtc_db_perform(TABLE_ORDERS_STATUS_HISTORY, $orderHistory);
-    }
-
-    /**
-     * get last order history
-     *
-     * @param $order_id
-     *
-     * @return array|bool|mixed|null
-     */
-    public function getLastHistoryComment($order_id)
-    {
-        if (empty($order_id)) {
-            return array();
-        }
-        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
-      WHERE `orders_id` = "' . addslashes($order_id) . '"
-      ORDER BY `orders_status_history_id` DESC
-      ';
-        $orderHistoryArray = xtc_db_query($sql);
-        return xtc_db_fetch_array($orderHistoryArray);
     }
 
     /**
