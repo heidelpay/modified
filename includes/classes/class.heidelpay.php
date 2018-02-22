@@ -1,5 +1,7 @@
 <?php
 
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayBasketHelper.php');
+
 /**
  * heidelpay payment class
  *
@@ -38,7 +40,7 @@ class heidelpay
     public $actualPaymethod = 'CC';
     public $url;
     /** @var string plugin version aka release date */
-    public $version = '17.6.23';
+    public $version = '17.10.9';
     public $importantPPFields = array(
         'PRESENTATION_AMOUNT',
         'PRESENTATION_CURRENCY',
@@ -145,6 +147,492 @@ class heidelpay
         return $src;
     }
 
+    public function trackStep($point, $var, $val)
+    {
+        if (!empty($this->hpdebug)) {
+            $tmp['hpTracking'][$point][$var] = $val;
+            $filename = DIR_FS_CATALOG . 'cache/customer_' . $_SESSION['customer_id'] . '.log';
+            if ($handle = fopen($filename, 'a')) {
+                fwrite($handle, date('Y.m.d H:i:s') . "\n" . print_r($tmp['hpTracking'], 1));
+                fclose($handle);
+            }
+        }
+    }
+
+    /**
+     * prepare post payload for api call
+     *
+     * @param $orderId string order reference id
+     * @param $amount float order amount
+     * @param $currency string order currency code
+     * @param $payCode string current payment method
+     * @param $userData array customer information
+     * @param $lang string language code
+     * @param string $mode transaction mode
+     * @param bool $capture booking mode
+     * @param null $uniqueId payment reference id
+     *
+     * @return mixed request payload
+     */
+    public function prepareData(
+        $orderId,
+        $amount,
+        $currency,
+        $payCode,
+        $userData,
+        $lang,
+        $mode = 'DB',
+        $capture = false,
+        $uniqueId = null
+    )
+    {
+        global $order;
+        $payCode = strtoupper($payCode);
+        $amount = sprintf('%1.2f', $amount);
+        $currency = strtoupper($currency);
+        $userData = $this->encodeData($userData);
+
+        $ACT_MOD_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE'))
+            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE')
+            : 'AFTER';
+
+
+        $parameters['SECURITY.SENDER'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER');
+        $parameters['USER.LOGIN'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN');
+        $parameters['USER.PWD'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_PWD');
+        $parameters['TRANSACTION.CHANNEL'] = constant('MODULE_PAYMENT_HP'
+            . $this->actualPaymethod . '_TRANSACTION_CHANNEL');
+
+        if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_TRANSACTION_MODE') == 'LIVE') {
+            $txnMode = 'LIVE';
+        } else {
+            $txnMode = 'CONNECTOR_TEST';
+        }
+        $parameters['TRANSACTION.MODE'] = $txnMode;
+
+        $parameters['REQUEST.VERSION'] = "1.0";
+        $parameters['IDENTIFICATION.TRANSACTIONID'] = $orderId;
+        $parameters['IDENTIFICATION.SHOPPERID'] = $_SESSION['customer_id'];
+        if ($capture) {
+            $parameters['FRONTEND.ENABLED'] = "false";
+            if (!empty($uniqueId)) {
+                $parameters['ACCOUNT.REGISTRATION'] = $uniqueId;
+            }
+        } else {
+            $parameters['FRONTEND.ENABLED'] = "true";
+        }
+        $parameters['FRONTEND.REDIRECT_TIME'] = "0";
+        $parameters['FRONTEND.POPUP'] = "false";
+        $parameters['FRONTEND.MODE'] = "DEFAULT";
+        $parameters['FRONTEND.LANGUAGE'] = $lang;
+        $parameters['FRONTEND.LANGUAGE_SELECTOR'] = "true";
+        $parameters['FRONTEND.ONEPAGE'] = "true";
+        $parameters['FRONTEND.NEXTTARGET'] = "location.href";
+        $parameters['FRONTEND.CSS_PATH'] = $this->pageURL . DIR_WS_CATALOG . "heidelpay_style.css";
+        if ($mode == 'RG') {
+            $parameters['FRONTEND.CSS_PATH'] = $this->pageURL . DIR_WS_CATALOG . "heidelpay_reg_style.css";
+        }
+        $parameters['FRONTEND.RETURN_ACCOUNT'] = "true";
+
+        if ($this->actualPaymethod == 'SU') {
+            $parameters['FRONTEND.ENABLED'] = "false";
+        } elseif ($this->actualPaymethod == 'IDL' && $ACT_MOD_MODE == 'NOWPF') {
+            $parameters['ACCOUNT.NUMBER'] = $_SESSION['hpIdealData']['otAccountNumber'];
+            $parameters['ACCOUNT.BANK'] = $_SESSION['hpIdealData']['otBankCode'];
+            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpIdealData']['onlineTransferHolder'];
+            $parameters['ACCOUNT.COUNTRY'] = $_SESSION['hpIdealData']['onlineTransferCountry'];
+            $parameters['ACCOUNT.BANKNAME'] = $_SESSION['hpIdealData']['onlineTransferInstitute'];
+            $parameters['FRONTEND.ENABLED'] = "false";
+        } elseif ($this->actualPaymethod == 'DD') {
+            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpDDData']['Holder'];
+            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpDDData']['AccountIBAN']);
+            $parameters['FRONTEND.ENABLED'] = "false";
+        } elseif ($this->actualPaymethod == 'GP') {
+            $parameters['FRONTEND.ENABLED'] = "false";
+        } elseif ($this->actualPaymethod == 'PPAL') {
+            $parameters['ACCOUNT.BRAND'] = 'PAYPAL';
+        } elseif ($this->actualPaymethod == 'BS') {
+            $parameters['PAYMENT.CODE'] = "IV.PA";
+            $parameters['ACCOUNT.BRAND'] = "BILLSAFE";
+            $parameters['FRONTEND.ENABLED'] = "false";
+            $oId = preg_replace('/.*Order /', '', $orderId);
+            $order = $order = new order($oId);
+            $bsParams = $this->getBillsafeBasket($order);
+            $parameters = array_merge($parameters, $bsParams);
+        } elseif ($this->actualPaymethod == 'IVSEC') {
+            $parameters['PAYMENT.CODE'] = "IV.PA";
+            $userData['salutation'] = $_SESSION['hpivsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'] . '-' . $_SESSION['hpivsecData']['month']
+                . '-' . $_SESSION['hpivsecData']['day'];
+            $parameters['FRONTEND.ENABLED'] = "false";
+            // add BasketId to parameters
+            $parameters = $this->addBasketId($parameters);
+        } elseif ($this->actualPaymethod == 'DDSEC') {
+            $parameters['PAYMENT.CODE'] = "DD.DB";
+            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpddsecData']['Holder'];
+            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpddsecData']['AccountIBAN']);
+            $userData['salutation'] = $_SESSION['hpddsecData']['salutation'];
+            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'] . '-' . $_SESSION['hpddsecData']['month']
+                . '-' . $_SESSION['hpddsecData']['day'];
+            $parameters['FRONTEND.ENABLED'] = "false";
+            $parameters = $this->addBasketId($parameters);
+        }
+
+        foreach ($this->availablePayments as $key => $value) {
+            if ($value != $payCode) {
+                $parameters["FRONTEND.PM." . ( string )($key + 1) . ".METHOD"] = $value;
+                $parameters["FRONTEND.PM." . ( string )($key + 1) . ".ENABLED"] = "false";
+            }
+        }
+
+        if (empty($parameters['PAYMENT.CODE'])) {
+            $parameters['PAYMENT.CODE'] = $payCode . "." . $mode;
+        }
+        $parameters['FRONTEND.RESPONSE_URL'] = $this->pageURL . DIR_WS_CATALOG
+            . "heidelpay_response.php" . '?' . session_name() . '=' . session_id();
+
+        $parameters['NAME.GIVEN'] = trim($userData['firstname']);
+        $parameters['NAME.FAMILY'] = trim($userData['lastname']);
+        $parameters['NAME.SALUTATION'] = $userData['salutation'];
+        $parameters['NAME.COMPANY'] = trim($userData['company']);
+        $parameters['ADDRESS.STREET'] = $userData['street'];
+        $parameters['ADDRESS.ZIP'] = $userData['zip'];
+        $parameters['ADDRESS.CITY'] = $userData['city'];
+        $parameters['ADDRESS.COUNTRY'] = $userData['country'];
+        $parameters['ADDRESS.STATE'] = $userData['state'];
+        $parameters['CONTACT.EMAIL'] = $userData['email'];
+        $parameters['CONTACT.IP'] = $userData['ip'];
+        $parameters['PRESENTATION.AMOUNT'] = $amount;
+        $parameters['PRESENTATION.CURRENCY'] = $currency;
+        $parameters['ACCOUNT.COUNTRY'] = $userData['country'];
+
+        $parameters['FRONTEND.BUTTON.1.NAME'] = 'PAY';
+        $parameters['FRONTEND.BUTTON.1.TYPE'] = 'BUTTON';
+        $parameters['FRONTEND.BUTTON.1.LABEL'] = constant('MODULE_PAYMENT_HP'
+            . $this->actualPaymethod . '_FRONTEND_BUTTON_CONTINUE');
+        $parameters['FRONTEND.BUTTON.2.NAME'] = 'CANCEL';
+        $parameters['FRONTEND.BUTTON.2.TYPE'] = 'BUTTON';
+        $parameters['FRONTEND.BUTTON.2.LABEL'] = constant('MODULE_PAYMENT_HP'
+            . $this->actualPaymethod . '_FRONTEND_BUTTON_CANCEL');
+
+        $parameters['SHOP.TYPE'] = "XTC 3.4";
+        $parameters['SHOPMODULE.VERSION'] = "Premium " . $this->version;
+        return $parameters;
+    }
+
+    /**
+     * encode request to utf8
+     *
+     * @param $data array request payload
+     *
+     * @return array utf8 request payload
+     */
+    public function encodeData($data)
+    {
+        $tmp = array();
+        foreach ($data as $k => $v) {
+            $tmp[$k] = $v;
+            if (!$this->isUTF8($v)) {
+                $tmp[$k] = utf8_encode($v);
+            }
+        }
+        return $tmp;
+    }
+
+    /**
+     * test character set
+     *
+     * @param $string string single parameter to test
+     *
+     * @return bool return tru if encoding is utf8
+     */
+    public function isUTF8($string)
+    {
+        if (is_array($string)) {
+            $enc = implode('', $string);
+            return @!((ord($enc[0]) != 239) && (ord($enc[1]) != 187) && (ord($enc[2]) != 191));
+        } else {
+            return (utf8_encode(utf8_decode($string)) == $string);
+        }
+    }
+
+    /**
+     * Basket details for Billsafe api
+     *
+     * @param $order order object
+     *
+     * @return mixed request parrameter
+     */
+    public function getBillsafeBasket($order)
+    {
+        global $xtPrice;
+        $order->cart();
+
+        $items = $order->products;
+        $i = 0;
+        if ($items) {
+            foreach ($items as $id => $item) {
+                $i++;
+                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
+                $parameters[$prefix . '.POSITION'] = $i;
+                $parameters[$prefix . '.QUANTITY'] = ( int )$item['qty'];
+                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
+                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
+                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['price'] * 100);
+                    $parameters[$prefix . '.AMOUNT'] = round($item['final_price'] * 100);
+                } else {
+                    $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($item['price'] * 100);
+                    $parameters[$prefix . '.AMOUNT_GROSS'] = round($item['price'] * 100);
+                }
+                $parameters[$prefix . '.TEXT'] = $item['name'];
+                $parameters[$prefix . '.ARTICLE_NUMBER'] = $item['id'];
+                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $item['tax']);
+                $parameters[$prefix . '.ARTICLE_TYPE'] = 'goods';
+            }
+        }
+        if ($order->info['shipping_cost'] > 0) {
+            $shipping_id = explode('_', $order->info['shipping_class']);
+            $shipping_id = $shipping_id[0];
+            $shipping_tax_rate = $this->get_shipping_tax_rate($shipping_id);
+            $i++;
+            $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
+            $parameters[$prefix . '.POSITION'] = $i;
+            $parameters[$prefix . '.QUANTITY'] = '1';
+            $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
+            if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
+                $parameters[$prefix . '.AMOUNT_UNIT'] = round($order->info['shipping_cost'] * 100);
+                $parameters[$prefix . '.AMOUNT'] = round($order->info['shipping_cost'] * 100);
+            } else {
+                $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($order->info['shipping_cost']
+                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
+                $parameters[$prefix . '.AMOUNT_GROSS'] = round($order->info['shipping_cost']
+                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
+            }
+            $parameters[$prefix . '.TEXT'] = $order->info['shipping_method'];
+            $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
+            $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $shipping_tax_rate);
+            $parameters[$prefix . '.ARTICLE_TYPE'] = 'shipment';
+        }
+        $items = $order->totals;
+        if ($items) {
+            foreach ($items as $id => $item) {
+                if ($item['value'] >= 0) {
+                    continue;
+                }
+                $i++;
+                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
+                $parameters[$prefix . '.POSITION'] = $i;
+                $parameters[$prefix . '.QUANTITY'] = 1;
+                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Einheit
+                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
+                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value'] * 100);
+                    $parameters[$prefix . '.AMOUNT'] = round($item['value'] * 100);
+                } else {
+                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value']
+                            * 100) + round($item['value'] * $item['tax']);
+                    $parameters[$prefix . '.AMOUNT'] = round($item['value']
+                            * 100) + round($item['value'] * $item['tax']);
+                }
+                $parameters[$prefix . '.TEXT'] = $item['title'];
+                $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
+                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', 0);
+                $parameters[$prefix . '.ARTICLE_TYPE'] = 'voucher';
+            }
+        }
+
+        return $parameters;
+    }
+
+    /**
+     * calculate shipping tax
+     *
+     * @param $shipping_id integer id of the used shipment
+     *
+     * @return float|int tax rate
+     */
+    public function get_shipping_tax_rate($shipping_id)
+    {
+        $check_query = xtc_db_query(
+            'SELECT configuration_value FROM ' . TABLE_CONFIGURATION
+            . ' WHERE configuration_key = "MODULE_SHIPPING_' . $shipping_id . '_TAX_CLASS"'
+        );
+        $configuration = xtc_db_fetch_array($check_query);
+        $tax_class_id = $configuration['configuration_value'];
+        $shipping_tax_rate = xtc_get_tax_rate($tax_class_id);
+        return $shipping_tax_rate;
+    }
+
+    /**
+     * Send Basket request and add BasketId to parameters if successful.
+     * If the Basket request failed add a comment to the corresponding order.
+     * @param array $parameters
+     * @return array
+     */
+    public function addBasketId(array $parameters = [])
+    {
+        global $order;
+        $respond = heidelpayBasketHelper::sendBasketFromOrder($order, $this->actualPaymethod);
+
+        if ($respond->isSuccess()) {
+            $parameters['BASKET.ID'] = $respond->getBasketId();
+        } else {
+            $msg = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_MISSING_BASKET');
+            $this->addHistoryComment($order->info['orders_id'], $msg);
+        }
+        return $parameters;
+    }
+
+    /**
+     * Add comment to order history
+     *
+     * @param $order_id string order number
+     * @param $comment string order comment
+     * @param string $status order status
+     * @param string $customer_notified customer notification
+     *
+     * @return bool|mysqli_result|resource
+     */
+    public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
+    {
+        if (empty($order_id) || empty($comment)) {
+            return false;
+        }
+        // load current  oder history
+        $orderHistory = $this->getLastHistoryComment($order_id);
+        // set customer notification
+        $orderHistory['customer_notified'] = $customer_notified;
+        // set time stamp
+        $orderHistory['date_added'] = date('Y-m-d H:i:s');
+        // set new comment
+        $orderHistory['comments'] = urldecode($comment);
+        // set new order status
+        if (!empty($status)) {
+            $orderHistory['orders_status_id'] = addslashes($status);
+        }
+        // remove old history id
+        unset($orderHistory['orders_status_history_id']);
+        // save history
+        return xtc_db_perform(TABLE_ORDERS_STATUS_HISTORY, $orderHistory);
+    }
+
+    /**
+     * get last order history
+     *
+     * @param $order_id
+     *
+     * @return array|bool|mixed|null
+     */
+    public function getLastHistoryComment($order_id)
+    {
+        if (empty($order_id)) {
+            return array();
+        }
+        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
+      WHERE `orders_id` = "' . addslashes($order_id) . '"
+      ORDER BY `orders_status_history_id` DESC
+      ';
+        $orderHistoryArray = xtc_db_query($sql);
+        return xtc_db_fetch_array($orderHistoryArray);
+    }
+
+    /**
+     * Send request to heidelpay api
+     *
+     * @param $data
+     * @param null $xml
+     *
+     * @return mixed|string
+     */
+    public function doRequest($data, $xml = null)
+    {
+        $result = '';
+        $url = $this->demo_url_new;
+        if (!empty($xml)) {
+            $url = 'https://test-heidelpay.hpcgw.net/TransactionCore/xml';
+        } // XML
+        if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_TRANSACTION_MODE') == 'LIVE') {
+            $url = $this->live_url_new;
+            if (!empty($xml)) {
+                $url = 'https://heidelpay.hpcgw.net/TransactionCore/xml';
+            } // XML
+        }
+        $this->url = $url;
+
+        foreach (array_keys($data) as $key) {
+            $data[$key] = utf8_decode($data[$key]);
+            $$key .= $data[$key];
+            $$key = urlencode($$key);
+            $$key .= "&";
+            $var = strtoupper($key);
+            $value = $$key;
+            $result .= "$var=$value";
+        }
+        $strPOST = stripslashes($result);
+        if (!empty($xml)) {
+            $strPOST = 'load=' . urlencode($xml);
+        }
+
+        if (function_exists('curl_init')) {
+            $curlInstance = curl_init();
+            curl_setopt($curlInstance, CURLOPT_URL, $url);
+            curl_setopt($curlInstance, CURLOPT_HEADER, 0);
+            curl_setopt($curlInstance, CURLOPT_FAILONERROR, 1);
+            curl_setopt($curlInstance, CURLOPT_TIMEOUT, 60);
+            curl_setopt($curlInstance, CURLOPT_CONNECTTIMEOUT, 60);
+            curl_setopt($curlInstance, CURLOPT_POST, 1);
+            curl_setopt($curlInstance, CURLOPT_POSTFIELDS, $strPOST);
+            curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
+            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
+            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
+
+            $this->response = curl_exec($curlInstance);
+            $this->error = curl_error($curlInstance);
+            curl_close($curlInstance);
+
+            $res = $this->response;
+            if (!$this->response && $this->error) {
+                $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $this->error;
+            }
+        } else {
+            $msg = urlencode('Curl Fehler');
+            $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $msg;
+        }
+
+        return $res;
+    }
+
+    /**
+     * parse post string and return an array
+     *
+     * @param $curlResult array post result as as a string
+     *
+     * @return array array result
+     */
+    public function parseResult($curlResult)
+    {
+        $r_arr = explode("&", $curlResult);
+        foreach ($r_arr as $buf) {
+            $temp = urldecode($buf);
+            list($postatt, $postvar) = explode('=', $temp, 2);
+            $returnvalue[$postatt] = $postvar;
+        }
+        $processingresult = $returnvalue['PROCESSING.RESULT'];
+        if (empty($processingresult)) {
+            $processingresult = $returnvalue['POST.VALIDATION'];
+        }
+        $redirectURL = $returnvalue['FRONTEND.REDIRECT_URL'];
+        if (!isset($returnvalue['PROCESSING.RETURN']) && $returnvalue['POST.VALIDATION'] > 0) {
+            $returnvalue['PROCESSING.RETURN'] = 'Errorcode: ' . $returnvalue['POST.VALIDATION'];
+        }
+        ksort($returnvalue);
+        return array(
+            'result' => $processingresult,
+            'url' => $redirectURL,
+            'all' => $returnvalue
+        );
+    }
+
     /**
      * prepare and send request to heidelpay for authorise or debit
      *
@@ -158,6 +646,7 @@ class heidelpay
     {
         $this->trackStep('handleDebit', 'order', $order);
         $debug = false;
+
         if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_DEBUG') == 'True') {
             $debug = true;
         }
@@ -257,7 +746,6 @@ class heidelpay
         );
         $this->trackStep('handleDebit', 'data', $data);
 
-
         if ($debug) {
             echo '<pre>' . print_r($data, 1) . '</pre>';
         }
@@ -282,6 +770,13 @@ class heidelpay
 
         if (isset($res['all']['ACCOUNT.HOLDER']) && ($res['all']['ACCOUNT.HOLDER'] != '')) {
             $holder = $res['all']['ACCOUNT.HOLDER'];
+        }
+
+        // save insurance provider validation data in if Sync-mode is used
+        if (isset($res['all']['CRITERION_INSURANCE-RESERVATION'])) {
+            $_SESSION['hpResponse']['INSURANCE-RESERVATION'] = $res['all']['CRITERION_INSURANCE-RESERVATION'];
+        } else {
+            unset($_SESSION['hpResponse']['INSURANCE-RESERVATION']);
         }
 
         // save direct debit and direct debit secured recognition data
@@ -564,301 +1059,122 @@ class heidelpay
     }
 
     /**
-     * prepare post payload for api call
+     * save customer memo
      *
-     * @param $orderId string order reference id
-     * @param $amount float order amount
-     * @param $currency string order currency code
-     * @param $payCode string current payment method
-     * @param $userData array customer information
-     * @param $lang string language code
-     * @param string $mode     transaction mode
-     * @param bool   $capture  booking mode
-     * @param null   $uniqueId payment reference id
+     * @param $customerId
+     * @param $key
+     * @param $value
      *
-     * @return mixed request payload
+     * @return bool|mysqli_result|resource
      */
-    public function prepareData(
-        $orderId,
-        $amount,
-        $currency,
-        $payCode,
-        $userData,
-        $lang,
-        $mode = 'DB',
-        $capture = false,
-        $uniqueId = null
-    ) {
-        $payCode = strtoupper($payCode);
-        $amount = sprintf('%1.2f', $amount);
-        $currency = strtoupper($currency);
-        $userData = $this->encodeData($userData);
-
-        $ACT_MOD_MODE = (defined('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE'))
-            ? constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_MODULE_MODE')
-            : 'AFTER';
-
-
-        $parameters['SECURITY.SENDER'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER');
-        $parameters['USER.LOGIN'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN');
-        $parameters['USER.PWD'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_PWD');
-        $parameters['TRANSACTION.CHANNEL'] = constant('MODULE_PAYMENT_HP'
-            . $this->actualPaymethod . '_TRANSACTION_CHANNEL');
-
-        if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_TRANSACTION_MODE') == 'LIVE') {
-            $txnMode = 'LIVE';
+    public function saveMEMO($customerId, $key, $value)
+    {
+        $data = $this->loadMEMO($customerId, $key);
+        if (!empty($data)) {
+            return xtc_db_query('UPDATE `customers_memo` SET `memo_text` = "'
+                . addslashes($value) . '", `memo_date` = NOW(), `poster_id` = 1 WHERE `customers_id` = "'
+                . addslashes($customerId) . '" AND `memo_title` = "' . addslashes($key) . '"');
         } else {
-            $txnMode = 'CONNECTOR_TEST';
+            return xtc_db_query('INSERT INTO `customers_memo` SET `memo_text` = "'
+                . addslashes($value) . '", `customers_id` = "' . addslashes($customerId) . '", `memo_title` = "'
+                . addslashes($key) . '", `memo_date` = NOW(), `poster_id` = 1');
         }
-        $parameters['TRANSACTION.MODE'] = $txnMode;
-
-        $parameters['REQUEST.VERSION'] = "1.0";
-        $parameters['IDENTIFICATION.TRANSACTIONID'] = $orderId;
-        $parameters['IDENTIFICATION.SHOPPERID'] = $_SESSION['customer_id'];
-        if ($capture) {
-            $parameters['FRONTEND.ENABLED'] = "false";
-            if (!empty($uniqueId)) {
-                $parameters['ACCOUNT.REGISTRATION'] = $uniqueId;
-            }
-        } else {
-            $parameters['FRONTEND.ENABLED'] = "true";
-        }
-        $parameters['FRONTEND.REDIRECT_TIME'] = "0";
-        $parameters['FRONTEND.POPUP'] = "false";
-        $parameters['FRONTEND.MODE'] = "DEFAULT";
-        $parameters['FRONTEND.LANGUAGE'] = $lang;
-        $parameters['FRONTEND.LANGUAGE_SELECTOR'] = "true";
-        $parameters['FRONTEND.ONEPAGE'] = "true";
-        $parameters['FRONTEND.NEXTTARGET'] = "location.href";
-        $parameters['FRONTEND.CSS_PATH'] = $this->pageURL . DIR_WS_CATALOG . "heidelpay_style.css";
-        if ($mode == 'RG') {
-            $parameters['FRONTEND.CSS_PATH'] = $this->pageURL . DIR_WS_CATALOG . "heidelpay_reg_style.css";
-        }
-        $parameters['FRONTEND.RETURN_ACCOUNT'] = "true";
-
-        if ($this->actualPaymethod == 'SU') {
-            $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'IDL' && $ACT_MOD_MODE == 'NOWPF') {
-            $parameters['ACCOUNT.NUMBER'] = $_SESSION['hpIdealData']['otAccountNumber'];
-            $parameters['ACCOUNT.BANK'] = $_SESSION['hpIdealData']['otBankCode'];
-            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpIdealData']['onlineTransferHolder'];
-            $parameters['ACCOUNT.COUNTRY'] = $_SESSION['hpIdealData']['onlineTransferCountry'];
-            $parameters['ACCOUNT.BANKNAME'] = $_SESSION['hpIdealData']['onlineTransferInstitute'];
-            $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'DD') {
-            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpDDData']['Holder'];
-            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpDDData']['AccountIBAN']);
-            $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'GP') {
-            $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'PPAL') {
-            $parameters['ACCOUNT.BRAND'] = 'PAYPAL';
-        } elseif ($this->actualPaymethod == 'BS') {
-            $parameters['PAYMENT.CODE'] = "IV.PA";
-            $parameters['ACCOUNT.BRAND'] = "BILLSAFE";
-            $parameters['FRONTEND.ENABLED'] = "false";
-            $oId = preg_replace('/.*Order /', '', $orderId);
-            $order = $order = new order($oId);
-            $bsParams = $this->getBillsafeBasket($order);
-            $parameters = array_merge($parameters, $bsParams);
-        } elseif ($this->actualPaymethod == 'IVSEC') {
-            $parameters['PAYMENT.CODE'] = "IV.PA";
-            $userData['salutation'] = $_SESSION['hpivsecData']['salutation'];
-            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpivsecData']['year'] . '-' . $_SESSION['hpivsecData']['month']
-                . '-' . $_SESSION['hpivsecData']['day'];
-            $parameters['FRONTEND.ENABLED'] = "false";
-        } elseif ($this->actualPaymethod == 'DDSEC') {
-            $parameters['PAYMENT.CODE'] = "DD.DB";
-            $parameters['ACCOUNT.HOLDER'] = $_SESSION['hpddsecData']['Holder'];
-            $parameters['ACCOUNT.IBAN'] = strtoupper($_SESSION['hpddsecData']['AccountIBAN']);
-            $userData['salutation'] = $_SESSION['hpddsecData']['salutation'];
-            $parameters['NAME.BIRTHDATE'] = $_SESSION['hpddsecData']['year'] . '-' . $_SESSION['hpddsecData']['month']
-                . '-' . $_SESSION['hpddsecData']['day'];
-            $parameters['FRONTEND.ENABLED'] = "false";
-        }
-
-        foreach ($this->availablePayments as $key => $value) {
-            if ($value != $payCode) {
-                $parameters["FRONTEND.PM." . ( string )($key + 1) . ".METHOD"] = $value;
-                $parameters["FRONTEND.PM." . ( string )($key + 1) . ".ENABLED"] = "false";
-            }
-        }
-
-        if (empty($parameters['PAYMENT.CODE'])) {
-            $parameters['PAYMENT.CODE'] = $payCode . "." . $mode;
-        }
-        $parameters['FRONTEND.RESPONSE_URL'] = $this->pageURL . DIR_WS_CATALOG
-            . "heidelpay_response.php" . '?' . session_name() . '=' . session_id();
-
-        $parameters['NAME.GIVEN'] = trim($userData['firstname']);
-        $parameters['NAME.FAMILY'] = trim($userData['lastname']);
-        $parameters['NAME.SALUTATION'] = $userData['salutation'];
-        $parameters['NAME.COMPANY'] = trim($userData['company']);
-        $parameters['ADDRESS.STREET'] = $userData['street'];
-        $parameters['ADDRESS.ZIP'] = $userData['zip'];
-        $parameters['ADDRESS.CITY'] = $userData['city'];
-        $parameters['ADDRESS.COUNTRY'] = $userData['country'];
-        $parameters['ADDRESS.STATE'] = $userData['state'];
-        $parameters['CONTACT.EMAIL'] = $userData['email'];
-        $parameters['CONTACT.IP'] = $userData['ip'];
-        $parameters['PRESENTATION.AMOUNT'] = $amount;
-        $parameters['PRESENTATION.CURRENCY'] = $currency;
-        $parameters['ACCOUNT.COUNTRY'] = $userData['country'];
-
-        $parameters['FRONTEND.BUTTON.1.NAME'] = 'PAY';
-        $parameters['FRONTEND.BUTTON.1.TYPE'] = 'BUTTON';
-        $parameters['FRONTEND.BUTTON.1.LABEL'] = constant('MODULE_PAYMENT_HP'
-            . $this->actualPaymethod . '_FRONTEND_BUTTON_CONTINUE');
-        $parameters['FRONTEND.BUTTON.2.NAME'] = 'CANCEL';
-        $parameters['FRONTEND.BUTTON.2.TYPE'] = 'BUTTON';
-        $parameters['FRONTEND.BUTTON.2.LABEL'] = constant('MODULE_PAYMENT_HP'
-            . $this->actualPaymethod . '_FRONTEND_BUTTON_CANCEL');
-
-        $parameters['SHOP.TYPE'] = "XTC 3.4";
-        $parameters['SHOPMODULE.VERSION'] = "Premium " . $this->version;
-        return $parameters;
     }
 
     /**
-     * Basket details for Billsafe api
+     * load customer memo
      *
-     * @param $order order object
+     * @param $customerId
+     * @param $key
      *
-     * @return mixed request parrameter
+     * @return mixed
      */
-    public function getBillsafeBasket($order)
+    public function loadMEMO($customerId, $key)
     {
-        global $xtPrice;
-        $order->cart();
+        $res = xtc_db_query('SELECT * FROM `customers_memo` WHERE `customers_id` = "'
+            . addslashes($customerId) . '" AND `memo_title` = "' . addslashes($key) . '"');
+        $res = xtc_db_fetch_array($res);
+        return $res['memo_text'];
+    }
 
-        $items = $order->products;
-        $i = 0;
-        if ($items) {
-            foreach ($items as $id => $item) {
-                $i++;
-                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-                $parameters[$prefix . '.POSITION'] = $i;
-                $parameters[$prefix . '.QUANTITY'] = ( int )$item['qty'];
-                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
-                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['price'] * 100);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['final_price'] * 100);
-                } else {
-                    $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($item['price'] * 100);
-                    $parameters[$prefix . '.AMOUNT_GROSS'] = round($item['price'] * 100);
+    /**
+     * Set order status
+     *
+     * @param $order_id
+     * @param $status
+     * @param bool $doubleCheck
+     *
+     * @return bool
+     */
+    public function setOrderStatus($order_id, $status, $doubleCheck = false)
+    {
+        global $db_link;
+        // load status history
+        $orderHistory = $this->getOrderHistory($order_id);
+        if ($doubleCheck) {
+            // prove if status is already set
+            foreach ($orderHistory as $key => $value) {
+                if ($value['orders_status_id'] == $status) {
+                    return false;
                 }
-                $parameters[$prefix . '.TEXT'] = $item['name'];
-                $parameters[$prefix . '.ARTICLE_NUMBER'] = $item['id'];
-                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $item['tax']);
-                $parameters[$prefix . '.ARTICLE_TYPE'] = 'goods';
             }
         }
-        if ($order->info['shipping_cost'] > 0) {
-            $shipping_id = explode('_', $order->info['shipping_class']);
-            $shipping_id = $shipping_id[0];
-            $shipping_tax_rate = $this->get_shipping_tax_rate($shipping_id);
-            $i++;
-            $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-            $parameters[$prefix . '.POSITION'] = $i;
-            $parameters[$prefix . '.QUANTITY'] = '1';
-            $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
-            if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                $parameters[$prefix . '.AMOUNT_UNIT'] = round($order->info['shipping_cost'] * 100);
-                $parameters[$prefix . '.AMOUNT'] = round($order->info['shipping_cost'] * 100);
-            } else {
-                $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($order->info['shipping_cost']
-                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
-                $parameters[$prefix . '.AMOUNT_GROSS'] = round($order->info['shipping_cost']
-                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
-            }
-            $parameters[$prefix . '.TEXT'] = $order->info['shipping_method'];
-            $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
-            $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $shipping_tax_rate);
-            $parameters[$prefix . '.ARTICLE_TYPE'] = 'shipment';
-        }
-        $items = $order->totals;
-        if ($items) {
-            foreach ($items as $id => $item) {
-                if ($item['value'] >= 0) {
-                    continue;
-                }
-                $i++;
-                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-                $parameters[$prefix . '.POSITION'] = $i;
-                $parameters[$prefix . '.QUANTITY'] = 1;
-                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Einheit
-                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value'] * 100);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['value'] * 100);
-                } else {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value']
-                            * 100) + round($item['value'] * $item['tax']);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['value']
-                            * 100) + round($item['value'] * $item['tax']);
-                }
-                $parameters[$prefix . '.TEXT'] = $item['title'];
-                $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
-                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', 0);
-                $parameters[$prefix . '.ARTICLE_TYPE'] = 'voucher';
-            }
-        }
-
-        return $parameters;
+        // set order status
+        xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `orders_status` = '"
+            . addslashes($status) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
+        $stat = mysqli_affected_rows($db_link);
+        return $stat > 0;
     }
 
     /**
-     * calculate shipping tax
+     * @param $order_id
      *
-     * @param $shipping_id integer id of the used shipment
-     *
-     * @return float|int tax rate
+     * @return array
      */
-    public function get_shipping_tax_rate($shipping_id)
+    public function getOrderHistory($order_id)
     {
-        $check_query = xtc_db_query(
-            'SELECT configuration_value FROM ' . TABLE_CONFIGURATION
-            . ' WHERE configuration_key = "MODULE_SHIPPING_' . $shipping_id . '_TAX_CLASS"'
-        );
-        $configuration = xtc_db_fetch_array($check_query);
-        $tax_class_id = $configuration['configuration_value'];
-        $shipping_tax_rate = xtc_get_tax_rate($tax_class_id);
-        return $shipping_tax_rate;
+        if (empty($order_id)) {
+            return array();
+        }
+        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
+      WHERE `orders_id` = "' . addslashes($order_id) . '"
+      ORDER BY `orders_status_history_id` DESC
+      ';
+        $orderHistoryArray = xtc_db_query($sql);
+        $ordersHistory = array();
+        while ($ordersHistoryTMP = xtc_db_fetch_array($orderHistoryArray)) {
+            $ordersHistory[] = $ordersHistoryTMP;
+        }
+        return $ordersHistory;
     }
 
     /**
-     * encode request to utf8
+     * set payment reference id
      *
-     * @param $data array request payload
+     * @param $uniqueId
+     * @param $order_id
+     * @param $paymentMethod
+     * @param $shortId
      *
-     * @return array utf8 request payload
+     * @return bool|mysqli_result|resource
      */
-    public function encodeData($data)
+    public function saveIds($uniqueId, $order_id, $paymentMethod, $shortId)
     {
-        $tmp = array();
-        foreach ($data as $k => $v) {
-            $tmp[$k] = $v;
-            if (!$this->isUTF8($v)) {
-                $tmp[$k] = utf8_encode($v);
-            }
-        }
-        return $tmp;
-    }
+        $create = 'CREATE TABLE IF NOT EXISTS `heidelpay_transaction_data` ('
+            . '`uniqueID` VARCHAR(32) COLLATE latin1_german1_ci NOT NULL,'
+            . '`orderId` INT(11) NOT NULL,'
+            . '`paymentmethod` VARCHAR(6) COLLATE latin1_german1_ci NOT NULL,'
+            . '`shortID` VARCHAR(14) COLLATE latin1_german1_ci NOT NULL,'
+            . 'PRIMARY KEY (`uniqueID`),'
+            . 'KEY `orderId` (`orderId`))';
 
-    /**
-     * test character set
-     *
-     * @param $string string single parameter to test
-     *
-     * @return bool return tru if encoding is utf8
-     */
-    public function isUTF8($string)
-    {
-        if (is_array($string)) {
-            $enc = implode('', $string);
-            return @!((ord($enc[0]) != 239) && (ord($enc[1]) != 187) && (ord($enc[2]) != 191));
-        } else {
-            return (utf8_encode(utf8_decode($string)) == $string);
-        }
+        $insert = 'INSERT INTO `heidelpay_transaction_data` SET `uniqueID`="'
+            . addslashes($uniqueId) . '", `orderId`="' . addslashes($order_id) . '", `paymentmethod`="'
+            . addslashes($paymentMethod) . '", `shortID`="' . addslashes($shortId) . '"';
+
+        xtc_db_query($create);
+
+        return xtc_db_query($insert);
     }
 
     /**
@@ -880,104 +1196,6 @@ class heidelpay
     }
 
     /**
-     * Send request to heidelpay api
-     *
-     * @param $data
-     * @param null $xml
-     *
-     * @return mixed|string
-     */
-    public function doRequest($data, $xml = null)
-    {
-        $result = '';
-        $url = $this->demo_url_new;
-        if (!empty($xml)) {
-            $url = 'https://test-heidelpay.hpcgw.net/TransactionCore/xml';
-        } // XML
-        if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_TRANSACTION_MODE') == 'LIVE') {
-            $url = $this->live_url_new;
-            if (!empty($xml)) {
-                $url = 'https://heidelpay.hpcgw.net/TransactionCore/xml';
-            } // XML
-        }
-        $this->url = $url;
-
-        foreach (array_keys($data) as $key) {
-            $data[$key] = utf8_decode($data[$key]);
-            $$key .= $data[$key];
-            $$key = urlencode($$key);
-            $$key .= "&";
-            $var = strtoupper($key);
-            $value = $$key;
-            $result .= "$var=$value";
-        }
-        $strPOST = stripslashes($result);
-        if (!empty($xml)) {
-            $strPOST = 'load=' . urlencode($xml);
-        }
-
-        if (function_exists('curl_init')) {
-            $curlInstance = curl_init();
-            curl_setopt($curlInstance, CURLOPT_URL, $url);
-            curl_setopt($curlInstance, CURLOPT_HEADER, 0);
-            curl_setopt($curlInstance, CURLOPT_FAILONERROR, 1);
-            curl_setopt($curlInstance, CURLOPT_TIMEOUT, 60);
-            curl_setopt($curlInstance, CURLOPT_CONNECTTIMEOUT, 60);
-            curl_setopt($curlInstance, CURLOPT_POST, 1);
-            curl_setopt($curlInstance, CURLOPT_POSTFIELDS, $strPOST);
-            curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
-            curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
-
-            $this->response = curl_exec($curlInstance);
-            $this->error = curl_error($curlInstance);
-            curl_close($curlInstance);
-
-            $res = $this->response;
-            if (!$this->response && $this->error) {
-                $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $this->error;
-            }
-        } else {
-            $msg = urlencode('Curl Fehler');
-            $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $msg;
-        }
-
-        return $res;
-    }
-
-    /**
-     * parse post string and return an array
-     *
-     * @param $curlResult array post result as as a string
-     *
-     * @return array array result
-     */
-    public function parseResult($curlResult)
-    {
-        $r_arr = explode("&", $curlResult);
-        foreach ($r_arr as $buf) {
-            $temp = urldecode($buf);
-            list($postatt, $postvar) = explode('=', $temp, 2);
-            $returnvalue[$postatt] = $postvar;
-        }
-        $processingresult = $returnvalue['PROCESSING.RESULT'];
-        if (empty($processingresult)) {
-            $processingresult = $returnvalue['POST.VALIDATION'];
-        }
-        $redirectURL = $returnvalue['FRONTEND.REDIRECT_URL'];
-        if (!isset($returnvalue['PROCESSING.RETURN']) && $returnvalue['POST.VALIDATION'] > 0) {
-            $returnvalue['PROCESSING.RETURN'] = 'Errorcode: ' . $returnvalue['POST.VALIDATION'];
-        }
-        ksort($returnvalue);
-        return array(
-            'result' => $processingresult,
-            'url' => $redirectURL,
-            'all' => $returnvalue
-        );
-    }
-
-    /**
      *
      * @param $dateFrom
      * @param $dateUntil
@@ -993,7 +1211,8 @@ class heidelpay
         $types = array('RC'),
         $identification = array(),
         $methods = array()
-    ) {
+    )
+    {
         $parameters = array();
         $parameters['SECURITY.SENDER'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_SECURITY_SENDER');
         $parameters['USER.LOGIN'] = constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_USER_LOGIN');
@@ -1056,39 +1275,6 @@ class heidelpay
     }
 
     /**
-     * Add comment to order history
-     *
-     * @param $order_id string order number
-     * @param $comment string order comment
-     * @param string $status            order status
-     * @param string $customer_notified customer notification
-     *
-     * @return bool|mysqli_result|resource
-     */
-    public function addHistoryComment($order_id, $comment, $status = '', $customer_notified = '0')
-    {
-        if (empty($order_id) || empty($comment)) {
-            return false;
-        }
-        // load current  oder history
-        $orderHistory = $this->getLastHistoryComment($order_id);
-        // set customer notification
-        $orderHistory['customer_notified'] = $customer_notified;
-        // set time stamp
-        $orderHistory['date_added'] = date('Y-m-d H:i:s');
-        // set new comment
-        $orderHistory['comments'] = urldecode($comment);
-        // set new order status
-        if (!empty($status)) {
-            $orderHistory['orders_status_id'] = addslashes($status);
-        }
-        // remove old history id
-        unset($orderHistory['orders_status_history_id']);
-        // save history
-        return xtc_db_perform(TABLE_ORDERS_STATUS_HISTORY, $orderHistory);
-    }
-
-    /**
      * get all order history
      *
      * @param $order_id string order number
@@ -1137,106 +1323,6 @@ class heidelpay
     }
 
     /**
-     * get last order history
-     *
-     * @param $order_id
-     *
-     * @return array|bool|mixed|null
-     */
-    public function getLastHistoryComment($order_id)
-    {
-        if (empty($order_id)) {
-            return array();
-        }
-        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
-      WHERE `orders_id` = "' . addslashes($order_id) . '"
-      ORDER BY `orders_status_history_id` DESC
-      ';
-        $orderHistoryArray = xtc_db_query($sql);
-        return xtc_db_fetch_array($orderHistoryArray);
-    }
-
-    /**
-     * @param $order_id
-     *
-     * @return array
-     */
-    public function getOrderHistory($order_id)
-    {
-        if (empty($order_id)) {
-            return array();
-        }
-        $sql = 'SELECT * FROM `' . TABLE_ORDERS_STATUS_HISTORY . '`
-      WHERE `orders_id` = "' . addslashes($order_id) . '"
-      ORDER BY `orders_status_history_id` DESC
-      ';
-        $orderHistoryArray = xtc_db_query($sql);
-        $ordersHistory = array();
-        while ($ordersHistoryTMP = xtc_db_fetch_array($orderHistoryArray)) {
-            $ordersHistory[] = $ordersHistoryTMP;
-        }
-        return $ordersHistory;
-    }
-
-    /**
-     * Set order status
-     *
-     * @param $order_id
-     * @param $status
-     * @param bool $doubleCheck
-     *
-     * @return bool
-     */
-    public function setOrderStatus($order_id, $status, $doubleCheck = false)
-    {
-        global $db_link;
-        // load status history
-        $orderHistory = $this->getOrderHistory($order_id);
-        if ($doubleCheck) {
-            // prove if status is already set
-            foreach ($orderHistory as $key => $value) {
-                if ($value['orders_status_id'] == $status) {
-                    return false;
-                }
-            }
-        }
-        // set order status
-        xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `orders_status` = '"
-            . addslashes($status) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
-        $stat = mysqli_affected_rows($db_link);
-        return $stat > 0;
-    }
-
-    /**
-     * set payment reference id
-     *
-     * @param $uniqueId
-     * @param $order_id
-     * @param $paymentMethod
-     * @param $shortId
-     *
-     * @return bool|mysqli_result|resource
-     */
-    public function saveIds($uniqueId, $order_id, $paymentMethod, $shortId)
-    {
-        $create = 'CREATE TABLE IF NOT EXISTS `heidelpay_transaction_data` ('
-            . '`uniqueID` varchar(32) COLLATE latin1_german1_ci NOT NULL,'
-            . '`orderId` int(11) NOT NULL,'
-            . '`paymentmethod` varchar(6) COLLATE latin1_german1_ci NOT NULL,'
-            . '`shortID` varchar(14) COLLATE latin1_german1_ci NOT NULL,'
-            . 'PRIMARY KEY (`uniqueID`),'
-            . 'KEY `orderId` (`orderId`))';
-
-        $insert = 'INSERT INTO `heidelpay_transaction_data` SET `uniqueID`="'
-            . addslashes($uniqueId) . '", `orderId`="' . addslashes($order_id) . '", `paymentmethod`="'
-            . addslashes($paymentMethod) . '", `shortID`="' . addslashes($shortId) . '"';
-
-        xtc_db_query($create);
-
-        return xtc_db_query($insert);
-    }
-
-    /**
      * save order comment
      *
      * @param $order_id
@@ -1248,45 +1334,6 @@ class heidelpay
     {
         return xtc_db_query("UPDATE `" . TABLE_ORDERS . "` SET `comments` = '"
             . addslashes($comment) . "' WHERE `orders_id` = '" . addslashes($order_id) . "'");
-    }
-
-    /**
-     * save customer memo
-     *
-     * @param $customerId
-     * @param $key
-     * @param $value
-     *
-     * @return bool|mysqli_result|resource
-     */
-    public function saveMEMO($customerId, $key, $value)
-    {
-        $data = $this->loadMEMO($customerId, $key);
-        if (!empty($data)) {
-            return xtc_db_query('UPDATE `customers_memo` SET `memo_text` = "'
-                . addslashes($value) . '", `memo_date` = NOW(), `poster_id` = 1 WHERE `customers_id` = "'
-                . addslashes($customerId) . '" AND `memo_title` = "' . addslashes($key) . '"');
-        } else {
-            return xtc_db_query('INSERT INTO `customers_memo` SET `memo_text` = "'
-                . addslashes($value) . '", `customers_id` = "' . addslashes($customerId) . '", `memo_title` = "'
-                . addslashes($key) . '", `memo_date` = NOW(), `poster_id` = 1');
-        }
-    }
-
-    /**
-     * load customer memo
-     *
-     * @param $customerId
-     * @param $key
-     *
-     * @return mixed
-     */
-    public function loadMEMO($customerId, $key)
-    {
-        $res = xtc_db_query('SELECT * FROM `customers_memo` WHERE `customers_id` = "'
-            . addslashes($customerId) . '" AND `memo_title` = "' . addslashes($key) . '"');
-        $res = xtc_db_fetch_array($res);
-        return $res['memo_text'];
     }
 
     /**
@@ -1365,22 +1412,6 @@ class heidelpay
     }
 
     /**
-     * get language id
-     *
-     * @param $code
-     *
-     * @return mixed
-     */
-    public function getLangId($code)
-    {
-        $sql = 'SELECT `languages_id` FROM `' . TABLE_LANGUAGES . '` WHERE `code` = "' . addslashes($code) . '" ';
-        // echo $sql;
-        $res = xtc_db_query($sql);
-        $res = xtc_db_fetch_array($res);
-        return $res['languages_id'];
-    }
-
-    /**
      * get order status name
      *
      * @param $statusId
@@ -1398,6 +1429,22 @@ class heidelpay
         $res = xtc_db_query($sql);
         $res = xtc_db_fetch_array($res);
         return $res['orders_status_name'];
+    }
+
+    /**
+     * get language id
+     *
+     * @param $code
+     *
+     * @return mixed
+     */
+    public function getLangId($code)
+    {
+        $sql = 'SELECT `languages_id` FROM `' . TABLE_LANGUAGES . '` WHERE `code` = "' . addslashes($code) . '" ';
+        // echo $sql;
+        $res = xtc_db_query($sql);
+        $res = xtc_db_fetch_array($res);
+        return $res['languages_id'];
     }
 
     public function checkOrderStatusHistory($orderId, $shortId)
@@ -1437,15 +1484,6 @@ class heidelpay
     {
         $customer_state = xtc_db_query('SELECT `zone_code` FROM `'
             . TABLE_ZONES . '` WHERE `zone_name` = "' . $state . '" OR `zone_code` = "' . $state . '"');
-        $attributes_values = xtc_db_fetch_array($customer_state);
-        $cus_state = $attributes_values['zone_code'];
-        return $cus_state;
-    }
-
-    public function getCustomerStateByZoneId($zoneId)
-    {
-        $customer_state = xtc_db_query('SELECT `zone_code` FROM `'
-            . TABLE_ZONES . '` WHERE `zone_id` = "' . $zoneId . '"');
         $attributes_values = xtc_db_fetch_array($customer_state);
         $cus_state = $attributes_values['zone_code'];
         return $cus_state;
@@ -1501,16 +1539,13 @@ class heidelpay
         $this->trackStep('process_button', 'session', $_SESSION);
     }
 
-    public function trackStep($point, $var, $val)
+    public function getCustomerStateByZoneId($zoneId)
     {
-        if (!empty($this->hpdebug)) {
-            $tmp['hpTracking'][$point][$var] = $val;
-            $filename = DIR_FS_CATALOG . 'cache/customer_' . $_SESSION['customer_id'] . '.log';
-            if ($handle = fopen($filename, 'a')) {
-                fwrite($handle, date('Y.m.d H:i:s') . "\n" . print_r($tmp['hpTracking'], 1));
-                fclose($handle);
-            }
-        }
+        $customer_state = xtc_db_query('SELECT `zone_code` FROM `'
+            . TABLE_ZONES . '` WHERE `zone_id` = "' . $zoneId . '"');
+        $attributes_values = xtc_db_fetch_array($customer_state);
+        $cus_state = $attributes_values['zone_code'];
+        return $cus_state;
     }
 
     public function saveSteps($filename)

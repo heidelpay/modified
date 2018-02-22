@@ -66,6 +66,7 @@ class heidelpayPaymentModules
         // update order instance
         global $order;
         $this->order = $order;
+        $this->transactionMode = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TRANSACTION_MODE');
 
         // if transaction mode is live return empty array
         if ($this->transactionMode === 'LIVE') {

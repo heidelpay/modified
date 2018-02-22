@@ -1,6 +1,8 @@
 <?php
 $prefix = 'MODULE_PAYMENT_HPDDSEC_';
 
+define($prefix.'MISSING_BASKET', 'Es konnte kein Warenkorb mit der Transaktion verbunden werden!!');
+
 define($prefix.'TEXT_TITLE', 'gesicherte Lastschrift B2C');
 define($prefix.'TEXT_DESC', 'gesicherte Lastschrift b2c &uuml;ber Heidelberger Payment GmbH');
 
