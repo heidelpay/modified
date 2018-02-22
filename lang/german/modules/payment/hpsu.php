@@ -1,8 +1,8 @@
 <?php
 $prefix = 'MODULE_PAYMENT_HPSU_';
 
-define($prefix.'TEXT_TITLE', 'Sofortueberweisung');
-define($prefix.'TEXT_DESC', 'Sofortueberweisung &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_TITLE', 'Sofort');
+define($prefix.'TEXT_DESC', 'Sofort &uuml;ber Heidelberger Payment GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');
