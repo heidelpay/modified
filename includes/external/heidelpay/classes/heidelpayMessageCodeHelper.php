@@ -8,35 +8,73 @@
 require_once(DIR_FS_EXTERNAL . 'heidelpay/lib/message-code-mapper/FileLoader.php');
 FileLoader::requireAllLibs();
 
-use \Heidelpay\MessageCodeMapper\MessageCodeMapper;
+use Heidelpay\MessageCodeMapper\MessageCodeMapper;
 
 class heidelpayMessageCodeHelper
 {
-    public static function getMessage($code, $languageCode = 'de')
-    {
-        $locale = self::mapLanguage($languageCode);
+    public $defaultLanguage;
+    public $languages;
 
-        if($locale) {
+    public function __construct()
+    {
+        $this->languages = [
+            'de' => 'de_DE',
+            'en' => 'en_US'
+        ];
+        $this->defaultLanguage = $this->languages['de'];
+    }
+
+    public function getMessage($code, $languageCode)
+    {
+        $locale = $this->mapLanguage($languageCode);
+
+        if ($locale) {
             $mapper = new MessageCodeMapper($locale);
         } else {
-            $mapper = new MessageCodeMapper();
+            $mapper = new MessageCodeMapper($this->defaultLanguage);
         }
 
         return $mapper->getMessage($code);
     }
 
-    private static function mapLanguage($languageCode)
+    private function mapLanguage($languageCode)
     {
-        //TODO:try to avoid static data
-        $languages = [
-            'de' => 'de_DE',
-            'en' => 'en_US'
-        ];
-
-        if (!empty($languages[$languageCode])) {
-            return $languages[$languageCode];
+        if (!empty($this->languages[$languageCode])) {
+            return htmlspecialchars_decode($this->languages[$languageCode]);
         }
 
         return null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getLanguages()
+    {
+        return $this->languages;
+    }
+
+    /**
+     * @param mixed $languages
+     */
+    public function setLanguages($languages)
+    {
+        $this->languages = $languages;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultLanguage()
+    {
+        return $this->defaultLanguage;
+    }
+
+    /**
+     * @param mixed $defaultLanguage
+     */
+    public function setDefaultLanguage($defaultLanguage)
+    {
+        $this->defaultLanguage = $defaultLanguage;
     }
 }

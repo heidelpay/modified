@@ -645,7 +645,7 @@ class heidelpay
     public function handleDebit($order, $payCode, $insertId = false)
     {
         $this->trackStep('handleDebit', 'order', $order);
-        $debug = true;
+        $debug = false;
 
         if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_DEBUG') == 'True') {
             $debug = true;

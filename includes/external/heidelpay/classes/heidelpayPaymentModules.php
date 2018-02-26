@@ -235,8 +235,10 @@ class heidelpayPaymentModules
     {
         global $_GET;
         global $_SESSION;
+        $language = !empty($_SESSION['language'])?strtolower($_SESSION['language']):'';
 
-        $msg = heidelpayMessageCodeHelper::getMessage(urldecode($_GET['error']));
+        $mapper = new heidelpayMessageCodeHelper ();
+        $msg = $mapper->getMessage(urldecode($_GET['error']), $language); //TODO: solve decoding issue.
 
         $error = array(
             'title' => constant('MODULE_PAYMENT_' . strtoupper($this->hp->actualPaymethod) . '_TEXT_ERROR'),
