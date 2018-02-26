@@ -1,5 +1,7 @@
 <?php
 
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayMessageCodeHelper.php');
+
 /**
  * Sepa direct debit payment method class
  *
@@ -104,78 +106,29 @@ class heidelpayPaymentModules
         return $this->canCustomerUseThisPaymentMethod();
     }
 
-    public function pre_confirmation_check()
-    {
-        global $order;
-    }
-
-    public function confirmation()
-    {
-        return false;
-    }
-
-    public function process_button()
-    {
-        global $order;
-        $this->hp->rememberOrderData($order);
-        return false;
-    }
-
-    public function payment_action()
-    {
-        return true;
-    }
-
-    public function before_process()
-    {
-        return false;
-    }
-
-    public function after_process()
-    {
-        global $order, $xtPrice, $insert_id;
-        return true;
-    }
-
-    public function admin_order($oID)
-    {
-        return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-    }
-
-    public function check()
-    {
-    }
-
     /**
-     * install default config settings to database
+     * Estimate if the oder amount is to high
      *
-     * @param array $configSettings configuration option
+     * @return bool true if amount to high
+     *
+     * @param null|mixed $order
+     * @param mixed $maxAmount
      */
-    public function defaultConfigSettings($configSettings = array())
+    public function isAmountToHigh()
     {
-        $groupId = 6;
-        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
-        foreach ($configSettings as $configKey => $configValue) {
-            $sql = $sqlBase . ' ';
-            foreach ($configValue as $key => $val) {
-                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
-            }
-            $sql .= '`sort_order` = "' . $configKey . '", ';
-            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
-            $sql .= '`date_added` = NOW() ';
-            xtc_db_query($sql);
+        // return false on an empty order object
+        if ($this->order === null) {
+            return true;
         }
-    }
 
-    public function remove()
-    {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION
-            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        $max = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_MAX_AMOUNT');
+
+        $totalAmount = $this->getOrderAmountSelection();
+
+        if ($max > 0 && $max < $totalAmount) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -196,31 +149,6 @@ class heidelpayPaymentModules
         }
 
         return $total * 100;
-    }
-
-    /**
-     * Estimate if the oder amount is to high
-     *
-     * @return bool true if amount to high
-     *
-     * @param null|mixed $order
-     * @param mixed      $maxAmount
-     */
-    public function isAmountToHigh()
-    {
-        // return false on an empty order object
-        if ($this->order === null) {
-            return true;
-        }
-
-        $max = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_MAX_AMOUNT');
-
-        $totalAmount = $this->getOrderAmountSelection();
-
-        if ($max > 0 && $max < $totalAmount) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -263,6 +191,90 @@ class heidelpayPaymentModules
         }
 
         return false;
+    }
+
+    public function pre_confirmation_check()
+    {
+        global $order;
+    }
+
+    public function confirmation()
+    {
+        return false;
+    }
+
+    public function process_button()
+    {
+        global $order;
+        $this->hp->rememberOrderData($order);
+        return false;
+    }
+
+    public function payment_action()
+    {
+        return true;
+    }
+
+    public function before_process()
+    {
+        return false;
+    }
+
+    public function after_process()
+    {
+        global $order, $xtPrice, $insert_id;
+        return true;
+    }
+
+    public function admin_order($oID)
+    {
+        return false;
+    }
+
+    public function get_error()
+    {
+        global $_GET;
+        global $_SESSION;
+
+        $msg = heidelpayMessageCodeHelper::getMessage(urldecode($_GET['error']));
+
+        $error = array(
+            'title' => constant('MODULE_PAYMENT_' . strtoupper($this->hp->actualPaymethod) . '_TEXT_ERROR'),
+            'error' => stripslashes($msg)
+        );
+
+        return $error;
+    }
+
+    public function check()
+    {
+    }
+
+    /**
+     * install default config settings to database
+     *
+     * @param array $configSettings configuration option
+     */
+    public function defaultConfigSettings($configSettings = array())
+    {
+        $groupId = 6;
+        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
+        foreach ($configSettings as $configKey => $configValue) {
+            $sql = $sqlBase . ' ';
+            foreach ($configValue as $key => $val) {
+                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
+            }
+            $sql .= '`sort_order` = "' . $configKey . '", ';
+            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
+            $sql .= '`date_added` = NOW() ';
+            xtc_db_query($sql);
+        }
+    }
+
+    public function remove()
+    {
+        xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION
+            . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
     }
 
     /**

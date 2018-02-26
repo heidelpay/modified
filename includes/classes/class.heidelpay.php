@@ -135,7 +135,7 @@ class heidelpay
         $redirectURL = $res['url'];
         $base = 'heidelpay_redirect.php?';
         $src = $base . "payment_error=hp" . strtolower($this->actualPaymethod) . '&error='
-            . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
+            . $res['all']['PROCESSING.RETURN.CODE'] . '&' . session_name() . '=' . session_id();
         if ($processingresult == "ACK" && strstr($redirectURL, "http")) {
             $src = $redirectURL;
         }
@@ -595,7 +595,7 @@ class heidelpay
                 $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $this->error;
             }
         } else {
-            $msg = urlencode('Curl Fehler');
+            $msg = urlencode('Curl Fehler'); //TODO: language localisation
             $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $msg;
         }
 
@@ -645,7 +645,7 @@ class heidelpay
     public function handleDebit($order, $payCode, $insertId = false)
     {
         $this->trackStep('handleDebit', 'order', $order);
-        $debug = false;
+        $debug = true;
 
         if (constant('MODULE_PAYMENT_HP' . $this->actualPaymethod . '_DEBUG') == 'True') {
             $debug = true;
@@ -845,8 +845,8 @@ class heidelpay
         $base = 'heidelpay_redirect.php?';
         $src = $base . 'payment_error=hp' . strtolower($this->actualPaymethod);
         if ($processingresult != "ACK") {
-            $src .= '&error=' . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
-            $comment = $res['all']['PROCESSING.RETURN'];
+            $src .= '&error=' . $res['all']['PROCESSING.RETURN.CODE'] . '&' . session_name() . '=' . session_id();
+            $comment = $res['all']['PROCESSING.RETURN.CODE'];
             $status = constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_CANCELED_STATUS_ID');
             $this->addHistoryComment($insertId, $comment, $status);
             $this->setOrderStatus($insertId, $status);

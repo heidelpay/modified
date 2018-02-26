@@ -157,7 +157,7 @@ class hpivsec extends heidelpayPaymentModules
         return true;
     }
 
-    public function get_error()
+   /* public function get_error()
     {
         global $_GET;
 
@@ -167,7 +167,7 @@ class hpivsec extends heidelpayPaymentModules
         );
 
         return $error;
-    }
+    }*/
 
     public function check()
     {
