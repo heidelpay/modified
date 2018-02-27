@@ -250,7 +250,7 @@ class heidelpayPaymentModules
 
         $language = !empty($_SESSION['language'])?strtolower($_SESSION['language']):'';
         $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
-        $smarty->assign('error', htmlspecialchars($msg));
+        $smarty->assign('error', ($msg));
 
         var_dump(htmlentities($_GET['error']));
     }
