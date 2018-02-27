@@ -248,11 +248,10 @@ class heidelpayPaymentModules
 
         $mapper = new heidelpayMessageCodeHelper ();
 
-        $language = !empty($_SESSION['language'])?strtolower($_SESSION['language']):'';
+        $language = !empty($_SESSION['language_code'])?strtolower($_SESSION['language_code']):'';
         $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
         $smarty->assign('error', ($msg));
 
-        var_dump(htmlentities($_GET['error']));
     }
 
     public function check()
