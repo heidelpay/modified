@@ -11,30 +11,17 @@ class hpiv extends heidelpayPaymentModules
     public $hp;
     public $payCode;
     public $tmpStatus;
-    
-    // class constructor
-    public function hpiv()
+
+    /**
+     * heidelpay invoice constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
+        global $language;
         
         $this->payCode = 'iv';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPIV_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPIV_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPIV_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPIV_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPIV_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPIV_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPIV_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
+
+        parent::__construct();
     }
 
     public function update_status()
@@ -146,18 +133,6 @@ class hpiv extends heidelpayPaymentModules
     {
         return false;
     }
-
-    /*public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPIV_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
-    }*/
 
     public function check()
     {

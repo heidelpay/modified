@@ -26,13 +26,6 @@ class hpsu extends heidelpayPaymentModules
 
         $this->payCode = 'su';
 
-        // OT FIX
-        if ($_GET['payment_error'] === 'hpot') {
-            global $smarty;
-            $error = $this->get_error();
-            $smarty->assign('error', htmlspecialchars($error['error']));
-        }
-
         parent::__construct();
     }
 

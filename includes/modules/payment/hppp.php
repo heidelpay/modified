@@ -4,7 +4,9 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hppp extends heidelpayPaymentModules
 {
-    // class constructor
+    /**
+     * heidelpay pre payment constructor
+     */
     public function __construct()
     {
         global $language;

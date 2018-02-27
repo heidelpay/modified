@@ -23,13 +23,6 @@ class hpgp extends heidelpayPaymentModules
     {
         $this->payCode = 'gp';
 
-        // OT FIX
-        if ($_GET['payment_error'] == 'hpot') {
-            global $smarty;
-            $error = $this->get_error();
-            $smarty->assign('error', htmlspecialchars($error['error']));
-        }
-
         parent::__construct();
     }
 

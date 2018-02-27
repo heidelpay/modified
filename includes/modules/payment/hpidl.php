@@ -7,24 +7,7 @@ class hpidl extends heidelpayPaymentModules
     // class constructor
     public function __construct()
     {
-        global $order;
-
         $this->payCode = 'idl';
-        $this->code = 'hp' . $this->payCode;
-
-        /*
-         * $this->icons_available = xtc_image(DIR_WS_ICONS . 'cc_amex_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_mastercard_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_visa_small.jpg') . ' ' .
-         * xtc_image(DIR_WS_ICONS . 'cc_diners_small.jpg');
-         */
-
-            // OT FIX
-        if ($_GET['payment_error'] == 'hpot') {
-            global $smarty;
-            $error = $this->get_error();
-            $smarty->assign('error', htmlspecialchars($error['error']));
-        }
 
         parent::__construct();
     }
