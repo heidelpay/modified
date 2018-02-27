@@ -17,28 +17,14 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpivsec extends heidelpayPaymentModules
 {
-    public $payCode = 'ivsec';
-
-    // class constructor
+    /**
+     * heidelpay insured invoice constructor
+     */
     public function __construct()
     {
-        global $order;
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPIVSEC_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPIVSEC_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPIVSEC_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPIVSEC_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPIVSEC_TEXT_INFO;
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $this->hp->version;
+        $this->payCode = 'ivsec';
 
-        if (is_object($order)) {
-            $this->update_status();
-        }
+        parent::__construct();
     }
 
     /**

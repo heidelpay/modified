@@ -16,13 +16,14 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayMessageCodeHelper.php
  */
 class heidelpayPaymentModules
 {
+    public $payCode;
     /** @var  $code string current payment code */
     public $code;
     public $title;
     public $description;
     public $enabled;
+    /** @var heidelpay $hp */
     public $hp;
-    public $payCode;
     public $tmpStatus;
     protected $tmpOrders = false;
     /** @var  $order */
@@ -38,11 +39,19 @@ class heidelpayPaymentModules
     public function __construct()
     {
         global $order;
+        $this->code = 'hp' . $this->payCode;
         $this->order = $order;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
         $this->version = $this->hp->version;
         $this->transactionMode = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TRANSACTION_MODE');
+        $this->title = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_TITLE');
+        $this->description = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_DESC');
+        $this->sort_order = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_SORT_ORDER');
+        $this->enabled = ((constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_STATUS') === 'True') ? true : false);
+        $this->info = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_INFO');
+        $this->tmpStatus = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_NEWORDER_STATUS_ID');
+        $this->order_status = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_NEWORDER_STATUS_ID');
 
         if (is_object($order)) {
             $this->update_status();
@@ -235,17 +244,15 @@ class heidelpayPaymentModules
     {
         global $_GET;
         global $_SESSION;
-        $language = !empty($_SESSION['language'])?strtolower($_SESSION['language']):'';
+        global $smarty;
 
         $mapper = new heidelpayMessageCodeHelper ();
-        $msg = $mapper->getMessage(urldecode($_GET['error']), $language); //TODO: solve decoding issue.
 
-        $error = array(
-            'title' => constant('MODULE_PAYMENT_' . strtoupper($this->hp->actualPaymethod) . '_TEXT_ERROR'),
-            'error' => stripslashes($msg)
-        );
+        $language = !empty($_SESSION['language'])?strtolower($_SESSION['language']):'';
+        $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
+        $smarty->assign('error', htmlspecialchars($msg));
 
-        return $error;
+        var_dump(htmlentities($_GET['error']));
     }
 
     public function check()

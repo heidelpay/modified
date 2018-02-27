@@ -130,7 +130,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=Cancelled by User" . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" .urlencode($_POST['PROCESSING_RETURN_CODE']). '&' . session_name() . '=' . session_id();
     } else {
         $status = constant('MODULE_PAYMENT_HP' . $payCode . '_CANCELED_STATUS_ID');
         $comment .= ' ' . $_POST['PROCESSING_RETURN'];
@@ -138,7 +138,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN']) . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN_CODE']) . '&' . session_name() . '=' . session_id();
     }
 } else {
     echo 'FAIL';

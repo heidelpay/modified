@@ -17,27 +17,10 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpcc extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
-
     // class constructor
     public function __construct()
     {
         $this->payCode = 'cc';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPCC_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPCC_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPCC_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPCC_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPCC_TEXT_INFO;
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPCC_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPCC_NEWORDER_STATUS_ID;
 
         parent::__construct();
     }
@@ -230,18 +213,6 @@ class hpcc extends heidelpayPaymentModules
         $this->hp->addHistoryComment($insert_id, $comment, $this->order_status);
         $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPCC_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
     }
 
     public function check()

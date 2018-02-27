@@ -22,14 +22,6 @@ class hpdd extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'dd';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPDD_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPDD_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPDD_SORT_ORDER;
-        $this->enabled = (MODULE_PAYMENT_HPDD_STATUS == 'True') ? true : false;
-        $this->info = MODULE_PAYMENT_HPDD_TEXT_INFO;
-        $this->tmpStatus = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
 
         parent::__construct();
     }
@@ -115,18 +107,6 @@ class hpdd extends heidelpayPaymentModules
         $this->hp->addHistoryComment($insert_id, '', $this->order_status);
         $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPDD_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
     }
 
     public function check()

@@ -595,7 +595,7 @@ class heidelpay
                 $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $this->error;
             }
         } else {
-            $msg = urlencode('Curl Fehler'); //TODO: language localisation
+            $msg = urlencode('Curl Fehler');
             $res = 'PROCESSING.RESULT=NOK&PROCESSING.RETURN=' . $msg;
         }
 

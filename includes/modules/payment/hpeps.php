@@ -1,49 +1,24 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpeps
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+class hpeps extends heidelpayPaymentMOdules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
-    
-    // class constructor
-    public function hpeps()
+    /**
+     * heidelpay EPS direct debit constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
-        
         $this->payCode = 'eps';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPEPS_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPEPS_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPEPS_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPEPS_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPEPS_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPEPS_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPEPS_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
-            
-            // OT FIX
+
+        // OT FIX
         if ($_GET['payment_error'] == 'hpot') {
             global $smarty;
             $error = $this->get_error();
             $smarty->assign('error', htmlspecialchars($error['error']));
         }
+
+        parent::__construct();
     }
 
     public function update_status()
@@ -154,18 +129,6 @@ class hpeps
     public function admin_order($oID)
     {
         return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPEPS_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
     }
 
     public function check()
@@ -298,8 +261,6 @@ class hpeps
                 $prefix . 'SORT_ORDER',
                 $prefix . 'ALLOWED',
                 $prefix . 'ZONE'
-        )
-        // $prefix.'',
-;
+        );
     }
 }

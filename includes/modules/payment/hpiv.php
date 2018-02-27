@@ -1,10 +1,8 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpiv
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+class hpiv extends heidelpayPaymentModules
 {
     public $code;
     public $title;
@@ -149,7 +147,7 @@ class hpiv
         return false;
     }
 
-    public function get_error()
+    /*public function get_error()
     {
         global $_GET;
         
@@ -159,7 +157,7 @@ class hpiv
         );
         
         return $error;
-    }
+    }*/
 
     public function check()
     {
