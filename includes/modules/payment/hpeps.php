@@ -10,7 +10,6 @@ class hpeps extends heidelpayPaymentMOdules
     public function __construct()
     {
         $this->payCode = 'eps';
-
         parent::__construct();
     }
 

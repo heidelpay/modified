@@ -8,7 +8,6 @@ class hpidl extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'idl';
-
         parent::__construct();
     }
 

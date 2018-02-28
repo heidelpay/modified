@@ -10,7 +10,6 @@ class hpdc extends heidelpayPaymentModules
         global $language;
         
         $this->payCode = 'dc';
-
         parent::__construct();
     }
 

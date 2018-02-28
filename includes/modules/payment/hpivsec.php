@@ -23,7 +23,6 @@ class hpivsec extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'ivsec';
-
         parent::__construct();
     }
 

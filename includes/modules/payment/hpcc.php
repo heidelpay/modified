@@ -21,7 +21,6 @@ class hpcc extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'cc';
-
         parent::__construct();
     }
 

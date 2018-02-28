@@ -20,7 +20,6 @@ class hpiv extends heidelpayPaymentModules
         global $language;
         
         $this->payCode = 'iv';
-
         parent::__construct();
     }
 

@@ -22,7 +22,6 @@ class hpdd extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'dd';
-
         parent::__construct();
     }
 

@@ -22,7 +22,6 @@ class hpgp extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'gp';
-
         parent::__construct();
     }
 

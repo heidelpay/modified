@@ -22,7 +22,6 @@ class hpddsec extends heidelpayPaymentModules
     public function __construct()
     {
         $this->payCode = 'ddsec';
-
         parent::__construct();
     }
 

@@ -44,6 +44,7 @@ class heidelpayPaymentModules
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
         $this->version = $this->hp->version;
+
         $this->transactionMode = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TRANSACTION_MODE');
         $this->title = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_TITLE');
         $this->description = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_DESC');
@@ -242,16 +243,13 @@ class heidelpayPaymentModules
 
     public function get_error()
     {
-        global $_GET;
-        global $_SESSION;
         global $smarty;
 
-        $mapper = new heidelpayMessageCodeHelper ();
+        $mapper = new heidelpayMessageCodeHelper();
 
         $language = !empty($_SESSION['language_code'])?strtolower($_SESSION['language_code']):'';
         $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
         $smarty->assign('error', ($msg));
-
     }
 
     public function check()
