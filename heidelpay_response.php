@@ -35,8 +35,8 @@ if ($returnvalue) {
         $payType = 'ppal';
     } // PayPal special
     $payCode = strtoupper($payType);
-    if ($payCode == 'OT') {
-        $payCode = $hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']);
+    if ($payType == 'ot') {
+        $payType = strtolower($hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']));
     }
     $TID = str_replace(' ', '', $_POST['IDENTIFICATION_TRANSACTIONID']);
     $orderID = (int)preg_replace('/User.*Order(\d*)/', '$1', $TID);
