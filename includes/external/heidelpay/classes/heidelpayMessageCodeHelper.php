@@ -10,11 +10,24 @@ FileLoader::requireAllLibs();
 
 use Heidelpay\MessageCodeMapper\MessageCodeMapper;
 
+/**
+ * Class heidelpayMessageCodeHelper
+ */
 class heidelpayMessageCodeHelper
 {
+    /**
+     * @var string
+     */
     public $defaultLanguage;
+    /**
+     * @var array
+     */
     public $languages;
 
+    /**
+     * Set up enabled languages and default.
+     * heidelpayMessageCodeHelper constructor.
+     */
     public function __construct()
     {
         $this->languages = [
@@ -24,9 +37,14 @@ class heidelpayMessageCodeHelper
         $this->defaultLanguage = $this->languages['de'];
     }
 
-    public function getMessage($code, $languageCode)
+    /**
+     * @param string $errorCode
+     * @param string $languageCode Language that should be used. If not found, the default is used
+     * @return string
+     */
+    public function getMessage($errorCode, $languageCode)
     {
-        $locale = $this->mapLanguage($languageCode);
+        $locale = $this->getLocale($languageCode);
 
         if ($locale) {
             $mapper = new MessageCodeMapper($locale);
@@ -34,13 +52,18 @@ class heidelpayMessageCodeHelper
             $mapper = new MessageCodeMapper($this->defaultLanguage);
         }
 
-        return $mapper->getMessage($code);
+        return $mapper->getMessage($errorCode);
     }
 
-    private function mapLanguage($languageCode)
+    /**
+     * Provides the locale that matches the language code
+     * @param $languageCode
+     * @return mixed|null
+     */
+    private function getLocale($languageCode)
     {
         if (!empty($this->languages[$languageCode])) {
-            return htmlspecialchars_decode($this->languages[$languageCode]);
+            return $this->languages[$languageCode];
         }
 
         return null;
@@ -55,7 +78,7 @@ class heidelpayMessageCodeHelper
     }
 
     /**
-     * @param mixed $languages
+     * @param array $languages
      */
     public function setLanguages($languages)
     {
@@ -63,7 +86,7 @@ class heidelpayMessageCodeHelper
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getDefaultLanguage()
     {
@@ -71,7 +94,7 @@ class heidelpayMessageCodeHelper
     }
 
     /**
-     * @param mixed $defaultLanguage
+     * @param string $defaultLanguage
      */
     public function setDefaultLanguage($defaultLanguage)
     {

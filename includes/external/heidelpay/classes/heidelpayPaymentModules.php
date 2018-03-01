@@ -241,15 +241,23 @@ class heidelpayPaymentModules
         return false;
     }
 
+    /**
+     * Function get the error msg.
+     * The error is based on an error code that is matched to the corresponding message.
+     * The message then is assigned to the smarty template.
+     */
     public function get_error()
     {
-        global $smarty;
-
         $mapper = new heidelpayMessageCodeHelper();
 
-        $language = !empty($_SESSION['language_code'])?strtolower($_SESSION['language_code']):'';
+        $language = !empty($_SESSION['language_code'])?strtolower($_SESSION['language_code']):null;
         $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
-        $smarty->assign('error', ($msg));
+
+        $error = array(
+            'title' => constant('MODULE_PAYMENT_HP'. strtoupper($this->payCode) .'_TEXT_TITLE'),
+            'error' => stripslashes($msg)
+        );
+        return $error;
     }
 
     public function check()
