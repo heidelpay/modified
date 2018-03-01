@@ -296,7 +296,6 @@ class hpsu extends heidelpayPaymentModules
             $prefix . 'SORT_ORDER',
             $prefix . 'ALLOWED',
             $prefix . 'ZONE'
-        )// $prefix.'',
-;
+        );
     }
 }

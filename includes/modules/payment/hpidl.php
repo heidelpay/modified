@@ -4,7 +4,9 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpidl extends heidelpayPaymentModules
 {
-    // class constructor
+    /**
+     * heidelpay IDEAL direct debit constructor
+     */
     public function __construct()
     {
         $this->payCode = 'idl';

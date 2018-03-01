@@ -4,7 +4,9 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpdc extends heidelpayPaymentModules
 {
-    // class constructor
+    /**
+     * heidelpay debit card constructor
+     */
     public function __construct()
     {
         global $language;
@@ -365,8 +367,6 @@ class hpdc extends heidelpayPaymentModules
                 $prefix . 'SORT_ORDER',
                 $prefix . 'ALLOWED',
                 $prefix . 'ZONE'
-        )
-        // $prefix.'',
-;
+        );
     }
 }

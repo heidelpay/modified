@@ -5,7 +5,7 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 class hpeps extends heidelpayPaymentMOdules
 {
     /**
-     * heidelpay EPS direct debit constructor
+     * heidelpay EPS constructor
      */
     public function __construct()
     {

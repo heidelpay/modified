@@ -17,7 +17,7 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 class hpdd extends heidelpayPaymentModules
 {
     /**
-     * heidelpay sepa direct debit constructor
+     * heidelpay direct debit constructor
      */
     public function __construct()
     {

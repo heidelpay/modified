@@ -142,18 +142,6 @@ class hpivsec extends heidelpayPaymentModules
         return true;
     }
 
-   /* public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPIVSEC_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
-    }*/
-
     public function check()
     {
         if (!isset($this->_check)) {
