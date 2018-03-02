@@ -57,37 +57,19 @@ class hpgp extends heidelpayPaymentModules
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpGPData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
-            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPGP_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPGP_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPGP_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPGP_MAX_AMOUNT < $total) {
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
             return false;
         }
 
-        $content = array(
-            array(
-                'title' => '',
-                'field' => MODULE_PAYMENT_HPGP_DEBUGTEXT
-            )
-        );
-        
-        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array();
-        }
-        
         return array(
                 'id' => $this->code,
                 'module' => $this->title,

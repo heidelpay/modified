@@ -53,7 +53,15 @@ class hpcc extends heidelpayPaymentModules
 
     public function selection()
     {
-        global $order;
+        $content = parent::selection();
+
+        // Move the debug text into the title field, since the iFrame only uses that one.
+        if(!empty($content)) {
+            $field = $content[0]['field'];
+            $content[0]['field'] = '';
+            $content[0]['title'] = $field;
+        }
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             // coupon reset
             if (!empty($_SESSION['cc_id'])) {
@@ -64,22 +72,13 @@ class hpcc extends heidelpayPaymentModules
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpUseUniqueId']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
-            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
-        ) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPCC_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPCC_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPCC_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPCC_MAX_AMOUNT < $total) {
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
             return false;
         }
 
-        $src = $this->hp->handleRegister($order, $this->payCode);
+        $src = $this->hp->handleRegister($this->order, $this->payCode);
 
         $hpIframe = '';
         if (!empty($src)) {
@@ -101,13 +100,12 @@ class hpcc extends heidelpayPaymentModules
         }
 
         if (MODULE_PAYMENT_HPCC_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPCC_TEST_ACCOUNT,
-                $order->customer['email_address']) !== false
+                $this->order->customer['email_address']) !== false
         ) {
-            $content = array();
             if (MODULE_PAYMENT_HPCC_MODULE_MODE == 'DIRECT') {
                 // Special CC Reuse
                 $lastCCard = $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_ccard');
-                // if(!empty($lastCCard)){
+
                 $gender = $_SESSION['customer_gender'] == 'f' ? FEMALE : MALE;
                 $name = $_SESSION['customer_last_name'];
                 if (!empty($lastCCard)) {
@@ -126,15 +124,7 @@ class hpcc extends heidelpayPaymentModules
                     'title' => $title,
                     'field' => ''
                 );
-                // }
             }
-        } else {
-            $content = array(
-                array(
-                    'title' => '',
-                    'field' => MODULE_PAYMENT_HPCC_DEBUGTEXT
-                )
-            );
         }
 
         return array(

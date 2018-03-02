@@ -61,36 +61,17 @@ class hpsu extends heidelpayPaymentModules
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpSUData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
-            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1
-        ) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPSU_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPSU_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPSU_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPSU_MAX_AMOUNT < $total) {
-            return false;
-        }
-        $content = array(
-            array(
-                'title' => '',
-                'field' => MODULE_PAYMENT_HPSU_DEBUGTEXT
-            )
-        );
 
-        if (MODULE_PAYMENT_HPSU_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPSU_TEST_ACCOUNT, $order->customer['email_address']) !== false
-        ) {
-            $content = array();
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
         }
 
         return array(

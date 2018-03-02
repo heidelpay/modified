@@ -44,15 +44,23 @@ class hpidl extends heidelpayPaymentModules
     public function selection()
     {
         global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpIdealData']);
         }
         // $_SESSION['hpModuleMode'] = 'AFTER';
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
+        }
         
         if (MODULE_PAYMENT_HPIDL_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPIDL_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
             if (MODULE_PAYMENT_HPIDL_MODULE_MODE == 'NOWPF') {
-                $content = array(
+                $content[] = array(
                         array(
                                 'title' => MODULE_PAYMENT_HPIDL_ACCOUTCOUNTRY,
                                 'field' => '<select name="hpidl[onlineTransferCountry]" style="width: 200px;"><option selected="true" value="NL">Niederlande</option></select>'
@@ -70,21 +78,7 @@ class hpidl extends heidelpayPaymentModules
                                 'field' => '<input value="" style="width: 200px;" maxlength="50" name="hpidl[onlineTransferHolder]" type="TEXT">'
                         )
                 );
-            } else {
-                $content = array(
-                        array(
-                                'title' => '',
-                                'field' => ''
-                        )
-                );
             }
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPIDL_DEBUGTEXT
-                    )
-            );
         }
         
         return array(

@@ -46,26 +46,16 @@ class hppp extends heidelpayPaymentModules
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
         }
-        // $_SESSION['hpModuleMode'] = 'AFTER';
-        
-        if (MODULE_PAYMENT_HPPP_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPPP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => ''
-                    )
-            );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPPP_DEBUGTEXT
-                    )
-            );
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
         }
         
         return array(

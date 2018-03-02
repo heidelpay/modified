@@ -1471,7 +1471,7 @@ class heidelpay
         }
         $sql = 'SELECT * FROM `configuration` WHERE `configuration_value` = "'
             . addslashes($TRANSACTION_CHANNEL) . '" AND `configuration_key` IN ("' . implode('","', $keys) . '") ';
-        // echo $sql;
+
         $res = xtc_db_query($sql);
         $res = xtc_db_fetch_array($res);
         return str_replace(array(
