@@ -2,19 +2,19 @@
 $prefix = 'MODULE_PAYMENT_HPIV_';
 
 define($prefix.'TEXT_TITLE', 'Rechnung');
-define($prefix.'TEXT_DESC', 'Rechnung &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Rechnung &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
-define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');
+define($prefix.'SECURITY_SENDER_DESC', 'Ihre heidelpay Sender ID');
 
 define($prefix.'USER_LOGIN_TITLE', 'User Login');
-define($prefix.'USER_LOGIN_DESC', 'Ihr Heidelpay User Login');
+define($prefix.'USER_LOGIN_DESC', 'Ihr heidelpay User Login');
 
 define($prefix.'USER_PWD_TITLE', 'User Passwort');
-define($prefix.'USER_PWD_DESC', 'Ihr Heidelpay User Passwort');
+define($prefix.'USER_PWD_DESC', 'Ihr heidelpay User Passwort');
 
 define($prefix.'TRANSACTION_CHANNEL_TITLE', 'Channel ID');
-define($prefix.'TRANSACTION_CHANNEL_DESC', 'Ihre Heidelpay Channel ID');
+define($prefix.'TRANSACTION_CHANNEL_DESC', 'Ihre heidelpay Channel ID');
 
 define($prefix.'TRANSACTION_MODE_TITLE', 'Transaction Mode');
 define($prefix.'TRANSACTION_MODE_DESC', 'W&auml;hlen Sie hier den Transaktionsmodus.');
@@ -62,7 +62,7 @@ define($prefix.'ALLOWED_TITLE', 'Erlaubte Zonen');
 define($prefix.'ALLOWED_DESC', 'Geben Sie <b>einzeln</b> die Zonen an, welche f&uuml;r dieses Modul erlaubt sein sollen. (z.B. AT,DE (wenn leer, werden alle Zonen erlaubt))');
 
 define($prefix.'DEBUG_TITLE', 'Debug Modus');
-define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von Heidelpay an, da sonst eine Bezahlung im Shop nicht mehr funktioniert.');
+define($prefix.'DEBUG_DESC', 'Schalten Sie diesen nur auf Anweisung von heidelpay an, da sonst eine Bezahlung im Shop nicht mehr funktioniert.');
 
 define($prefix.'TEXT_INFO', '');
 define($prefix.'DEBUGTEXT', 'Testsystemmodus: Bitte benutzen Sie keine echten Zahldaten.');

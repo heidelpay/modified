@@ -69,7 +69,7 @@ if ($debug) {
 if ($debug) {
     exit();
 }
-?><html><head><title>Heidelpay Redirect</title></head>
+?><html><head><title>heidelpay Redirect</title></head>
 <body style="font-family: arial;" onLoad="document.forms[0].submit();"><center>
 <br><br><br><br><br>
 <h2>Ihre Daten werden &uuml;bertragen...</h2><br>

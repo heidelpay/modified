@@ -2,19 +2,19 @@
 $prefix = 'MODULE_PAYMENT_HPMK_';
 
 define($prefix.'TEXT_TITLE', 'MangirKart');
-define($prefix.'TEXT_DESC', 'MangirKart over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'MangirKart over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
-define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');
+define($prefix.'SECURITY_SENDER_DESC', 'Your heidelpay Sender ID');
 
 define($prefix.'USER_LOGIN_TITLE', 'User Login');
-define($prefix.'USER_LOGIN_DESC', 'Your Heidelpay User Login');
+define($prefix.'USER_LOGIN_DESC', 'Your heidelpay User Login');
 
 define($prefix.'USER_PWD_TITLE', 'User Password');
-define($prefix.'USER_PWD_DESC', 'Your Heidelpay User Password');
+define($prefix.'USER_PWD_DESC', 'Your heidelpay User Password');
 
 define($prefix.'TRANSACTION_CHANNEL_TITLE', 'Channel ID');
-define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your Heidelpay Channel ID');
+define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your heidelpay Channel ID');
 
 define($prefix.'TRANSACTION_MODE_TITLE', 'Transaction Mode');
 define($prefix.'TRANSACTION_MODE_DESC', 'Please choose your transaction mode.');

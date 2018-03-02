@@ -6,7 +6,7 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayBasketHelper.php');
  * heidelpay payment class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -584,7 +584,7 @@ class heidelpay
             curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
+            curl_setopt($curlInstance, CURLOPT_USERAGENT, "heidelpay Request");
 
             $this->response = curl_exec($curlInstance);
             $this->error = curl_error($curlInstance);
