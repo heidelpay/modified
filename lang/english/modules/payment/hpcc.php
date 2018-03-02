@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPCC_';
 
 define($prefix.'TEXT_TITLE', 'Creditcard');
-define($prefix.'TEXT_DESC', 'Creditcard over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Creditcard over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');

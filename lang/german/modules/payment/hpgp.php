@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPGP_';
 
 define($prefix.'TEXT_TITLE', 'Giropay');
-define($prefix.'TEXT_DESC', 'Giropay &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Giropay &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');

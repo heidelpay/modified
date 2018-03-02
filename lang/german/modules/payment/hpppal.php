@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPPPAL_';
 
 define($prefix.'TEXT_TITLE', 'Pay Pal');
-define($prefix.'TEXT_DESC', 'Pay Pal &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Pay Pal &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');

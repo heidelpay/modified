@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPIDL_';
 
 define($prefix.'TEXT_TITLE', 'IDeal');
-define($prefix.'TEXT_DESC', 'IDeal over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'IDeal over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');

@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPEPS_';
 
 define($prefix.'TEXT_TITLE', 'EPS');
-define($prefix.'TEXT_DESC', 'EPS &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'EPS &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');

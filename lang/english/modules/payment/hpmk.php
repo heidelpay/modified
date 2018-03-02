@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPMK_';
 
 define($prefix.'TEXT_TITLE', 'MangirKart');
-define($prefix.'TEXT_DESC', 'MangirKart over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'MangirKart over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');

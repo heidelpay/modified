@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPSU_';
 
 define($prefix.'TEXT_TITLE', 'Direct EBanking');
-define($prefix.'TEXT_DESC', 'Direct EBanking over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Direct EBanking over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');

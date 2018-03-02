@@ -4,7 +4,7 @@ $prefix = 'MODULE_PAYMENT_HPIVSEC_';
 define($prefix.'MISSING_BASKET', 'Es konnte kein Warenkorb mit der Transaktion verbunden werden!!');
 
 define($prefix.'TEXT_TITLE', 'gesicherte Rechnung B2C');
-define($prefix.'TEXT_DESC', 'gesicherte Rechnung B2C &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'gesicherte Rechnung B2C &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');

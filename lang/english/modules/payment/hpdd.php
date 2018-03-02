@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPDD_';
 
 define($prefix.'TEXT_TITLE', 'Direct Debit');
-define($prefix.'TEXT_DESC', 'Direct Debit over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Direct Debit over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');

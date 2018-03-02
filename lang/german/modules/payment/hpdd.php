@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPDD_';
 
 define($prefix.'TEXT_TITLE', 'Lastschrift');
-define($prefix.'TEXT_DESC', 'Lastschrift &uuml;ber Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Lastschrift &uuml;ber heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Ihre Heidelpay Sender ID');

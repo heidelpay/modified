@@ -2,7 +2,7 @@
 $prefix = 'MODULE_PAYMENT_HPDDSEC_';
 
 define($prefix.'TEXT_TITLE', 'direct debit secured b2c');
-define($prefix.'TEXT_DESC', 'direct debit secured b2c over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'direct debit secured b2c over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
 define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');
