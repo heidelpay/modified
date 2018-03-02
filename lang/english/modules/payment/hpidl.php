@@ -14,7 +14,7 @@ define($prefix.'USER_PWD_TITLE', 'User Password');
 define($prefix.'USER_PWD_DESC', 'Your heidelpay User Password');
 
 define($prefix.'TRANSACTION_CHANNEL_TITLE', 'Channel ID');
-define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your Heidelpay Channel ID');
+define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your heidelpay Channel ID');
 
 define($prefix.'TRANSACTION_MODE_TITLE', 'Transaction Mode');
 define($prefix.'TRANSACTION_MODE_DESC', 'Please choose your transaction mode.');

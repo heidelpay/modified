@@ -584,7 +584,7 @@ class heidelpay
             curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
+            curl_setopt($curlInstance, CURLOPT_USERAGENT, "heidelpay Request");
 
             $this->response = curl_exec($curlInstance);
             $this->error = curl_error($curlInstance);
