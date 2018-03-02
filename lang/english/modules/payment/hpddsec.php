@@ -59,7 +59,7 @@ define($prefix.'DEBUG_TITLE', 'Debug Mode');
 define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use another one or try again later.');
+define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
 
 define($prefix.'ERROR_NO_PAYDATA', 'Please enter your payment information.');
 define($prefix.'PAYMENT_DATA', 'Please enter the missing direct debit data.');
