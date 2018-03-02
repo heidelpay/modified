@@ -71,7 +71,7 @@ class RequestTest extends TestCase
         $basketItemOne->setBasketItemReferenceId('heidelpay-php-basket-api-testitem-1');
         $basketItemOne->setUnit('Stk.');
         $basketItemOne->setArticleId('heidelpay-testitem-1');
-        $basketItemOne->setTitle('Heidelpay Test Article #1');
+        $basketItemOne->setTitle('heidelpay Test Article #1');
         $basketItemOne->setDescription('Just for testing.');
         $basketItemOne->setType('goods');
         $basketItemOne->setImageUrl('https://placehold.it/223302316.jpg');
@@ -89,7 +89,7 @@ class RequestTest extends TestCase
         $basketItemTwo->setBasketItemReferenceId('heidelpay-php-basket-api-testitem-2');
         $basketItemTwo->setUnit('Stk.');
         $basketItemTwo->setArticleId('heidelpay-testitem-2');
-        $basketItemTwo->setTitle('Heidelpay Test Article #2');
+        $basketItemTwo->setTitle('heidelpay Test Article #2');
         $basketItemTwo->setDescription('Just for testing.');
         $basketItemTwo->setType('goods');
         $basketItemTwo->setImageUrl('https://placehold.it/236566083.jpg');
@@ -107,7 +107,7 @@ class RequestTest extends TestCase
         $basketItemThree->setBasketItemReferenceId('heidelpay-php-basket-api-testitem-3');
         $basketItemThree->setUnit('Stk.');
         $basketItemThree->setArticleId('heidelpay-testitem-3');
-        $basketItemThree->setTitle('Heidelpay Test Article #3');
+        $basketItemThree->setTitle('heidelpay Test Article #3');
         $basketItemThree->setDescription('Just for testing.');
         $basketItemThree->setType('goods');
         $basketItemThree->setQuantity(1);

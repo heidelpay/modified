@@ -1,11 +1,11 @@
 <?php
 defined('_VALID_XTC') or die('Direct Access to this location is not allowed.');
 
-define('MODULE_HPBS_CHECK_TEXT_DESCRIPTION', 'Prüfen Sie die Zahlungseingänge �ber Heidelpay BillSAFE');
-define('MODULE_HPBS_CHECK_TEXT_TITLE', 'Heidelpay BillSAFE Prüfung');
+define('MODULE_HPBS_CHECK_TEXT_DESCRIPTION', 'Prüfen Sie die Zahlungseingänge �ber heidelpay BillSAFE');
+define('MODULE_HPBS_CHECK_TEXT_TITLE', 'heidelpay BillSAFE Prüfung');
 define('MODULE_HPBS_CHECK_STATUS_DESC', 'Modulstatus');
 define('MODULE_HPBS_CHECK_STATUS_TITLE', 'Status');
-define('HPBS_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen BillSAFE Zahlungen mit Heidelpay abzugleichen!');
+define('HPBS_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen BillSAFE Zahlungen mit heidelpay abzugleichen!');
 define('HPBS_IMAGE_EXPORT_TYPE', '<b>Abgleich der BillSAFE Zahlungen:</b>');
 
 if (file_exists(DIR_WS_CLASSES.'class.heidelpay.php')) {
