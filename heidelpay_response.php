@@ -88,29 +88,8 @@ if ($returnvalue) {
             // debit card registration
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard', $_POST['ACCOUNT_NUMBER']);
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard_reference', $_POST['IDENTIFICATION_UNIQUEID']);
-        } elseif ($_POST['PAYMENT_CODE'] == 'IV.PA' && $_POST['ACCOUNT_BRAND'] == 'BILLSAFE') {
-            $status = constant('MODULE_PAYMENT_HPBS_PENDING_STATUS_ID');
-            $repl = array(
-                '{AMOUNT}' => sprintf('%1.2f', $_POST['CRITERION_BILLSAFE_AMOUNT']),
-                '{CURRENCY}' => $_POST['CRITERION_BILLSAFE_CURRENCY'],
-                '{ACC_OWNER}' => $_POST['CRITERION_BILLSAFE_RECIPIENT'],
-                '{ACC_BANKNAME}' => $_POST['CRITERION_BILLSAFE_BANKNAME'],
-                '{ACC_NUMBER}' => $_POST['CRITERION_BILLSAFE_ACCOUNTNUMBER'],
-                '{ACC_BANKCODE}' => $_POST['CRITERION_BILLSAFE_BANKCODE'],
-                '{ACC_BIC}' => $_POST['CRITERION_BILLSAFE_BIC'],
-                '{ACC_IBAN}' => $_POST['CRITERION_BILLSAFE_IBAN'],
-                '{SHORTID}' => $_POST['CRITERION_BILLSAFE_REFERENCE'],
-                '{LEGALNOTE}' => $_POST['CRITERION_BILLSAFE_LEGALNOTE'],
-                '{NOTE}' => $_POST['CRITERION_BILLSAFE_NOTE'],
-            );
-            include_once(DIR_WS_LANGUAGES . 'german/modules/payment/hpbs.php');
-            $bsData = strtr(MODULE_PAYMENT_HPBS_SUCCESS_BILLSAFE, $repl);
-            $bsData .= ' ' . $_POST['CRITERION_BILLSAFE_LEGALNOTE'] . ' ';
-            $bsData .= preg_replace('/{DAYS}/', $_POST['CRITERION_BILLSAFE_PERIOD'],
-                MODULE_PAYMENT_HPBS_LEGALNOTE_BILLSAFE);
-            $comment = 'Payment Info: ' . (html_entity_decode($bsData) . '<br>');
-            $hp->addHistoryComment($orderID, $comment, $status);
         }
+
         if ($_POST['PROCESSING_STATUS_CODE'] == '90' && $_POST['AUTHENTICATION_TYPE'] == '3DSecure') {
             print $base . "heidelpay_3dsecure_return.php?order_id="
                 . rawurlencode($_POST['IDENTIFICATION_TRANSACTIONID']) . '&' . session_name() . '=' . session_id();

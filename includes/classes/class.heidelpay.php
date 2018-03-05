@@ -251,14 +251,6 @@ class heidelpay
             $parameters['FRONTEND.ENABLED'] = "false";
         } elseif ($this->actualPaymethod == 'PPAL') {
             $parameters['ACCOUNT.BRAND'] = 'PAYPAL';
-        } elseif ($this->actualPaymethod == 'BS') {
-            $parameters['PAYMENT.CODE'] = "IV.PA";
-            $parameters['ACCOUNT.BRAND'] = "BILLSAFE";
-            $parameters['FRONTEND.ENABLED'] = "false";
-            $oId = preg_replace('/.*Order /', '', $orderId);
-            $order = $order = new order($oId);
-            $bsParams = $this->getBillsafeBasket($order);
-            $parameters = array_merge($parameters, $bsParams);
         } elseif ($this->actualPaymethod == 'IVSEC') {
             $parameters['PAYMENT.CODE'] = "IV.PA";
             $userData['salutation'] = $_SESSION['hpivsecData']['salutation'];
@@ -354,93 +346,6 @@ class heidelpay
         } else {
             return (utf8_encode(utf8_decode($string)) == $string);
         }
-    }
-
-    /**
-     * Basket details for Billsafe api
-     *
-     * @param $order order object
-     *
-     * @return mixed request parrameter
-     */
-    public function getBillsafeBasket($order)
-    {
-        global $xtPrice;
-        $order->cart();
-
-        $items = $order->products;
-        $i = 0;
-        if ($items) {
-            foreach ($items as $id => $item) {
-                $i++;
-                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-                $parameters[$prefix . '.POSITION'] = $i;
-                $parameters[$prefix . '.QUANTITY'] = ( int )$item['qty'];
-                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
-                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['price'] * 100);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['final_price'] * 100);
-                } else {
-                    $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($item['price'] * 100);
-                    $parameters[$prefix . '.AMOUNT_GROSS'] = round($item['price'] * 100);
-                }
-                $parameters[$prefix . '.TEXT'] = $item['name'];
-                $parameters[$prefix . '.ARTICLE_NUMBER'] = $item['id'];
-                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $item['tax']);
-                $parameters[$prefix . '.ARTICLE_TYPE'] = 'goods';
-            }
-        }
-        if ($order->info['shipping_cost'] > 0) {
-            $shipping_id = explode('_', $order->info['shipping_class']);
-            $shipping_id = $shipping_id[0];
-            $shipping_tax_rate = $this->get_shipping_tax_rate($shipping_id);
-            $i++;
-            $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-            $parameters[$prefix . '.POSITION'] = $i;
-            $parameters[$prefix . '.QUANTITY'] = '1';
-            $parameters[$prefix . '.UNIT'] = 'Stk.'; // Liter oder so
-            if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                $parameters[$prefix . '.AMOUNT_UNIT'] = round($order->info['shipping_cost'] * 100);
-                $parameters[$prefix . '.AMOUNT'] = round($order->info['shipping_cost'] * 100);
-            } else {
-                $parameters[$prefix . '.AMOUNT_UNIT_GROSS'] = round($order->info['shipping_cost']
-                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
-                $parameters[$prefix . '.AMOUNT_GROSS'] = round($order->info['shipping_cost']
-                        * 100) + round($order->info['shipping_cost'] * $item['tax']);
-            }
-            $parameters[$prefix . '.TEXT'] = $order->info['shipping_method'];
-            $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
-            $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', $shipping_tax_rate);
-            $parameters[$prefix . '.ARTICLE_TYPE'] = 'shipment';
-        }
-        $items = $order->totals;
-        if ($items) {
-            foreach ($items as $id => $item) {
-                if ($item['value'] >= 0) {
-                    continue;
-                }
-                $i++;
-                $prefix = 'CRITERION.POS_' . sprintf('%02d', $i);
-                $parameters[$prefix . '.POSITION'] = $i;
-                $parameters[$prefix . '.QUANTITY'] = 1;
-                $parameters[$prefix . '.UNIT'] = 'Stk.'; // Einheit
-                if ($_SESSION['customers_status']['customers_status_show_price_tax'] == '0') {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value'] * 100);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['value'] * 100);
-                } else {
-                    $parameters[$prefix . '.AMOUNT_UNIT'] = round($item['value']
-                            * 100) + round($item['value'] * $item['tax']);
-                    $parameters[$prefix . '.AMOUNT'] = round($item['value']
-                            * 100) + round($item['value'] * $item['tax']);
-                }
-                $parameters[$prefix . '.TEXT'] = $item['title'];
-                $parameters[$prefix . '.ARTICLE_NUMBER'] = '0';
-                $parameters[$prefix . '.PERCENT_VAT'] = sprintf('%1.2f', 0);
-                $parameters[$prefix . '.ARTICLE_TYPE'] = 'voucher';
-            }
-        }
-
-        return $parameters;
     }
 
     /**
@@ -806,16 +711,7 @@ class heidelpay
             $res['all']['PROCESSING.REASON.CODE'] == '00'
         ) {
             $src = $res['all']['PROCESSING.REDIRECT.URL'];
-            //capture billsafe case
-            if ($this->actualPaymethod == 'BS') {
-                $hpIframe = '<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;'
-                    . 'background: rgba(0,0,0,.5); z-index: 9998"></div>' . '<div style="position: absolute;'
-                    . 'top: 0; left: 0; z-index: 9999"><iframe src="' . $src . '" allowtransparency="true"' .
-                    ' frameborder="0" width="925" height="800" name="heidelpay_frame"></iframe></div>';
-                header('Location: ' . $src);
-                //exit
-                exit();
-            }
+
             $hpIframe .= '<form method="post" action="' . $src . '" id="heidelpay_form">';
             $hpIframe .= '<input type="hidden" name="TermUrl" value="'
                 . $res['all']['PROCESSING.REDIRECT.PARAMETER.TermUrl'] . '">';
