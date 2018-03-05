@@ -16,11 +16,11 @@ use Heidelpay\MessageCodeMapper\MessageCodeMapper;
 class heidelpayMessageCodeHelper
 {
     /**
-     * @var string
+     * @var string code fore the default locale
      */
-    public $defaultLanguage;
+    public $defaultLocale;
     /**
-     * @var array
+     * @var array contains the mapping between language code and the locale
      */
     public $languages;
 
@@ -34,7 +34,7 @@ class heidelpayMessageCodeHelper
             'de' => 'de_DE',
             'en' => 'en_US'
         ];
-        $this->defaultLanguage = $this->languages['de'];
+        $this->defaultLocale = $this->languages['de'];
     }
 
     /**
@@ -49,7 +49,7 @@ class heidelpayMessageCodeHelper
         if ($locale) {
             $mapper = new MessageCodeMapper($locale);
         } else {
-            $mapper = new MessageCodeMapper($this->defaultLanguage);
+            $mapper = new MessageCodeMapper($this->defaultLocale);
         }
 
         return $mapper->getMessage($errorCode);
@@ -70,7 +70,7 @@ class heidelpayMessageCodeHelper
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     public function getLanguages()
     {
@@ -90,7 +90,7 @@ class heidelpayMessageCodeHelper
      */
     public function getDefaultLanguage()
     {
-        return $this->defaultLanguage;
+        return $this->defaultLocale;
     }
 
     /**
@@ -98,6 +98,6 @@ class heidelpayMessageCodeHelper
      */
     public function setDefaultLanguage($defaultLanguage)
     {
-        $this->defaultLanguage = $defaultLanguage;
+        $this->defaultLocale = $defaultLanguage;
     }
 }

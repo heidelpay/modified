@@ -91,7 +91,7 @@ class hpdc extends heidelpayPaymentModules
             if (MODULE_PAYMENT_HPDC_MODULE_MODE == 'DIRECT') {
                 // Special DC Reuse
                 $lastDCard = $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_debitcard');
-                // if(!empty($lastDCard)){
+
                 $gender = $_SESSION['customer_gender'] == 'f' ? FEMALE : MALE;
                 $name = $_SESSION['customer_last_name'];
                 if (! empty($lastDCard)) {
