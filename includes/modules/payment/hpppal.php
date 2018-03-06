@@ -1,49 +1,18 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpppal
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+class hpppal extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
     
     // class constructor
-    public function hpppal()
+    public function __construct()
     {
-        global $order, $language;
+        global $language;
         
         $this->payCode = 'ppal';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPPPAL_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPPPAL_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPPPAL_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPPPAL_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPPPAL_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPPPAL_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPPPAL_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
-            
-            // OT FIX
-        if ($_GET['payment_error'] == 'hpot') {
-            global $smarty;
-            $error = $this->get_error();
-            $smarty->assign('error', htmlspecialchars($error['error']));
-        }
+
+        parent::__construct();
     }
 
     public function update_status()
@@ -76,26 +45,16 @@ class hpppal
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
         }
-        // $_SESSION['hpModuleMode'] = 'AFTER';
-        
-        if (MODULE_PAYMENT_HPPPAL_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPPPAL_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => ''
-                    )
-            );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPPPAL_DEBUGTEXT
-                    )
-            );
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
         }
         
         return array(
@@ -154,18 +113,6 @@ class hpppal
     public function admin_order($oID)
     {
         return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPPPAL_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
     }
 
     public function check()

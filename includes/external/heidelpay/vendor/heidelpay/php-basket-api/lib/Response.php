@@ -12,7 +12,7 @@ use Heidelpay\PhpBasketApi\Object\BasketItem;
  * Representation of the heidelpay Basket API Response
  *
  * @license Use of this software requires acceptance of the License Agreement. See LICENSE file.
- * @copyright Copyright © 2017-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2017-present heidelpay GmbH. All rights reserved.
  *
  * @link http://dev.heidelpay.com/php-basket-api
  *

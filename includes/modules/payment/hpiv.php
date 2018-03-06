@@ -1,10 +1,8 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpiv
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+class hpiv extends heidelpayPaymentModules
 {
     public $code;
     public $title;
@@ -13,35 +11,22 @@ class hpiv
     public $hp;
     public $payCode;
     public $tmpStatus;
-    
-    // class constructor
-    public function hpiv()
+
+    /**
+     * heidelpay invoice constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
+        global $language;
         
         $this->payCode = 'iv';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPIV_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPIV_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPIV_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPIV_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPIV_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPIV_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPIV_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
+        parent::__construct();
     }
 
     public function update_status()
     {
         global $order;
+
         
         if (($this->enabled == true) && (( int ) MODULE_PAYMENT_HPIV_ZONE > 0)) {
             $check_flag = false;
@@ -69,26 +54,16 @@ class hpiv
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
         }
-        // $_SESSION['hpModuleMode'] = 'AFTER';
-        
-        if (MODULE_PAYMENT_HPIV_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPIV_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => ''
-                    )
-            );
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPIV_DEBUGTEXT
-                    )
-            );
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
+            return false;
         }
         
         return array(
@@ -147,18 +122,6 @@ class hpiv
     public function admin_order($oID)
     {
         return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPIV_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
     }
 
     public function check()

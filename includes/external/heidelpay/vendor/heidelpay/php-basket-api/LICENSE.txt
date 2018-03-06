@@ -3,7 +3,7 @@ Lizenzvereinbarung Plug-in
 
 I. Präambel
 
-Diese Lizenzvereinbarung Plug-in (nachfolgend – „Vereinbarung“) bildet einen Vertrag zwischen dem Nutzer des Plug-ins und der Heidelberger Payment GmbH (nachfolgend „heidelpay“).
+Diese Lizenzvereinbarung Plug-in (nachfolgend – „Vereinbarung“) bildet einen Vertrag zwischen dem Nutzer des Plug-ins und der heidelpay GmbH (nachfolgend „heidelpay“).
 
 Das Plug-in von heidelpay ist ein Software-Programm, welches die Schnittstelle zum Payment-System von heidelpay mit einer Anwendung (zum Beispiel: Shopsystem, Warenwirtschaft, Debitorenmanagement etc.) verbindet. Das Plug-in dient dem Datenaustausch zwischen dem Payment-System von heidelpay und der Anwendung. Das Plug-in erweitert den Funktionsumfang der Anwendung hinsichtlich der mit heidelpay gesondert vertraglich vereinbarten Leistungen. 
 
@@ -32,7 +32,7 @@ IV. Lizenz
 	1. Diese Vereinbarung räumt nur solchen Nutzern Nutzungsrechte ein, die Unternehmer im Sinne des BGB sind. Eine Nutzung durch Verbraucher ist nicht gestattet. 
 	2. Die von heidelpay im Rahmen dieser Vereinbarung gewährte Lizenz, ist für den Nutzer unentgeltlich.
 	3. Unter der Voraussetzung der Einhaltung der Bestimmungen dieser Vereinbarung, erteilt heidelpay dem Nut-zer das zeitlich unbefristete, widerrufliche, räumlich auf Europa begrenzte Recht, das Plug-in zu verändern, unverändert oder in veränderter Form zu dem in der Präambel dargestellten Zweck für geschäftliche Zwecke zu nutzen, d.h. das Plug-in zu speichern, ablaufen zu lassen, zu vervielfältigen, zu verbreiten und öffentlich zugänglich zu machen.
-	4. Heidelpay kann neue Versionen/Updates des Plug-ins anbieten, die zum Beispiel Fehlerbehebungen und neue Funktionalitäten beinhalten können. Heidelpay empfiehlt daher die regelmässige Überprüfung der Ak-tualität des Plug-in, dies wird auf der Seite http://dev.heidelpay.de veröffentlicht. Auch diese neuen Versio-nen/Updates unterliegen den Bedingungen dieser Vereinbarung.
+	4. heidelpay kann neue Versionen/Updates des Plug-ins anbieten, die zum Beispiel Fehlerbehebungen und neue Funktionalitäten beinhalten können. heidelpay empfiehlt daher die regelmässige Überprüfung der Ak-tualität des Plug-in, dies wird auf der Seite http://dev.heidelpay.de veröffentlicht. Auch diese neuen Versio-nen/Updates unterliegen den Bedingungen dieser Vereinbarung.
 
 V. Beschränkungen
 
@@ -41,7 +41,7 @@ V. Beschränkungen
 		a. die im Source Code bzw. Object Code enthaltenen Hinweise auf diese Lizenz erhalten bleiben; und
 		b. alle Hinweise und Vermerke im Source Code bzw. Object Code, hinsichtlich des Urhebers des Plug-in un-verändert bleiben; und
 		c. ein deutlicher Hinweis erteilt wird, dass es sich um eine veränderte Version des Plug-in handelt, eine Do-kumentation darüber, welche Teile verändert wurden, mitgeliefert wird; und
-		d. Heidelpay für sämtliche aus der Veränderung resultierende Ansprüche freigestellt wird und zudem das veränderte Plug-in mit einer Klarstellung versehen wird, dass heidelpay für das Plug-in in der veränderten Form keine Haftung übernimmt; und
+		d. heidelpay für sämtliche aus der Veränderung resultierende Ansprüche freigestellt wird und zudem das veränderte Plug-in mit einer Klarstellung versehen wird, dass heidelpay für das Plug-in in der veränderten Form keine Haftung übernimmt; und
 		e. das veränderte Plug-in unter einer Lizenzvereinbarung zur Verfügung gestellt wird, die das Interesse von heidelpay entsprechend den Bedingungen dieser Vereinbarung schützt; und
 		f. die im Zusammenhang mit dem Plug-in angezeigten rechtlichen Hinweise nicht entfernt, verdeckt oder abgeändert werden.
 	3. Der Nutzer sichert zu, dass er bei der Nutzung des Plug-in von heidelpay die geltenden nationalen und inter-nationalen Gesetze einhält; 
@@ -60,7 +60,7 @@ Der Nutzer erklärt sich einverstanden, heidelpay, deren Tochtergesellschaften, 
 
 VIII. TECHNISCHER SUPPORT
 
-Heidelpay kann dem Nutzer, welcher das Plug-in in unverändertem Zustand nutzt, Support zur Verfügung stellen. Hierzu bedarf es einer gesonderten Vereinbarung zwischen dem Nutzer und heidelpay.
+heidelpay kann dem Nutzer, welcher das Plug-in in unverändertem Zustand nutzt, Support zur Verfügung stellen. Hierzu bedarf es einer gesonderten Vereinbarung zwischen dem Nutzer und heidelpay.
 
 IX.LAUFZEIT UND KÜNDIGUNG 
 

@@ -24,7 +24,7 @@ if (!empty($_SESSION['hpLastPost'])) {
 
     $base = HTTPS_SERVER.DIR_WS_CATALOG; ?>
 
-<html><head><title>Heidelpay Redirect</title></head>
+<html><head><title>heidelpay Redirect</title></head>
 <body onLoad="document.forms[0].submit()"><center>
 <br><br><br><br><br><br><br><br><br><br><br>
 <h2>Ihre Daten werden gepr&uuml;ft...</h2><br>

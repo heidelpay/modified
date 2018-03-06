@@ -3,7 +3,7 @@
  * Sepa direct debit payment method class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -17,20 +17,11 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 class hpdd extends heidelpayPaymentModules
 {
     /**
-     * heidelpay sepa direct debit constructor
+     * heidelpay direct debit constructor
      */
     public function __construct()
     {
         $this->payCode = 'dd';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPDD_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPDD_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPDD_SORT_ORDER;
-        $this->enabled = (MODULE_PAYMENT_HPDD_STATUS == 'True') ? true : false;
-        $this->info = MODULE_PAYMENT_HPDD_TEXT_INFO;
-        $this->tmpStatus = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPDD_NEWORDER_STATUS_ID;
-
         parent::__construct();
     }
 
@@ -115,18 +106,6 @@ class hpdd extends heidelpayPaymentModules
         $this->hp->addHistoryComment($insert_id, '', $this->order_status);
         $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPDD_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
     }
 
     public function check()

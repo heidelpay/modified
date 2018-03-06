@@ -6,7 +6,7 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayBasketHelper.php');
  * heidelpay payment class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -135,7 +135,7 @@ class heidelpay
         $redirectURL = $res['url'];
         $base = 'heidelpay_redirect.php?';
         $src = $base . "payment_error=hp" . strtolower($this->actualPaymethod) . '&error='
-            . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
+            . $res['all']['PROCESSING.RETURN.CODE'] . '&' . session_name() . '=' . session_id();
         if ($processingresult == "ACK" && strstr($redirectURL, "http")) {
             $src = $redirectURL;
         }
@@ -489,7 +489,7 @@ class heidelpay
             curl_setopt($curlInstance, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYPEER, 0);
             curl_setopt($curlInstance, CURLOPT_SSL_VERIFYHOST, 0);
-            curl_setopt($curlInstance, CURLOPT_USERAGENT, "Heidelpay Request");
+            curl_setopt($curlInstance, CURLOPT_USERAGENT, "heidelpay Request");
 
             $this->response = curl_exec($curlInstance);
             $this->error = curl_error($curlInstance);
@@ -741,8 +741,8 @@ class heidelpay
         $base = 'heidelpay_redirect.php?';
         $src = $base . 'payment_error=hp' . strtolower($this->actualPaymethod);
         if ($processingresult != "ACK") {
-            $src .= '&error=' . $res['all']['PROCESSING.RETURN'] . '&' . session_name() . '=' . session_id();
-            $comment = $res['all']['PROCESSING.RETURN'];
+            $src .= '&error=' . $res['all']['PROCESSING.RETURN.CODE'] . '&' . session_name() . '=' . session_id();
+            $comment = $res['all']['PROCESSING.RETURN.CODE'];
             $status = constant('MODULE_PAYMENT_HP' . strtoupper($this->actualPaymethod) . '_CANCELED_STATUS_ID');
             $this->addHistoryComment($insertId, $comment, $status);
             $this->setOrderStatus($insertId, $status);
@@ -1367,7 +1367,7 @@ class heidelpay
         }
         $sql = 'SELECT * FROM `configuration` WHERE `configuration_value` = "'
             . addslashes($TRANSACTION_CHANNEL) . '" AND `configuration_key` IN ("' . implode('","', $keys) . '") ';
-        // echo $sql;
+
         $res = xtc_db_query($sql);
         $res = xtc_db_fetch_array($res);
         return str_replace(array(

@@ -3,7 +3,7 @@
  * Giropay payment method class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -12,48 +12,17 @@
  * @category modified
  */
 require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
-class hpgp
+class hpgp extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
-
     /**
      * heidelpay Giropay constructor
      */
     public function __construct()
     {
-        global $order;
-        
         $this->payCode = 'gp';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPGP_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPGP_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPGP_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPGP_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPGP_TEXT_INFO;
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPGP_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPGP_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $this->hp->version;
-
-        if (is_object($order)) {
-            $this->update_status();
-        }
-            
-            // OT FIX
-        if ($_GET['payment_error'] == 'hpot') {
-            global $smarty;
-            $error = $this->get_error();
-            $smarty->assign('error', htmlspecialchars($error['error']));
-        }
+        parent::__construct();
     }
 
     public function update_status()
@@ -88,37 +57,19 @@ class hpgp
 
     public function selection()
     {
-        global $order;
+        // call parent selection
+        $content = parent::selection();
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpGPData']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 &&
-            $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPGP_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPGP_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPGP_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPGP_MAX_AMOUNT < $total) {
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
             return false;
         }
 
-        $content = array(
-            array(
-                'title' => '',
-                'field' => MODULE_PAYMENT_HPGP_DEBUGTEXT
-            )
-        );
-        
-        if (MODULE_PAYMENT_HPGP_TRANSACTION_MODE == 'LIVE' or
-            strpos(MODULE_PAYMENT_HPGP_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array();
-        }
-        
         return array(
                 'id' => $this->code,
                 'module' => $this->title,
@@ -174,18 +125,6 @@ class hpgp
     public function admin_order($oID)
     {
         return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPGP_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
     }
 
     public function check()
@@ -327,8 +266,6 @@ class hpgp
                 $prefix . 'SORT_ORDER',
                 $prefix . 'ALLOWED',
                 $prefix . 'ZONE'
-        )
-        // $prefix.'',
-;
+        );
     }
 }

@@ -1,11 +1,11 @@
 <?php
 defined('_VALID_XTC') or die('Direct Access to this location is not allowed.');
 
-define('MODULE_HPIV_CHECK_TEXT_DESCRIPTION', 'Prüfen Sie die Zahlungseingänge über Heidelpay Rechnung');
-define('MODULE_HPIV_CHECK_TEXT_TITLE', 'Heidelpay Rechnung Prüfung');
+define('MODULE_HPIV_CHECK_TEXT_DESCRIPTION', 'Prüfen Sie die Zahlungseingänge über heidelpay Rechnung');
+define('MODULE_HPIV_CHECK_TEXT_TITLE', 'heidelpay Rechnung Prüfung');
 define('MODULE_HPIV_CHECK_STATUS_DESC', 'Modulstatus');
 define('MODULE_HPIV_CHECK_STATUS_TITLE', 'Status');
-define('HPIV_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen Rechnungszahlungen mit Heidelpay abzugleichen!');
+define('HPIV_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen Rechnungszahlungen mit heidelpay abzugleichen!');
 define('HPIV_IMAGE_EXPORT_TYPE', '<b>Abgleich der Rechnungszahlungen:</b>');
 
 if (file_exists(DIR_WS_CLASSES.'class.heidelpay.php')) {

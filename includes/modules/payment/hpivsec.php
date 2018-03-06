@@ -3,7 +3,7 @@
  * Invoice secured b2c payment method class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -17,28 +17,13 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpivsec extends heidelpayPaymentModules
 {
-    public $payCode = 'ivsec';
-
-    // class constructor
+    /**
+     * heidelpay insured invoice constructor
+     */
     public function __construct()
     {
-        global $order;
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPIVSEC_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPIVSEC_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPIVSEC_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPIVSEC_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPIVSEC_TEXT_INFO;
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPIVSEC_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $this->hp->version;
-
-        if (is_object($order)) {
-            $this->update_status();
-        }
+        $this->payCode = 'ivsec';
+        parent::__construct();
     }
 
     /**
@@ -155,18 +140,6 @@ class hpivsec extends heidelpayPaymentModules
         $this->hp->addHistoryComment($insert_id, '', $this->order_status);
         $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPIVSEC_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
     }
 
     public function check()

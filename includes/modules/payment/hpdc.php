@@ -1,42 +1,18 @@
 <?php
-if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
-    include_once(DIR_WS_CLASSES . 'class.heidelpay.php');
-} else {
-    require_once(DIR_FS_CATALOG . DIR_WS_CLASSES . 'class.heidelpay.php');
-}
-class hpdc
+require_once(DIR_FS_CATALOG . 'includes/classes/class.heidelpay.php');
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
+
+class hpdc extends heidelpayPaymentModules
 {
-    public $code;
-    public $title;
-    public $description;
-    public $enabled;
-    public $hp;
-    public $payCode;
-    public $tmpStatus;
-    
-    // class constructor
-    public function hpdc()
+    /**
+     * heidelpay debit card constructor
+     */
+    public function __construct()
     {
-        global $order, $language;
+        global $language;
         
         $this->payCode = 'dc';
-        $this->code = 'hp' . $this->payCode;
-        $this->title = MODULE_PAYMENT_HPDC_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPDC_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPDC_SORT_ORDER;
-        $this->enabled = ((MODULE_PAYMENT_HPDC_STATUS == 'True') ? true : false);
-        $this->info = MODULE_PAYMENT_HPDC_TEXT_INFO;
-        // $this->form_action_url = 'checkout_success.php';
-        $this->tmpOrders = false;
-        $this->tmpStatus = MODULE_PAYMENT_HPDC_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPDC_NEWORDER_STATUS_ID;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $hp->version;
-        
-        if (is_object($order)) {
-            $this->update_status();
-        }
+        parent::__construct();
     }
 
     public function update_status()
@@ -70,20 +46,22 @@ class hpdc
     public function selection()
     {
         global $order;
+        $content = parent::selection();
+
+        // Move the debug text into the title field, since the iFrame only uses that one.
+        if(!empty($content)) {
+            $field = $content[0]['field'];
+            $content[0]['field'] = '';
+            $content[0]['title'] = $field;
+        }
+
         if (strpos($_SERVER['SCRIPT_FILENAME'], 'checkout_payment') !== false) {
             unset($_SESSION['hpLastData']);
             unset($_SESSION['hpUseUniqueId']);
         }
-        if ($_SESSION['customers_status']['customers_status_show_price_tax'] == 0 && $_SESSION['customers_status']['customers_status_add_tax_ot'] == 1) {
-            $total = $order->info['total'] + $order->info['tax'];
-        } else {
-            $total = $order->info['total'];
-        }
-        $total = $total * 100;
-        if (MODULE_PAYMENT_HPDC_MIN_AMOUNT > 0 && MODULE_PAYMENT_HPDC_MIN_AMOUNT > $total) {
-            return false;
-        }
-        if (MODULE_PAYMENT_HPDC_MAX_AMOUNT > 0 && MODULE_PAYMENT_HPDC_MAX_AMOUNT < $total) {
+
+        // estimate weather this payment method is available
+        if ($this->isAvailable() === false) {
             return false;
         }
         
@@ -110,11 +88,10 @@ class hpdc
         }
         
         if (MODULE_PAYMENT_HPDC_TRANSACTION_MODE == 'LIVE' || strpos(MODULE_PAYMENT_HPDC_TEST_ACCOUNT, $order->customer['email_address']) !== false) {
-            $content = array();
             if (MODULE_PAYMENT_HPDC_MODULE_MODE == 'DIRECT') {
                 // Special DC Reuse
                 $lastDCard = $this->hp->loadMEMO($_SESSION['customer_id'], 'heidelpay_last_debitcard');
-                // if(!empty($lastDCard)){
+
                 $gender = $_SESSION['customer_gender'] == 'f' ? FEMALE : MALE;
                 $name = $_SESSION['customer_last_name'];
                 if (! empty($lastDCard)) {
@@ -126,15 +103,7 @@ class hpdc
                         'title' => $title,
                         'field' => ''
                 );
-                // }
             }
-        } else {
-            $content = array(
-                    array(
-                            'title' => '',
-                            'field' => MODULE_PAYMENT_HPDC_DEBUGTEXT
-                    )
-            );
         }
         
         return array(
@@ -233,18 +202,6 @@ class hpdc
     public function admin_order($oID)
     {
         return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-        
-        $error = array(
-                'title' => MODULE_PAYMENT_HPDC_TEXT_ERROR,
-                'error' => stripslashes(urldecode($_GET['error']))
-        );
-        
-        return $error;
     }
 
     public function check()
@@ -403,8 +360,6 @@ class hpdc
                 $prefix . 'SORT_ORDER',
                 $prefix . 'ALLOWED',
                 $prefix . 'ZONE'
-        )
-        // $prefix.'',
-;
+        );
     }
 }

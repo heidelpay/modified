@@ -3,7 +3,7 @@
  * heidelpay response action
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
  * @link  https://dev.heidelpay.de/modified/
  *
@@ -35,8 +35,8 @@ if ($returnvalue) {
         $payType = 'ppal';
     } // PayPal special
     $payCode = strtoupper($payType);
-    if ($payCode == 'OT') {
-        $payCode = $hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']);
+    if ($payType == 'ot') {
+        $payType = strtolower($hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']));
     }
     $TID = str_replace(' ', '', $_POST['IDENTIFICATION_TRANSACTIONID']);
     $orderID = (int)preg_replace('/User.*Order(\d*)/', '$1', $TID);
@@ -109,7 +109,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=Cancelled by User" . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" .urlencode($_POST['PROCESSING_RETURN_CODE']). '&' . session_name() . '=' . session_id();
     } else {
         $status = constant('MODULE_PAYMENT_HP' . $payCode . '_CANCELED_STATUS_ID');
         $comment .= ' ' . $_POST['PROCESSING_RETURN'];
@@ -117,7 +117,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN']) . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN_CODE']) . '&' . session_name() . '=' . session_id();
     }
 } else {
     echo 'FAIL';
