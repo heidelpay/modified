@@ -16,7 +16,7 @@ use Heidelpay\PhpBasketApi\Object\AbstractObject;
  *
  * @link http://dev.heidelpay.com/php-basket-api
  *
- * @author Stephano Vogel <development@heidelpay.de>
+ * @author Stephano Vogel <development@heidelpay.com>
  *
  * @package heidelpay\php-basket-api\Interaction\Object
  */

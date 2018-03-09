@@ -32,7 +32,7 @@ IV. Lizenz
 	1. Diese Vereinbarung räumt nur solchen Nutzern Nutzungsrechte ein, die Unternehmer im Sinne des BGB sind. Eine Nutzung durch Verbraucher ist nicht gestattet. 
 	2. Die von heidelpay im Rahmen dieser Vereinbarung gewährte Lizenz, ist für den Nutzer unentgeltlich.
 	3. Unter der Voraussetzung der Einhaltung der Bestimmungen dieser Vereinbarung, erteilt heidelpay dem Nut-zer das zeitlich unbefristete, widerrufliche, räumlich auf Europa begrenzte Recht, das Plug-in zu verändern, unverändert oder in veränderter Form zu dem in der Präambel dargestellten Zweck für geschäftliche Zwecke zu nutzen, d.h. das Plug-in zu speichern, ablaufen zu lassen, zu vervielfältigen, zu verbreiten und öffentlich zugänglich zu machen.
-	4. heidelpay kann neue Versionen/Updates des Plug-ins anbieten, die zum Beispiel Fehlerbehebungen und neue Funktionalitäten beinhalten können. heidelpay empfiehlt daher die regelmässige Überprüfung der Ak-tualität des Plug-in, dies wird auf der Seite http://dev.heidelpay.de veröffentlicht. Auch diese neuen Versio-nen/Updates unterliegen den Bedingungen dieser Vereinbarung.
+	4. heidelpay kann neue Versionen/Updates des Plug-ins anbieten, die zum Beispiel Fehlerbehebungen und neue Funktionalitäten beinhalten können. heidelpay empfiehlt daher die regelmässige Überprüfung der Ak-tualität des Plug-in, dies wird auf der Seite http://dev.heidelpay.com veröffentlicht. Auch diese neuen Versio-nen/Updates unterliegen den Bedingungen dieser Vereinbarung.
 
 V. Beschränkungen
 
@@ -49,7 +49,7 @@ V. Beschränkungen
 
 VI. Datenschutz
 
-Es gelten die Datenschutzbestimmugen, abrufbar unter https://dev.heidelpay.de/datenschutzerklaerung/ .
+Es gelten die Datenschutzbestimmugen, abrufbar unter https://dev.heidelpay.com/datenschutzerklaerung/ .
 
 VII. FREISTELLUNG
 

@@ -5,13 +5,13 @@
   "authors": [
     {
       "name": "Jens Richter",
-      "email": "development@heidelpay.de",
+      "email": "development@heidelpay.com",
       "homepage": "http://dev.heidelpay.com",
       "role": "Developer"
     },
     {
       "name": "Stephano Vogel",
-      "email": "development@heidelpay.de",
+      "email": "development@heidelpay.com",
       "homepage": "http://dev.heidelpay.com",
       "role": "Developer"
     }
@@ -37,9 +37,9 @@
     }
   },
   "support": {
-    "email": "development@heidelpay.de"
+    "email": "development@heidelpay.com"
   },
-  "homepage": "https://dev.heidelpay.de",
+  "homepage": "https://dev.heidelpay.com",
   "minimum-stability": "dev",
   "type": "library",
   "keywords": [

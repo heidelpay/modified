@@ -10,7 +10,7 @@ namespace Heidelpay\Tests\PhpBasketApi;
  *
  * @link http://dev.heidelpay.com/php-basket-api/
  *
- * @author Jens Richter <development@heidelpay.de>
+ * @author Jens Richter <development@heidelpay.com>
  *
  * @package heidelpay\php-basket-api\test\bootstrap
  */
