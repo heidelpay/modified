@@ -1,12 +1,14 @@
 <?php
 
+require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayMessageCodeHelper.php');
+
 /**
  * Sepa direct debit payment method class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
- * @link  https://dev.heidelpay.de/modified/
+ * @link  https://dev.heidelpay.com/modified/
  *
  * @package  heidelpay
  * @subpackage modified
@@ -14,13 +16,14 @@
  */
 class heidelpayPaymentModules
 {
+    public $payCode;
     /** @var  $code string current payment code */
     public $code;
     public $title;
     public $description;
     public $enabled;
+    /** @var heidelpay $hp */
     public $hp;
-    public $payCode;
     public $tmpStatus;
     protected $tmpOrders = false;
     /** @var  $order */
@@ -36,11 +39,20 @@ class heidelpayPaymentModules
     public function __construct()
     {
         global $order;
+        $this->code = 'hp' . $this->payCode;
         $this->order = $order;
         $this->hp = new heidelpay();
         $this->hp->actualPaymethod = strtoupper($this->payCode);
         $this->version = $this->hp->version;
+
         $this->transactionMode = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TRANSACTION_MODE');
+        $this->title = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_TITLE');
+        $this->description = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_DESC');
+        $this->sort_order = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_SORT_ORDER');
+        $this->enabled = ((constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_STATUS') === 'True') ? true : false);
+        $this->info = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_TEXT_INFO');
+        $this->tmpStatus = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_NEWORDER_STATUS_ID');
+        $this->order_status = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_NEWORDER_STATUS_ID');
 
         if (is_object($order)) {
             $this->update_status();
@@ -104,78 +116,29 @@ class heidelpayPaymentModules
         return $this->canCustomerUseThisPaymentMethod();
     }
 
-    public function pre_confirmation_check()
-    {
-        global $order;
-    }
-
-    public function confirmation()
-    {
-        return false;
-    }
-
-    public function process_button()
-    {
-        global $order;
-        $this->hp->rememberOrderData($order);
-        return false;
-    }
-
-    public function payment_action()
-    {
-        return true;
-    }
-
-    public function before_process()
-    {
-        return false;
-    }
-
-    public function after_process()
-    {
-        global $order, $xtPrice, $insert_id;
-        return true;
-    }
-
-    public function admin_order($oID)
-    {
-        return false;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-    }
-
-    public function check()
-    {
-    }
-
     /**
-     * install default config settings to database
+     * Estimate if the oder amount is to high
      *
-     * @param array $configSettings configuration option
+     * @return bool true if amount to high
+     *
+     * @param null|mixed $order
+     * @param mixed $maxAmount
      */
-    public function defaultConfigSettings($configSettings = array())
+    public function isAmountToHigh()
     {
-        $groupId = 6;
-        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
-        foreach ($configSettings as $configKey => $configValue) {
-            $sql = $sqlBase . ' ';
-            foreach ($configValue as $key => $val) {
-                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
-            }
-            $sql .= '`sort_order` = "' . $configKey . '", ';
-            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
-            $sql .= '`date_added` = NOW() ';
-            xtc_db_query($sql);
+        // return false on an empty order object
+        if ($this->order === null) {
+            return true;
         }
-    }
 
-    public function remove()
-    {
-        xtc_db_query("delete from " . TABLE_CONFIGURATION
-            . " where configuration_key in ('" . implode("', '", $this->keys()) . "')");
+        $max = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_MAX_AMOUNT');
+
+        $totalAmount = $this->getOrderAmountSelection();
+
+        if ($max > 0 && $max < $totalAmount) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -196,31 +159,6 @@ class heidelpayPaymentModules
         }
 
         return $total * 100;
-    }
-
-    /**
-     * Estimate if the oder amount is to high
-     *
-     * @return bool true if amount to high
-     *
-     * @param null|mixed $order
-     * @param mixed      $maxAmount
-     */
-    public function isAmountToHigh()
-    {
-        // return false on an empty order object
-        if ($this->order === null) {
-            return true;
-        }
-
-        $max = constant('MODULE_PAYMENT_HP' . strtoupper($this->payCode) . '_MAX_AMOUNT');
-
-        $totalAmount = $this->getOrderAmountSelection();
-
-        if ($max > 0 && $max < $totalAmount) {
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -263,6 +201,94 @@ class heidelpayPaymentModules
         }
 
         return false;
+    }
+
+    public function pre_confirmation_check()
+    {
+        global $order;
+    }
+
+    public function confirmation()
+    {
+        return false;
+    }
+
+    public function process_button()
+    {
+        global $order;
+        $this->hp->rememberOrderData($order);
+        return false;
+    }
+
+    public function payment_action()
+    {
+        return true;
+    }
+
+    public function before_process()
+    {
+        return false;
+    }
+
+    public function after_process()
+    {
+        global $order, $xtPrice, $insert_id;
+        return true;
+    }
+
+    public function admin_order($oID)
+    {
+        return false;
+    }
+
+    /**
+     * Function get the error msg.
+     * The error is based on an error code that is matched to the corresponding message.
+     * The message then is assigned to the smarty template.
+     */
+    public function get_error()
+    {
+        $mapper = new heidelpayMessageCodeHelper();
+
+        $language = !empty($_SESSION['language_code'])?strtolower($_SESSION['language_code']):null;
+        $msg = $mapper->getMessage(htmlentities($_GET['error']), $language);
+
+        $error = array(
+            'title' => constant('MODULE_PAYMENT_HP'. strtoupper($this->payCode) .'_TEXT_TITLE'),
+            'error' => stripslashes($msg)
+        );
+        return $error;
+    }
+
+    public function check()
+    {
+    }
+
+    /**
+     * install default config settings to database
+     *
+     * @param array $configSettings configuration option
+     */
+    public function defaultConfigSettings($configSettings = array())
+    {
+        $groupId = 6;
+        $sqlBase = 'INSERT INTO `' . TABLE_CONFIGURATION . '` SET ';
+        foreach ($configSettings as $configKey => $configValue) {
+            $sql = $sqlBase . ' ';
+            foreach ($configValue as $key => $val) {
+                $sql .= '`' . addslashes($key) . '` = "' . $val . '", ';
+            }
+            $sql .= '`sort_order` = "' . $configKey . '", ';
+            $sql .= '`configuration_group_id` = "' . addslashes($groupId) . '", ';
+            $sql .= '`date_added` = NOW() ';
+            xtc_db_query($sql);
+        }
+    }
+
+    public function remove()
+    {
+        xtc_db_query("DELETE FROM " . TABLE_CONFIGURATION
+            . " WHERE configuration_key IN ('" . implode("', '", $this->keys()) . "')");
     }
 
     /**

@@ -3,9 +3,9 @@
  * Sepa direct debit secured b2c payment method class
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
- * @link  https://dev.heidelpay.de/modified/
+ * @link  https://dev.heidelpay.com/modified/
  *
  * @package  heidelpay
  * @subpackage modified
@@ -16,30 +16,13 @@ require_once(DIR_FS_EXTERNAL . 'heidelpay/classes/heidelpayPaymentModules.php');
 
 class hpddsec extends heidelpayPaymentModules
 {
-    public $payCode = 'ddsec';
-
     /**
-     * heidelpay sepa direct debit secured constructor
+     * heidelpay direct debit secured constructor
      */
     public function __construct()
     {
-        global $order;
-        $this->code = 'hp' . $this->payCode;
-        $this->order = $order;
-        $this->hp = new heidelpay();
-        $this->hp->actualPaymethod = strtoupper($this->payCode);
-        $this->version = $this->hp->version;
-        $this->title = MODULE_PAYMENT_HPDDSEC_TEXT_TITLE;
-        $this->description = MODULE_PAYMENT_HPDDSEC_TEXT_DESC;
-        $this->sort_order = MODULE_PAYMENT_HPDDSEC_SORT_ORDER;
-        $this->enabled = (MODULE_PAYMENT_HPDDSEC_STATUS == 'True') ? true : false;
-        $this->info = MODULE_PAYMENT_HPDDSEC_TEXT_INFO;
-        $this->tmpStatus = MODULE_PAYMENT_HPDDSEC_NEWORDER_STATUS_ID;
-        $this->order_status = MODULE_PAYMENT_HPDDSEC_NEWORDER_STATUS_ID;
-
-        if (is_object($order)) {
-            $this->update_status();
-        }
+        $this->payCode = 'ddsec';
+        parent::__construct();
     }
 
     /**
@@ -155,18 +138,6 @@ class hpddsec extends heidelpayPaymentModules
         $this->hp->addHistoryComment($insert_id, '', $this->order_status);
         $this->hp->handleDebit($order, $this->payCode, $insert_id);
         return true;
-    }
-
-    public function get_error()
-    {
-        global $_GET;
-
-        $error = array(
-            'title' => MODULE_PAYMENT_HPDDSEC_TEXT_ERROR,
-            'error' => stripslashes(urldecode($_GET['error']))
-        );
-
-        return $error;
     }
 
     public function check()

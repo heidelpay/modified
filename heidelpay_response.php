@@ -3,9 +3,9 @@
  * heidelpay response action
  *
  * @license Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
- * @copyright Copyright © 2016-present Heidelberger Payment GmbH. All rights reserved.
+ * @copyright Copyright © 2016-present heidelpay GmbH. All rights reserved.
  *
- * @link  https://dev.heidelpay.de/modified/
+ * @link  https://dev.heidelpay.com/modified/
  *
  * @package  heidelpay
  * @subpackage modified
@@ -35,8 +35,8 @@ if ($returnvalue) {
         $payType = 'ppal';
     } // PayPal special
     $payCode = strtoupper($payType);
-    if ($payCode == 'OT') {
-        $payCode = $hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']);
+    if ($payType == 'ot') {
+        $payType = strtolower($hp->getPayCodeByChannel($_POST['TRANSACTION_CHANNEL']));
     }
     $TID = str_replace(' ', '', $_POST['IDENTIFICATION_TRANSACTIONID']);
     $orderID = (int)preg_replace('/User.*Order(\d*)/', '$1', $TID);
@@ -88,29 +88,8 @@ if ($returnvalue) {
             // debit card registration
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard', $_POST['ACCOUNT_NUMBER']);
             $hp->saveMEMO($customerID, 'heidelpay_last_debitcard_reference', $_POST['IDENTIFICATION_UNIQUEID']);
-        } elseif ($_POST['PAYMENT_CODE'] == 'IV.PA' && $_POST['ACCOUNT_BRAND'] == 'BILLSAFE') {
-            $status = constant('MODULE_PAYMENT_HPBS_PENDING_STATUS_ID');
-            $repl = array(
-                '{AMOUNT}' => sprintf('%1.2f', $_POST['CRITERION_BILLSAFE_AMOUNT']),
-                '{CURRENCY}' => $_POST['CRITERION_BILLSAFE_CURRENCY'],
-                '{ACC_OWNER}' => $_POST['CRITERION_BILLSAFE_RECIPIENT'],
-                '{ACC_BANKNAME}' => $_POST['CRITERION_BILLSAFE_BANKNAME'],
-                '{ACC_NUMBER}' => $_POST['CRITERION_BILLSAFE_ACCOUNTNUMBER'],
-                '{ACC_BANKCODE}' => $_POST['CRITERION_BILLSAFE_BANKCODE'],
-                '{ACC_BIC}' => $_POST['CRITERION_BILLSAFE_BIC'],
-                '{ACC_IBAN}' => $_POST['CRITERION_BILLSAFE_IBAN'],
-                '{SHORTID}' => $_POST['CRITERION_BILLSAFE_REFERENCE'],
-                '{LEGALNOTE}' => $_POST['CRITERION_BILLSAFE_LEGALNOTE'],
-                '{NOTE}' => $_POST['CRITERION_BILLSAFE_NOTE'],
-            );
-            include_once(DIR_WS_LANGUAGES . 'german/modules/payment/hpbs.php');
-            $bsData = strtr(MODULE_PAYMENT_HPBS_SUCCESS_BILLSAFE, $repl);
-            $bsData .= ' ' . $_POST['CRITERION_BILLSAFE_LEGALNOTE'] . ' ';
-            $bsData .= preg_replace('/{DAYS}/', $_POST['CRITERION_BILLSAFE_PERIOD'],
-                MODULE_PAYMENT_HPBS_LEGALNOTE_BILLSAFE);
-            $comment = 'Payment Info: ' . (html_entity_decode($bsData) . '<br>');
-            $hp->addHistoryComment($orderID, $comment, $status);
         }
+
         if ($_POST['PROCESSING_STATUS_CODE'] == '90' && $_POST['AUTHENTICATION_TYPE'] == '3DSecure') {
             print $base . "heidelpay_3dsecure_return.php?order_id="
                 . rawurlencode($_POST['IDENTIFICATION_TRANSACTIONID']) . '&' . session_name() . '=' . session_id();
@@ -130,7 +109,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=Cancelled by User" . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" .urlencode($_POST['PROCESSING_RETURN_CODE']). '&' . session_name() . '=' . session_id();
     } else {
         $status = constant('MODULE_PAYMENT_HP' . $payCode . '_CANCELED_STATUS_ID');
         $comment .= ' ' . $_POST['PROCESSING_RETURN'];
@@ -138,7 +117,7 @@ if ($returnvalue) {
         $hp->setOrderStatus($orderID, $status);
         $hp->deleteCoupon($orderID);
         print $base . "heidelpay_redirect.php?payment_error=hp"
-            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN']) . '&' . session_name() . '=' . session_id();
+            . $payType . "&error=" . urlencode($_POST['PROCESSING_RETURN_CODE']) . '&' . session_name() . '=' . session_id();
     }
 } else {
     echo 'FAIL';

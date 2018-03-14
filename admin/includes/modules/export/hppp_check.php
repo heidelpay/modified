@@ -1,11 +1,11 @@
 <?php
 defined('_VALID_XTC') or die('Direct Access to this location is not allowed.');
 
-define('MODULE_HPPP_CHECK_TEXT_DESCRIPTION', 'PrÜfen Sie die Zahlungseingänge über Heidelpay Vorkasse');
-define('MODULE_HPPP_CHECK_TEXT_TITLE', 'Heidelpay Vorkasse Prüfung');
+define('MODULE_HPPP_CHECK_TEXT_DESCRIPTION', 'PrÜfen Sie die Zahlungseingänge über heidelpay Vorkasse');
+define('MODULE_HPPP_CHECK_TEXT_TITLE', 'heidelpay Vorkasse Prüfung');
 define('MODULE_HPPP_CHECK_STATUS_DESC', 'Modulstatus');
 define('MODULE_HPPP_CHECK_STATUS_TITLE', 'Status');
-define('HPPP_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen Vorkassezahlungen mit Heidelpay abzugleichen!');
+define('HPPP_IMAGE_EXPORT', 'Dr&uuml;cken Sie Ok um die offenen Vorkassezahlungen mit heidelpay abzugleichen!');
 define('HPPP_IMAGE_EXPORT_TYPE', '<b>Abgleich der Vorkassezahlungen:</b>');
 
 if (file_exists(DIR_WS_CLASSES . 'class.heidelpay.php')) {
