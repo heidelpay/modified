@@ -40,7 +40,7 @@ class heidelpay
     public $actualPaymethod = 'CC';
     public $url;
     /** @var string plugin version aka release date */
-    public $version = '17.10.9';
+    public $version = '18.3.14';
     public $importantPPFields = array(
         'PRESENTATION_AMOUNT',
         'PRESENTATION_CURRENCY',
