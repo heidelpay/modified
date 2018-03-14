@@ -1,0 +1,62 @@
+[
+    {
+        "name": "heidelpay/php-basket-api",
+        "version": "v1.0.1",
+        "version_normalized": "1.0.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/heidelpay/php-basket-api.git",
+            "reference": "51c32c776c45c375082c2fcb588945e2e749f7e8"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/heidelpay/php-basket-api/zipball/51c32c776c45c375082c2fcb588945e2e749f7e8",
+            "reference": "51c32c776c45c375082c2fcb588945e2e749f7e8",
+            "shasum": ""
+        },
+        "require": {
+            "lib-curl": ">=7.26.0",
+            "lib-openssl": ">=1.0.1.5",
+            "php": "~5.6.0|~7.0.0|~7.1.0"
+        },
+        "require-dev": {
+            "codacy/coverage": "~1.1.0",
+            "friendsofphp/php-cs-fixer": "^2.0",
+            "phpunit/phpunit": "~5"
+        },
+        "time": "2017-11-22T08:40:38+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Heidelpay\\PhpBasketApi\\": "lib"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Use of this software requires acceptance of the License Agreement. See LICENSE file."
+        ],
+        "authors": [
+            {
+                "name": "Jens Richter",
+                "email": "development@heidelpay.com",
+                "homepage": "http://dev.heidelpay.com",
+                "role": "Developer"
+            },
+            {
+                "name": "Stephano Vogel",
+                "email": "development@heidelpay.com",
+                "homepage": "http://dev.heidelpay.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "Client library for heidelpay basket api.",
+        "homepage": "https://dev.heidelpay.com",
+        "keywords": [
+            "api",
+            "basket-api",
+            "php",
+            "sdk"
+        ]
+    }
+]

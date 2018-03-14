@@ -1,7 +1,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/heidelpay/modified.svg?style=flat-square)](https://packagist.org/packages/heidelpay/modified)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/cd24de0c458a45dfb82c1ea0c4063812)](https://www.codacy.com/app/heidelpay/modified/dashboard)
 
-![Logo](https://dev.heidelpay.de/devHeidelpay_400_180.jpg)
+![Logo](https://dev.heidelpay.com/devHeidelpay_400_180.jpg)
 
 # Welcome to the heidelpay payment extension for modified eCommerce
 
@@ -41,4 +41,4 @@ You can find a copy of this license in [LICENSE.txt](LICENSE.txt).
  
 ## Installation instruction
 
-A manual can be fund on https://dev.heidelpay.de/modified/ (DE)
+A manual can be fund on https://dev.heidelpay.com/modified/ (DE)

@@ -2,19 +2,19 @@
 $prefix = 'MODULE_PAYMENT_HPCC_';
 
 define($prefix.'TEXT_TITLE', 'Creditcard');
-define($prefix.'TEXT_DESC', 'Creditcard over Heidelberger Payment GmbH');
+define($prefix.'TEXT_DESC', 'Creditcard over heidelpay GmbH');
 
 define($prefix.'SECURITY_SENDER_TITLE', 'Sender ID');
-define($prefix.'SECURITY_SENDER_DESC', 'Your Heidelpay Sender ID');
+define($prefix.'SECURITY_SENDER_DESC', 'Your heidelpay Sender ID');
 
 define($prefix.'USER_LOGIN_TITLE', 'User Login');
-define($prefix.'USER_LOGIN_DESC', 'Your Heidelpay User Login');
+define($prefix.'USER_LOGIN_DESC', 'Your heidelpay User Login');
 
 define($prefix.'USER_PWD_TITLE', 'User Password');
-define($prefix.'USER_PWD_DESC', 'Your Heidelpay User Password');
+define($prefix.'USER_PWD_DESC', 'Your heidelpay User Password');
 
 define($prefix.'TRANSACTION_CHANNEL_TITLE', 'Channel ID');
-define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your Heidelpay Channel ID');
+define($prefix.'TRANSACTION_CHANNEL_DESC', 'Your heidelpay Channel ID');
 
 define($prefix.'TRANSACTION_MODE_TITLE', 'Transaction Mode');
 define($prefix.'TRANSACTION_MODE_DESC', 'Please choose your transaction mode.');
@@ -65,7 +65,7 @@ define($prefix.'DEBUG_TITLE', 'Debug Mode');
 define($prefix.'DEBUG_DESC', 'Please activate only if heidelpay told this to you. Otherwise the checkout will not work in your shop correctly.');
 
 define($prefix.'TEXT_INFO', '');
-define($prefix.'DEBUGTEXT', 'The payment is temporary not available. Please use another one or try again later.');
+define($prefix.'DEBUGTEXT', 'Sandbox mode active. Please do not use real account information.');
 define($prefix.'REUSE_CARD', 'do you want to use the following creditcard again ?');
 define($prefix.'REUSE_CARD_NUMBER', 'CardNo: ');
 define($prefix.'REUSE_CARD_TEXT', 'Yes, I want to reuse the card again.');
