@@ -3,12 +3,12 @@
 ## v18.3.14
 
 ### Added
-- basket api for secured invoice and direct debit
+- basket for secured invoice and secured direct debit
 
 ### Changed
 - secured invoice is no longer available after user was denied by insurance provider 
 for the time of the actual session.
-- error message is replaced by an error code that is then translated by a message-code-mapper
+- error message is replaced by an error code that is then again translated to a text by a message-code-mapper
 - sofortueberweisung was renamed sofort
 - Heidelberger Payment GmbH was renamed heidelpay GmbH
 
