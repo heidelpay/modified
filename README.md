@@ -34,6 +34,26 @@ The extension requires PHP 5.6 or 7.0;
 
 You can find a copy of this license in [LICENSE.txt](LICENSE.txt).
 
+## Support
+
+For any issues or questions please get in touch with our support.
+
+#### Web page
+
+https://dev.heidelpay.com/
+ 
+#### Email
+
+support@heidelpay.com
+ 
+#### Phone
+
++49 (0)6221/6471-100
+
+#### Twitter
+
+@devHeidelpay
+
 
 ## Installation with composer
  Our plugin can be installed using composer. You can use the [composer.json.sample](composer.json.sample) 
